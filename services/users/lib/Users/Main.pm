@@ -45,7 +45,7 @@ sub register {
 }
 
 sub _salt {
-  return 'xxx';
+  return sha1_sum rand . $$;
 }
 
 sub _error {
