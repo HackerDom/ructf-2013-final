@@ -1,7 +1,7 @@
 package Users::Main;
 use Mojo::Base 'Mojolicious::Controller';
 
-sub welcome {
+sub index {
   my $self = shift;
   $self->render();
 }
