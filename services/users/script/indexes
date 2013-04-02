@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Mango;
+use Mango::BSON ':bson';
+
+my $db = Mango->new->db('users');
+$db->collection('user')->drop;
+$db->collection('user')->ensure_index({login => 1}, {unique => bson_true});
