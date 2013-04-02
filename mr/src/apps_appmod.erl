@@ -19,11 +19,11 @@ out(Arg) ->
         _ : {badmatch, {error, badauth}} ->
                 return_error(0, "Authentication failure");
         _ : {badmatch, {error, compile_error, Error}} ->
-                return_error(2, Error);
+                return_error(1, Error);
         _ : {badmatch, {error, beam_lib, {file_error, _, _}}} ->
-                return_error(3, "No such module");
+                return_error(2, "No such module");
         _ : {badmatch, {error, secfail}} ->
-                return_error(4, "Security check fail")
+                return_error(3, "Security check fail")
     end.
 
 out(["upload"], 'POST', User, {struct, [{"name", Name}, {"code", ErlangCode}]}) ->

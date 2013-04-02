@@ -30,8 +30,8 @@ match(I, [_ | T]) ->
     match(I, T).
 
 whitelist() ->
-    [{calendar, "_"}, 
-     {dict, "_"}, 
+    [{calendar, "_"},
+     {dict, "_"},
      {erlang, atom_to_list},
      {erlang, binary_to_list},
      {erlang, integer_to_list},

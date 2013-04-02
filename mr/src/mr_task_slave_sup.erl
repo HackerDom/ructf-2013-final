@@ -1,5 +1,4 @@
-
--module(mr_sup).
+-module(mr_task_slave_sup).
 
 -behaviour(supervisor).
 
@@ -24,8 +23,5 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-	{ok, { {one_for_one, 5, 10}, [
-				?CHILD(mr, worker),
-				?CHILD(mr_task_sup, supervisor)
-				]} }.
+	{ok, { {simple_one_for_one, 5, 10}, [ ?CHILD(mr_task_slave, worker) ]} }.
 
