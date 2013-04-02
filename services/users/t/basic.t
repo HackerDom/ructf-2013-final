@@ -32,17 +32,26 @@ $t->post_ok(
   ->json_is('/error/str' => 'login already used');
 
 $t->post_ok('/login' => {'X-Requested-With' => 'XMLHttpRequest'} => json =>
-    {login => 'avkhozov', password => '123',})->status_is(200)->json_is('/status' => 'FAIL')
+    {login => 'avkhozov', password => '123'})->status_is(200)->json_is('/status' => 'FAIL')
   ->json_is('/error/code' => 3)->json_is('/error/str' => 'invalid login or password');
 
 $t->post_ok('/login' => {'X-Requested-With' => 'XMLHttpRequest'} => json =>
-    {login => 'andgein', password => '123',})->status_is(200)->json_is('/status' => 'FAIL')
-  ->json_is('/error/code' => 3)->json_is('/error/str' => 'invalid login or password');
+    {login => 'andgein', password => '123'})->status_is(200)->json_is('/status' => 'FAIL')
+  ->json_is('/status' => 'FAIL')->json_is('/error/code' => 3)
+  ->json_is('/error/str' => 'invalid login or password');
 
 $t->post_ok('/login' => {'X-Requested-With' => 'XMLHttpRequest'} => json =>
-    {login => 'avkhozov', password => 'my_Secret',})->status_is(200)->json_is('/status' => 'OK');
+    {login => 'avkhozov', password => 'my_Secret'})->status_is(200)->json_is('/status' => 'OK');
 my ($cookie) = $t->ua->cookie_jar->all;
 is $cookie->name, 'session', 'cookie has session';
 like $cookie->value, qr/^[0-9a-f]{24}![0-9a-f]{40}$/, 'session looks good';
+
+$t->post_ok('/user' => {'X-Requested-With' => 'XMLHttpRequest'} => json => {session => 'string'})
+  ->status_is(200)->json_is('/error/code' => 5)
+  ->json_is('/error/str' => 'invalid sign, possible hack attempt');
+
+$t->post_ok(
+  '/user' => {'X-Requested-With' => 'XMLHttpRequest'} => json => {session => $cookie->value})
+  ->status_is(200)->json_is('/status' => 'OK');
 
 done_testing();

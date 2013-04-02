@@ -13,6 +13,7 @@ sub startup {
   $r->get('/')->to('main#index')->name('index');
   $r->post('/register')->to('main#register')->name('register');
   $r->post('/login')->to('main#login')->name('login');
+  $r->post('/user')->to('main#user')->name('user');
 
   $self->helper(
     mango => sub {

@@ -1,6 +1,6 @@
 package Users::Main;
 use Mojo::Base 'Mojolicious::Controller';
-use Mojo::Util qw/sha1_sum hmac_sha1_sum/;
+use Mojo::Util qw/sha1_sum hmac_sha1_sum secure_compare/;
 use Mango::BSON ':bson';
 
 sub index {
@@ -78,6 +78,30 @@ sub login {
         return $self->render_json($self->_error(3, 'invalid login or password'));
       }
     });
+}
+
+sub user {
+  my $self = shift;
+  $self->render_later;
+  my $db = $self->mango->db('users');
+  my $session;
+
+  if ($self->req->is_xhr) {
+    my $json = $self->req->json;
+    return $self->render_json($self->_error(0, 'invalid input')) unless $json;
+    my $pointer = Mojo::JSON::Pointer->new;
+    for my $field (qw/session/) {
+      return $self->render_json($self->_error(0, 'invalid input'))
+        unless $pointer->contains($json, "/$field");
+    }
+    $session = $json->{session};
+  }
+  my ($uid, $sign) = split '!', $session;
+  if ($sign && secure_compare($sign, hmac_sha1_sum $uid, $self->app->secret)) {
+    return $self->render_json({status => 'OK'});
+  } else {
+    return $self->render_json($self->_error(5, 'invalid sign, possible hack attempt'));
+  }
 }
 
 sub _salt {
