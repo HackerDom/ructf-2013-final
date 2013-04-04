@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+use strict;
+use JSON;
+
+print "Content-type: application/json\r\n\r\n";
+
+my $json = JSON->new->pretty(1);
+
+my $post = join '', <>;
+my $in = $json->decode($post);
+
+my $session = $in->{session};
+exit_error("Too short") if length($session)<3;
+
+print $json->encode( {
+        status      => "OK",
+        uid         => "012345678901234567890123",
+        first_name  => "Foo",
+        last_name   => $session,
+        "language"  => "ru",
+} );
+
+exit 0;
+
+#################################################################
+
+sub exit_error {
+    my $txt = shift;
+    print $json->encode( { status => "FAIL", error => { code => 99, str => $txt } } );
+    exit 0;
+}
+
