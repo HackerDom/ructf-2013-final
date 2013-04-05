@@ -98,7 +98,19 @@ sub user {
   }
   my ($uid, $sign) = split '!', $session;
   if ($sign && secure_compare($sign, hmac_sha1_sum $uid, $self->app->secret)) {
-    return $self->render_json({status => 'OK'});
+    $db->collection('user')->find_one(
+      {_id => bson_oid $uid},
+      sub {
+        my ($collection, $err, $user) = @_;
+        if ($err) {
+          $self->app->log->error("Error while find_one user: $err");
+          return $self->render_json($self->_error(-1, 'internal error'));
+        }
+        my $response = {status => 'OK'};
+        @{$response}{'uid', 'first_name', 'last_name', 'language'} =
+          @{$user}{'_id',   'first_name', 'last_name', 'language'};
+        return $self->render_json($response);
+      });
   } else {
     return $self->render_json($self->_error(5, 'invalid sign, possible hack attempt'));
   }
