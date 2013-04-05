@@ -1,4 +1,4 @@
--module(app_appmod).
+-module(mr_appmod).
 -export([out/1]).
 
 -include("/usr/lib/yaws/include/yaws_api.hrl").
