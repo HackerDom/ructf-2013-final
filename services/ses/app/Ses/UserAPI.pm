@@ -1,8 +1,8 @@
-package UserAPI;
+package Ses::UserAPI;
 
 use strict;
 require LWP::UserAgent;
-use SesConfig;
+use Ses::Config;
 use JSON -no_export;
 use Exporter;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
@@ -30,7 +30,7 @@ sub CallUserAPI {
     return undef, $r->status_line unless $r->is_success;
 
     my $json = JSON::from_json($r->decoded_content);
-    return undef, sprintf "%s { code: %d, str: '%s' }",
+    return undef, sprintf "Status: %s, error.code: %d, error.str: %s",
         $json->{status}, $json->{error}->{code}, $json->{error}->{str} 
         unless $json->{status} eq 'OK';
 
