@@ -32,8 +32,9 @@ out(["upload"], 'POST', User, {struct, [{"name", Name}, {"code", ErlangCode}]}) 
     ok = file:write_file(ModuleName ++ ".beam", Beam),
     return_ok();
 out(["exec"], 'POST', User, {struct, [{"name", Name}, {"data", {struct, Data}}]}) ->
-    ModuleName = make_module_name(User, Name),
+    ModuleName = list_to_atom(make_module_name(User, Name)),
     ok = code_tools:check_security(ModuleName),
+    {module, ModuleName} = code:load_file(ModuleName),
     {ok, Result} = mr:exec(ModuleName, Data),
     return_ok(Result);
 out(_Path, _Method, _User, _Json) ->
