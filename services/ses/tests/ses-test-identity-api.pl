@@ -10,7 +10,7 @@ my $CALLAPI = '../tools/call-ses-api.pl';
 my $HOST    = '127.0.0.1';
 my $PORT    = 8888;
 my $SESSION = 'qwer';
-my $RUNS    = 100;
+my $RUNS    = 50;
 my $OUTPUT  = 0;    # Print commands' stdout
 
 ######################### End of config #########################
@@ -44,31 +44,46 @@ sub callSesApi {
     }
 }
 
+my %ARGS = map { $_, 1 } @ARGV;
+my $tStart;
+my @A;
+
+print "Usage: ses-test-identity-api.pl [add] [list] [del]\n" if @ARGV==0;
+
 ## Step 1. Add some emails.
 
-my $tStart = time();
-for (1..$RUNS) {
-    my $email = genmail();
-    printf "%3d / %d ", $_, $RUNS;
-    callSesApi("identity/add", "email:$email");
+if ($ARGS{add}) {
+    my $ok = 0;
+    $tStart = time();
+    for (1..$RUNS) {
+        my $email = genmail();
+        printf "%3d / %d ", $_, $RUNS;
+        callSesApi("identity/add", "email:$email") and $ok++;
+    }
+    printf "# Done in %d sec (OK=$ok)\n", time()-$tStart;
 }
-printf "# Done in %d sec\n", time()-$tStart;
 
 ## Step 2. List all emails
 
-$tStart = time();
-print "       ";
-my $R = callSesApi("identity/list");
-my @A = @{$R->{result}};
-printf "# Got %d mails\n", 0+@A;
-printf "# Done in %d sec\n", time()-$tStart;
+if ($ARGS{list}) {
+    $tStart = time();
+    print "       ";
+    my $R = callSesApi("identity/list");
+    @A = @{$R->{result}};
+    printf "# Got %d mails\n", 0+@A;
+    printf "# Done in %d sec\n", time()-$tStart;
+}
 
 ## Step 3. Delete all emails
 
-$tStart = time();
-my $i = 1;
-for (@A) {
-    printf "%3d / %d ", $i++, 0+@A;
-    callSesApi("identity/del", "id:$_->{id}");
+if ($ARGS{del}) {
+    my $ok = 0;
+    $tStart = time();
+    my $i = 1;
+    for (@A) {
+        printf "%3d / %d ", $i++, 0+@A;
+        callSesApi("identity/del", "id:$_->{id}") and $ok++;
+    }
+    printf "# Done in %d sec (OK=$ok)\n", time()-$tStart;
 }
-printf "# Done in %d sec\n", time()-$tStart;
+
