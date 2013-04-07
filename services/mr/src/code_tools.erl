@@ -1,16 +1,30 @@
 -module(code_tools).
 -export([compile/2, check_security/1]).
 
+compile(ModuleName, ErlangCode) when is_binary(ErlangCode) ->
+    compile(ModuleName, binary_to_list(ErlangCode));
 compile(ModuleName, ErlangCode) ->
     ModuleHeader = "-module(" ++ ModuleName ++ ").",
-    ExportHeader = "-export([map/3, reduce/3])",
-    Tokens = lists:map(fun(S) -> {ok, Token, _} = erl_scan:string(S), Token end, [ModuleHeader, ExportHeader, ErlangCode]),
-    Forms  = lists:map(fun(T) -> {ok, Form} = erl_parse:parse_form(T), Form end, Tokens),
-    {ok, ModuleName, Beam} = compile:forms(Forms),
+    ExportHeader = "-export([map/3, reduce/3]).",
+    ModuleCode = string:join([ModuleHeader, ExportHeader, ErlangCode], "\n"),
+    {ok, Tokens, _} = erl_scan:string(ModuleCode),
+    FormTokens = split_forms(Tokens),
+    Forms  = lists:map(fun(T) -> {ok, Form} = erl_parse:parse_form(T), Form end, FormTokens),
+    {ok, _, Beam} = compile:forms(Forms),
     {ok, Beam}.
 
+split_forms(Tokens) ->
+    split_forms(Tokens, [], []). 
+split_forms([], [], Acc) ->
+    lists:reverse(Acc);
+split_forms([{dot, N} | Tokens], CurrentToken, Acc) ->
+    Token = lists:reverse([{dot, N} | CurrentToken]),
+    split_forms(Tokens, [], [Token | Acc]);
+split_forms([Token | Tokens], CurrentToken, Acc) ->
+    split_forms(Tokens, [Token | CurrentToken], Acc).
+
 check_security(ModuleName) ->
-    {ok, {ModuleName, [{imports, Imports}]}} = beam_lib:chunks(ModuleName, [import]),
+    {ok, {ModuleName, [{imports, Imports}]}} = beam_lib:chunks(ModuleName, [imports]),
     WhiteList = whitelist(),
     check_security(Imports, WhiteList).
 
