@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use Ses::UserAPI;
+use UserAPI;
 
 my $session = shift or die "Usage: call-user-api.pl session\n";
 my ($uid, $err) = CallUserAPI($session);

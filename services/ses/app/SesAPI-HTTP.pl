@@ -12,29 +12,36 @@ use Ses::Db;
 sub DEBUG { 1 }
 
 my %HANDLERS = (
-    '/identity/list'  => \&API_Identity_List,
-    '/identity/add'   => \&API_Identity_Add,
+    '/identity/list' => \&API_Identity_List,
+    '/identity/add'  => \&API_Identity_Add,
+    '/identity/del'  => \&API_Identity_Del,
     # ...
 );
 
 ############ End of Configuration #################
 
-my $d = HTTP::Daemon->new(LocalAddr => CFG_HTTP_LISTEN_ADDR, LocalPort => CFG_HTTP_LISTEN_PORT, Listen => 20) 
-    or die "SES API Web Server failed to start\n";
+my $d = HTTP::Daemon->new(
+        LocalAddr => CFG_HTTP_LISTEN_ADDR, 
+        LocalPort => CFG_HTTP_LISTEN_PORT, 
+        Listen => 20
+    ) or die "SES API Web Server failed to start: $!\n";
 
-printf "SES API Web Server started at %s:%d\n", $d->sockhost(), $d->sockport();
+printf "SES API Server started at %s:%d\n", $d->sockhost(), $d->sockport();
 
 while (my $c = $d->accept) {
     threads->create(\&process_one_req, $c)->detach();
 }
 
+exit 0;
+
+#############################################################################
+
 sub process_one_req {
     my $c = shift;
     my $r = $c->get_request;
-    my $handler = $HANDLERS{$r->url->path};
-
     printf "HTTP Request: %s %s\n", $r->method, $r->url->path if DEBUG;
 
+    my $handler = $HANDLERS{$r->url->path};
     if (ref($handler) eq "CODE") {
         Call_API($handler, $r, $c);
     } else {
@@ -45,12 +52,11 @@ sub process_one_req {
         $c->send_crlf;
         print $c "404 Not Found" if DEBUG;
     }
-
     $c->close;
-    undef($c);
+    undef $c;
 }
 
-############################################################################3
+#############################################################################
 
 sub Call_API {
     my ($handler, $r, $c) = @_;
@@ -84,7 +90,7 @@ sub Call_API {
     print  "  -> API function finished\n" if DEBUG;
 }
 
-############################################################################3
+#############################################################################
 
 sub result_ok {
     JSON::to_json({ status => "OK", result => shift });
@@ -95,7 +101,7 @@ sub result_err {
     JSON::to_json({ status => "FAIL", error => { code=>$code, str=>$str } });
 }
 
-###################################################################################
+#############################################################################
 
 sub Auth {
     my $r = shift;
@@ -104,7 +110,7 @@ sub Auth {
     return CallUserAPI($session);
 };
 
-############################################################################3
+#############################################################################
 
 sub API_Identity_List {
     my ($c,$r,$db,$user) = @_;
@@ -133,6 +139,34 @@ sub API_Identity_Add {
         return;
     }
     if ($db->addIdentity($user, $req->{email})) {
+        print $c result_ok;
+    }
+    else {
+        print $c result_err(4, "Failed");
+    }
+}
+
+sub API_Identity_Del {
+    my ($c,$r,$db,$user) = @_;
+    print "  ** API_Identity_Del\n" if DEBUG;
+    my $req;
+    eval {
+        $req = JSON::from_json($r->content);
+    };
+    if (!defined $req) {
+        print $c result_err(254, "Bad JSON");
+        return;
+    }
+    printf "     id: '%s'\n", $req->{id} if DEBUG;
+    if (!defined($req->{id})) {
+        print $c result_err(2, "Parameter 'id' not specified");
+        return;
+    }
+    if ($req->{id} !~ /^[0-9]+$/) {
+        print $c result_err(3, "Invalid 'id' value");
+        return;
+    }
+    if ($db->delIdentity($user, $req->{id})) {
         print $c result_ok;
     }
     else {

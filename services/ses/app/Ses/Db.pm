@@ -107,6 +107,7 @@ sub delIdentity {
     my ($self,$user,$id) = @_;
     my $rows = $self->{db}->do("DELETE FROM identities WHERE id=? AND user=?",undef,$id,$user->{id});
     printf "DELETE FROM identities(id='%s', user='%s'): %s\n", $id, $user->{id}, $rows>0 ? "Success" : "Failure" if DEBUG;
+    return $rows>0;
 }
 
 sub getAllIdentities {
