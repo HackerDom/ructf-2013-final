@@ -43,7 +43,7 @@ my @A;
 
 print "Usage: ses-test-credentials-api.pl [add] [list] [del]\n" if @ARGV==0;
 
-## Step 1. Add some emails.
+## Step 1. Add some credentials
 
 if ($ARGS{add}) {
     my $ok = 0;
@@ -55,7 +55,7 @@ if ($ARGS{add}) {
     printf "# Done in %d sec (OK=$ok)\n", time()-$tStart;
 }
 
-## Step 2. List all emails
+## Step 2. List all credentials
 
 if ($ARGS{list}) {
     $tStart = time();
@@ -66,7 +66,7 @@ if ($ARGS{list}) {
     printf "# Done in %d sec\n", time()-$tStart;
 }
 
-## Step 3. Delete all emails
+## Step 3. Delete all credentials
 
 if ($ARGS{del}) {
     my $ok = 0;
