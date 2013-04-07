@@ -26,8 +26,7 @@ my %HANDLERS = (
 ############ End of Configuration #################
 
 my $d = HTTP::Daemon->new(
-        LocalAddr => CFG_HTTP_LISTEN_ADDR, 
-        LocalPort => CFG_HTTP_LISTEN_PORT, 
+        LocalPort => CFG_HTTP_PORT,
         Listen => 20
     ) or die "SES API Web Server failed to start: $!\n";
 

@@ -136,6 +136,13 @@ sub delCredentials {
     return $rows>0;
 }
 
+sub authenticate {
+    my ($self,$login,$hash) = @_;
+    my $rows = $self->{db}->selectrow_arrayref("SELECT COUNT(*) FROM credentials WHERE login=? AND hash=?",undef,$login,$hash)->[0];
+    printf "SELECT COUNT(*) FROM credentials: $rows\n" if DEBUG;
+    return $rows;
+}
+
 sub getAllIdentities {
     my ($self,$user) = @_;
     my @result;
