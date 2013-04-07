@@ -26,7 +26,7 @@ my $CREATE_credentials=<<"SQL";
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
         user            INTEGER NOT NULL,
         login           VARCHAR(32) NOT NULL,
-        hash            VARCHAR(32) NOT NULL,
+        hash            VARCHAR(64) NOT NULL,
         CONSTRAINT fk_user FOREIGN KEY(user) REFERENCES users(id) ON DELETE CASCADE
     );
 SQL
@@ -107,6 +107,32 @@ sub delIdentity {
     my ($self,$user,$id) = @_;
     my $rows = $self->{db}->do("DELETE FROM identities WHERE id=? AND user=?",undef,$id,$user->{id});
     printf "DELETE FROM identities(id='%s', user='%s'): %s\n", $id, $user->{id}, $rows>0 ? "Success" : "Failure" if DEBUG;
+    return $rows>0;
+}
+
+sub getAllCredentials {
+    my ($self,$user) = @_;
+    my @result;
+    my $st = $self->{db}->prepare("SELECT id,login FROM credentials WHERE user=?");
+    $st->execute($user->{id}) or die $self->{db}->errstr;
+    while (my $row = $st->fetchrow_hashref()) {
+        push @result, $row;
+    }
+    return @result;
+}
+
+sub addCredentials {
+    my ($self,$user,$login,$hash) = @_;
+    my $rows = $self->{db}->do("INSERT INTO credentials(user,login,hash) VALUES(?,?,?)",undef,$user->{id},$login,$hash);
+    printf "INSERT INTO credentials(user='%s', login='%s', hash='%s'): %s\n",
+            $user->{id}, $login, $hash, $rows>0 ? "Success" : "Failure" if DEBUG;
+    return $rows>0;
+}
+
+sub delCredentials {
+    my ($self,$user,$id) = @_;
+    my $rows = $self->{db}->do("DELETE FROM credentials WHERE id=? AND user=?",undef,$id,$user->{id});
+    printf "DELETE FROM credentials(id='%s', user='%s'): %s\n", $id, $user->{id}, $rows>0 ? "Success" : "Failure" if DEBUG;
     return $rows>0;
 }
 

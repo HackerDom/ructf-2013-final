@@ -3,18 +3,23 @@
 use strict;
 use threads;
 use HTTP::Daemon;
+use Digest::SHA qw(sha1_hex);
 use Ses::Config;
 use Ses::UserAPI;
 use Ses::Db;
+use Ses::Utils;
 
 ################ Configuration ####################
 
 sub DEBUG { 1 }
 
 my %HANDLERS = (
-    '/identity/list' => \&API_Identity_List,
-    '/identity/add'  => \&API_Identity_Add,
-    '/identity/del'  => \&API_Identity_Del,
+    '/identity/list'    => \&API_Identity_List,
+    '/identity/add'     => \&API_Identity_Add,
+    '/identity/del'     => \&API_Identity_Del,
+    '/credentials/list' => \&API_Credentials_List,
+    '/credentials/add'  => \&API_Credentials_Add,
+    '/credentials/del'  => \&API_Credentials_Del,
     # ...
 );
 
@@ -27,6 +32,12 @@ my $d = HTTP::Daemon->new(
     ) or die "SES API Web Server failed to start: $!\n";
 
 printf "SES API Server started at %s:%d\n", $d->sockhost(), $d->sockport();
+
+$SIG{'INT'} = sub {
+    print "<Ctrl+C> pressed\n";
+    close $d;
+    exit 0;
+};
 
 while (my $c = $d->accept) {
     threads->create(\&process_one_req, $c)->detach();
@@ -173,4 +184,57 @@ sub API_Identity_Del {
         print $c result_err(4, "Failed");
     }
 }
+
+sub API_Credentials_List {
+    my ($c,$r,$db,$user) = @_;
+    print "  ** API_Credentials_List\n" if DEBUG;
+    print $c result_ok [$db->getAllCredentials($user)];
+}
+
+sub API_Credentials_Add {
+    my ($c,$r,$db,$user) = @_;
+    print "  ** API_Credentials_Add\n" if DEBUG;
+
+    my $login = randomStr(10);
+    my $pass  = randomStr(20);
+    my $hash  = sha1_hex($pass);
+
+    print "HASH: $hash ",length($hash)," bytes\n";
+
+    if ($db->addCredentials($user, $login, $hash)) {
+        print $c result_ok { login => $login, pass => $pass };
+    }
+    else {
+        print $c result_err(4, "Failed");
+    }
+}
+
+sub API_Credentials_Del {
+    my ($c,$r,$db,$user) = @_;
+    print "  ** API_Credentials_Del\n" if DEBUG;
+    my $req;
+    eval {
+        $req = JSON::from_json($r->content);
+    };
+    if (!defined $req) {
+        print $c result_err(254, "Bad JSON");
+        return;
+    }
+    printf "     id: '%s'\n", $req->{id} if DEBUG;
+    if (!defined($req->{id})) {
+        print $c result_err(2, "Parameter 'id' not specified");
+        return;
+    }
+    if ($req->{id} !~ /^[0-9]+$/) {
+        print $c result_err(3, "Invalid 'id' value");
+        return;
+    }
+    if ($db->delCredentials($user, $req->{id})) {
+        print $c result_ok;
+    }
+    else {
+        print $c result_err(4, "Failed");
+    }
+}
+
 

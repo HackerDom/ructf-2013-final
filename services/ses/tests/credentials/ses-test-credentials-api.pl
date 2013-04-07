@@ -6,21 +6,14 @@ $|=1;
 
 #########################     Config    #########################
 
-my $CALLAPI = '../tools/call-ses-api.pl';
+my $CALLAPI = '../../tools/call-ses-api.pl';
 my $HOST    = '127.0.0.1';
 my $PORT    = 8888;
 my $SESSION = 'qwer';
-my $RUNS    = 50;
+my $RUNS    = 10;
 my $OUTPUT  = 0;    # Print commands' stdout
 
 ######################### End of config #########################
-
-sub genmail {
-    my @C = ('a'..'z','0'..'9');
-    my $mail = join '', map { $C[int rand @C] } 1..12;
-    substr($mail,8,0) = '@';
-    return "$mail.com";
-}
 
 sub callSesApi {
     my ($action,$args) = @_;
@@ -48,7 +41,7 @@ my %ARGS = map { $_, 1 } @ARGV;
 my $tStart;
 my @A;
 
-print "Usage: ses-test-identity-api.pl [add] [list] [del]\n" if @ARGV==0;
+print "Usage: ses-test-credentials-api.pl [add] [list] [del]\n" if @ARGV==0;
 
 ## Step 1. Add some emails.
 
@@ -56,9 +49,8 @@ if ($ARGS{add}) {
     my $ok = 0;
     $tStart = time();
     for (1..$RUNS) {
-        my $email = genmail();
         printf "%3d / %d ", $_, $RUNS;
-        callSesApi("identity/add", "email:$email") and $ok++;
+        callSesApi("credentials/add") and $ok++;
     }
     printf "# Done in %d sec (OK=$ok)\n", time()-$tStart;
 }
@@ -68,7 +60,7 @@ if ($ARGS{add}) {
 if ($ARGS{list}) {
     $tStart = time();
     print "       ";
-    my $R = callSesApi("identity/list");
+    my $R = callSesApi("credentials/list");
     @A = @{$R->{result}};
     printf "# Got %d mails\n", 0+@A;
     printf "# Done in %d sec\n", time()-$tStart;
@@ -82,7 +74,7 @@ if ($ARGS{del}) {
     my $i = 1;
     for (@A) {
         printf "%3d / %d ", $i++, 0+@A;
-        callSesApi("identity/del", "id:$_->{id}") and $ok++;
+        callSesApi("credentials/del", "id:$_->{id}") and $ok++;
     }
     printf "# Done in %d sec (OK=$ok)\n", time()-$tStart;
 }
