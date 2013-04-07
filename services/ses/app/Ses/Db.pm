@@ -58,7 +58,7 @@ sub new {
     my $dbname = sprintf "%s/ses.sqlite", CFG_DB_DIR;
     my $create = !-f $dbname;
     my $self = {};
-    $self->{db} = DBI->connect("dbi:SQLite:dbname=$dbname","","");
+    $self->{db} = DBI->connect("dbi:SQLite:dbname=$dbname","","") or die "Fatal error: DBI->connect failed";
     bless $self, $class;
     $self->createTables() if $create;
     return $self;

@@ -12,7 +12,7 @@ $VERSION     = 1.00;
 
 sub CFG_USERAPI_ENDPOINT { 'http://127.0.0.1/cgi-bin/user' }
 sub CFG_API_TIMEOUT      { 2 }
-sub CFG_DB_DIR           { '/home/dima/git/ructf2013-final/services/ses/app/db' }
+sub CFG_DB_DIR           { '/home/ses/db' }
 sub CFG_HTTP_LISTEN_ADDR { '0.0.0.0' }
 sub CFG_HTTP_LISTEN_PORT { 8888 }
 
