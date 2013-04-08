@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="RemoteBuild">
+    <RbTool>"$(SolutionDir)Tools\rb.bat"</RbTool>
+    <RbBuildCmd>$(RbTool) build</RbBuildCmd>
+    <RbRebuildAllCmd>$(RbTool) rebuild</RbRebuildAllCmd>
+    <RbCleanCmd>$(RbTool) clean</RbCleanCmd>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakeBuildCommandLine>$(RbBuildCmd)</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>$(RbRebuildAllCmd)</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>$(RbCleanCmd)</NMakeCleanCommandLine>
+    <LocalDebuggerCommand>$(RbTool)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>run</LocalDebuggerCommandArguments>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakeBuildCommandLine>$(RbBuildCmd)</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>$(RbRebuildAllCmd)</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>$(RbCleanCmd)</NMakeCleanCommandLine>
+    <LocalDebuggerCommand>$(RbTool)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>run</LocalDebuggerCommandArguments>
+  </PropertyGroup>
+
+</Project>

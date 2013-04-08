@@ -1,0 +1,51 @@
+body {
+	font-family: Georgia, serif;
+}
+
+.content-wrapper label {
+	margin-bottom: 10px;
+	display: block;
+}
+
+.content-wrapper {
+	background: #7f0000;
+	margin: 20px;
+	padding: 20px;
+	min-width: 300px;
+	color: white;
+}
+
+.wrapper {
+	margin-left: auto;
+	margin-right: auto;
+	width: 70%;
+}
+
+.query-controls {
+	white-space: nowrap;
+}
+
+.query-controls * {
+	display: inline-block;
+}
+
+.query-controls input {
+	height: 20px;
+	width: 90%;
+}
+
+.query-controls .button {
+	height: 20px;
+	width: 80px;
+}
+
+.button {
+	text-align: center;
+	background: #300000;
+	padding: 5px;
+}
+
+.button:hover {
+	background: #600000;
+	cursor: pointer;
+}
