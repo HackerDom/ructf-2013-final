@@ -1,7 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title><%= title %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
   </head>
-  <body><%= content %></body>
+  <body>
+    <div id="wrap">
+      <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+          <div class="container">
+            <a class="brand" href="#">RuCTF</a>
+            <div class="nav-collapse collapse">
+              <ul class="nav">
+                <li><a href="#">dsaf</a></li>
+                <li><a href="#">wert</a></li>
+                <li><a href="#">wert</a></li>
+                <li><a href="#">wert</a></li>
+                <li><a href="#">wert</a></li>
+                <li><a href="#">wert</a></li>
+              </ul>
+              <div class="pull-right">
+                <%= content_for 'sign_up' %>
+                <%= content_for 'sign_in' %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <%= content %>
+      </div>
+    </div>
+    <div id="footer">
+      <div class="container">
+        <div class="pull-right">
+          <a href="http://ructf.org">RuCTF</a>
+          <a href="http://hackerdom.ru">HackerDom</a>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

@@ -1,0 +1,20 @@
+% layout 'default';
+% title 'Sign in';
+
+% content_for sign_up => begin
+  <a class="btn btn-success" href="<%= url_for('sign_up') %>">Sign Up</a>
+% end
+% content_for sign_in => begin
+  <a class="btn" href="<%= url_for('sign_in') %>">Sign In</a>
+% end
+
+<form method="POST" action="<%= url_for('login') %>">
+  <fieldset>
+    <label>Login</label>
+    <input type="text" name="login">
+    <label>Password<label>
+    <input type="password" name="password">
+    <label><label>
+    <button type="submit" class="btn">Submit</button>
+  </fieldset>
+</form>

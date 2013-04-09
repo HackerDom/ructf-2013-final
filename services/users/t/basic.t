@@ -44,7 +44,7 @@ $t->post_ok('/login' => {'X-Requested-With' => 'XMLHttpRequest'} => json =>
     {login => 'avkhozov', password => 'my_Secret'})->status_is(200)->json_is('/status' => 'OK');
 my ($cookie) = $t->ua->cookie_jar->all;
 is $cookie->name, 'session', 'cookie has session';
-like $cookie->value, qr/^[0-9a-f]{24}![0-9a-f]{40}$/, 'session looks good';
+like $cookie->value, qr/^[\w\=\+\/]+![0-9a-f]{40}$/, 'session looks good';
 
 $t->post_ok('/user' => {'X-Requested-With' => 'XMLHttpRequest'} => json => {session => 'string'})
   ->status_is(200)->json_is('/error/code' => 5)

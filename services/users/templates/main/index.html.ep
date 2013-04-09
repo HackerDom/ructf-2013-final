@@ -1,4 +1,19 @@
 % layout 'default';
 % title 'Index';
 
-<p>Index</p>
+% content_for sign_up => begin
+  % if ($self->stash('ok')) {
+    <span><%= $self->stash('fname') %> <%= $self->stash('lname') %>!</span>
+  % } else {
+    <a class="btn btn-success" href="<%= url_for('sign_up') %>">Sign Up</a>
+  % }
+% end
+% content_for sign_in => begin
+  % if ($self->stash('ok')) {
+    <a class="btn" href="<%= url_for('logout') %>">Log out</a>
+  % } else {
+    <a class="btn" href="<%= url_for('sign_in') %>">Sign In</a>
+  % }
+% end
+
+index

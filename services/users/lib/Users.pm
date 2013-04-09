@@ -15,6 +15,10 @@ sub startup {
   $r->post('/login')->to('main#login')->name('login');
   $r->post('/user')->to('main#user')->name('user');
 
+  $r->get('/login')->to('main#sign_in')->name('sign_in');
+  $r->get('/register')->to('main#sign_up')->name('sign_up');
+  $r->get('/logout')->to('main#logout')->name('logout');
+
   $self->helper(
     mango => sub {
       state $mango = Mango->new;
