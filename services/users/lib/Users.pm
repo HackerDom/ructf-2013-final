@@ -6,6 +6,7 @@ use Mango;
 sub startup {
   my $self = shift;
 
+  $self->plugin('Config', {file => 'user.config'});
   $self->secret(md5_sum rand . $$);
 
   # Routers

@@ -5,7 +5,7 @@ use Mango::BSON ':bson';
 
 sub index {
   my $self = shift;
-  my ($session, $sign) = split '!', $self->cookie('session');
+  my ($session, $sign) = split '!' => $self->cookie('session') // '';
   if ($sign && secure_compare($sign, hmac_sha1_sum $session, $self->app->secret)) {
     my $json = Mojo::JSON->new;
     my $user = $json->decode(b64_decode $session);
