@@ -3,9 +3,9 @@
 use strict;
 use warnings;
 
-use Mango;
-use Mango::BSON ':bson';
+use MongoDB;
+use boolean;
 
-my $db = Mango->new->db('users');
-$db->collection('user')->drop;
-$db->collection('user')->ensure_index({login => 1}, {unique => bson_true});
+my $db = MongoDB::MongoClient->new->get_database('users');
+$db->get_collection('user')->drop;
+$db->get_collection('user')->ensure_index({login => 1}, {unique => true});

@@ -1,7 +1,7 @@
 package Users;
 use Mojo::Base 'Mojolicious';
 use Mojo::Util 'md5_sum';
-use Mango;
+use MongoDB;
 
 sub startup {
   my $self = shift;
@@ -21,8 +21,8 @@ sub startup {
   $r->get('/logout')->to('main#logout')->name('logout');
 
   $self->helper(
-    mango => sub {
-      state $mango = Mango->new;
+    db => sub {
+      state $db = MongoDB::MongoClient->new;
     });
 }
 
