@@ -2,18 +2,23 @@
   Making commit...
 EXEC : error : open("Database.opensdf"): Permission denied
 EXEC : error : unable to index file Database.opensdf
-  [master db6594d] Build 23:14:46.76
-   1 file changed, 2 insertions(+), 1 deletion(-)
+  [master 803baf0] Build  1:46:58.34
+   1 file changed, 1 insertion(+)
   To git@dqteam.org:/var/git/Database.git
-     1d36630..db6594d  master -> master
+     48190fa..803baf0  master -> master
   Updating remote...
   From 127.0.0.1:/var/git/Database
    * branch            master     -> FETCH_HEAD
-  Updating 1d36630..db6594d
+  Updating 48190fa..803baf0
   Fast-forward
-   Database/Query.cpp |    3 ++-
-   1 files changed, 2 insertions(+), 1 deletions(-)
+   Database/Storage.cpp |    1 +
+   1 files changed, 1 insertions(+), 0 deletions(-)
+  g++ -m32 -std=c++0x -DNODEBUG -O2 -c Storage.cpp
   g++ -m32 -std=c++0x -DNODEBUG -O2 -c Query.cpp
+  g++ -m32 -std=c++0x -DNODEBUG -O2 -c Parser.cpp
   Compiling Database.
-  g++ -m32 -lmongoose -lcryptopp -o Database Source.o HttpServer.o Errors.o Database.o Storage.o Query.o Parser.o libjson/libjson.a
+  g++ -m32 -lmongoose -lcryptopp -lcurl -shared-libgcc -s -o Database Source.o HttpServer.o Errors.o Database.o Storage.o Query.o Parser.o libjson/libjson.a
+  g++ -m32 -std=c++0x -DNODEBUG -O2 -c Encode.cpp
+  Compiling Encode.
+  g++ -m32 -lcryptopp -lpthread -o encode Encode.o Database.o Storage.o libjson/libjson.a
 C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.MakeFile.Targets(38,5): error MSB3073: The command ""C:\Users\Krait\Dropbox\Visual Studio 2012\Projects\Database\Tools\rb.bat" build" exited with code -1.

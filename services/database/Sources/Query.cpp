@@ -2,23 +2,18 @@
 
 int SelectQuery::Execute(JSONNode *& result)
 {
-	cout << "SelectQuery::Execute started" << endl;
-	Database * db = Storage::FindDatabase(dbname, userID);
+	result = new JSONNode();
+	Database * db = Storage::FindDatabase(dbname);
 	if (db == NULL)
-	{
-		cout << "SelectQuery::Execute ended ERR_NO_DB" << endl;
 		return Errors::ERR_NO_DB;
-	}
+	cout << "God mode: " << (godMode ? "on" : "off") << endl;
+	if (!godMode && db->GetId() != userID)
+		return Errors::ERR_PERMISSION;
 	JSONNode * table = db->FindTable(tablename);
 	if (table == NULL)
-	{
-		cout << "SelectQuery::Execute ended ERR_NO_TABLE" << endl;
 		return Errors::ERR_NO_TABLE;
-	}
 	JSONNode tableColumns = table->find("columns")->as_array();
-	cout << tableColumns.write_formatted() << endl;
 	vector<string> columns;
-	cout << fields.size() << endl;
 	for (auto j = fields.begin(); j != fields.end(); ++j)
 	{
 		if ((*j) == "*")
@@ -33,14 +28,11 @@ int SelectQuery::Execute(JSONNode *& result)
 				if ((*j) == k->as_string())
 					found = true;
 			if (!found)
-			{
-				cout << "SelectQuery::Execute ended ERR_NO_COLUMN" << endl;
 				return Errors::ERR_NO_COLUMN;
-			}
 			columns.push_back(*j);
 		}
 	}
-	cout << "Proceeded to rows" << endl;
+
 	JSONNode rows(JSON_ARRAY);
 	rows.set_name("rows");
 	JSONNode tableRows = table->find("rows")->as_array();
@@ -51,21 +43,70 @@ int SelectQuery::Execute(JSONNode *& result)
 			node.push_back(JSONNode(*k, j->find(*k)->as_string()));
 		rows.push_back(node);	
 	}
-	cout << "Proceeded to responseColumns" << endl;
+
 	JSONNode responseColumns(JSON_ARRAY);
 	responseColumns.set_name("columns");
 	for (auto j = columns.begin(); j != columns.end(); ++j)
 		responseColumns.push_back(JSONNode("", *j));
 
-	result = new JSONNode();
 	result->push_back(responseColumns);
 	result->push_back(rows);
-	cout << "SelectQuery::Execute ended ERR_OK" << endl;
+	return Errors::ERR_OK;
+}
+
+int InsertQuery::Execute(JSONNode *& result)
+{
+	result = new JSONNode();
+	Database * db = Storage::FindDatabase(dbname, true);
+	if (db == NULL)
+		return Errors::ERR_NO_DB;
+	if (db->GetId() != userID)
+	{
+		Storage::ReleaseDatabase(dbname);
+		return Errors::ERR_PERMISSION;
+	}
+
+	cout << "Found database" << endl;
+
+	JSONNode * table = db->FindTable(tablename);
+	if (table == NULL)
+	{
+		Storage::ReleaseDatabase(dbname);
+		return Errors::ERR_NO_TABLE;
+	}
+
+	cout << "Found table" << endl;
+
+	cout << "Table has " << table->find("columns")->as_array().size() << " columns" << endl;
+	cout << "We got " << fields.size() << " values" << endl;
+
+	if (table->find("columns")->as_array().size() != fields.size())
+	{
+		Storage::ReleaseDatabase(dbname);
+		return Errors::ERR_SYNTAX;
+	}
+	JSONNode newRow;
+	JSONNode tableColumns = table->find("columns")->as_array();
+	auto k = tableColumns.begin();
+	for (auto j = fields.begin(); j != fields.end(); ++j, ++k)
+	{
+		JSONNode node(k->as_string(), *j);
+		newRow.push_back(node);
+	}
+
+	cout << "Formed new row" << endl;
+
+	table->find("rows")->push_back(newRow);
+	cout << table->write_formatted() << endl;
+	cout << db->FindTable(tablename)->write_formatted() << endl;
+
+	Storage::ReleaseDatabase(dbname);
 	return Errors::ERR_OK;
 }
 
 int CreateDatabaseQuery::Execute(JSONNode *& result)
 {
+	result = new JSONNode();
 	Database * db = Storage::CreateDatabase(dbname, userID);
 	if (db == NULL)
 		return Errors::ERR_PERMISSION;
@@ -74,26 +115,42 @@ int CreateDatabaseQuery::Execute(JSONNode *& result)
 
 int CreateTableQuery::Execute(JSONNode *& result)
 {
+	result = new JSONNode();
+	if (fields.size() == 0)
+		return Errors::ERR_SYNTAX;
 	unordered_set<string> columnsSet;
 	for (auto j = fields.begin(); j != fields.end(); ++j)
 		if (columnsSet.find(*j) != columnsSet.end())
 			return Errors::ERR_SYNTAX;
 		else
 			columnsSet.insert(*j);
-	Database * db = Storage::FindDatabase(dbname, userID);
+	Database * db = Storage::FindDatabase(dbname, true);
 	if (db == NULL)
 		return Errors::ERR_NO_DB;
+	if (db->GetId() != userID)
+	{
+		Storage::ReleaseDatabase(dbname);
+		return Errors::ERR_PERMISSION;
+	}
 	JSONNode * table = db->CreateTable(tablename, fields);
 	if (table == NULL)
+	{
+		Storage::ReleaseDatabase(dbname);
 		return Errors::ERR_PERMISSION;
+	}
+	Storage::ReleaseDatabase(dbname);
 	return Errors::ERR_OK;
 }
 
 int DropDatabaseQuery::Execute(JSONNode *& result)
 {
-	if (Storage::FindDatabase(dbname, userID) == NULL)
+	result = new JSONNode();
+	Database * db = Storage::FindDatabase(dbname);
+	if (db == NULL)
 		return Errors::ERR_NO_DB;
-	if (Storage::DropDatabase(dbname, userID))
+	if (db->GetId() != userID)
+		return Errors::ERR_PERMISSION;
+	if (Storage::DropDatabase(dbname))
 		return Errors::ERR_OK;
 	else
 		return Errors::ERR_PERMISSION;
@@ -101,15 +158,20 @@ int DropDatabaseQuery::Execute(JSONNode *& result)
 
 int DropTableQuery::Execute(JSONNode *& result)
 {
-	Database * db = Storage::FindDatabase(dbname, userID);
+	result = new JSONNode();
+	Database * db = Storage::FindDatabase(dbname, true);
+	int errcode = ERR_PERMISSION;
 	if (db == NULL)
-		return Errors::ERR_NO_DB;
-	if (db->FindTable(tablename) == NULL)
-		return Errors::ERR_NO_TABLE;
-	if (db->DropTable(tablename))
-		return Errors::ERR_OK;
-	else
-		return Errors::ERR_PERMISSION;
+		errcode = Errors::ERR_NO_DB;
+	else if (db->GetId() != userID)
+		errcode = Errors::ERR_PERMISSION;
+	else if (db->FindTable(tablename) == NULL)
+		errcode = Errors::ERR_NO_TABLE;
+	else if (db->DropTable(tablename))
+		errcode = Errors::ERR_OK;
+
+	Storage::ReleaseDatabase(dbname);
+	return errcode;
 }
 
 void Query::AddCharToField(char charToAdd)
@@ -132,11 +194,4 @@ void Query::AddCharToDbname(char charToAdd)
 void Query::AddCharToTablename(char charToAdd)
 {
 	tablename.push_back(charToAdd);
-}
-
-void Query::InitFields() //TODO:delete this shit
-{
-	dbname = "";
-	tablename = "";
-	fields = vector<string>();
 }

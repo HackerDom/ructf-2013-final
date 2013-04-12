@@ -1,7 +1,4 @@
-﻿#include <iostream>
-#include <string>
-#include <fstream>
-#include "libjson/libjson.h"
+﻿#include "libjson/libjson.h"
 #include "HttpServer.h"
 #include "Errors.h"
 #include "Parser.h"
@@ -10,25 +7,26 @@
 using namespace std;
 
 const string port = "16744";
+const string dbpath = "bases";
+const string authurl = "http://dqteam.org/public/auth/index.html";
 
 int main()
 {
-	//string plaintext = "Hey ho!", key = "qwerty";
-	//byte plaintext[100], ciphertext[100], key[Sosemanuk::DEFAULT_KEYLENGTH], iv[Sosemanuk::IV_LENGTH];
- //   Sosemanuk::Encryption enc(key, Sosemanuk::DEFAULT_KEYLENGTH, iv);
- //   enc.ProcessData(ciphertext, plaintext, 100);
- //   Sosemanuk::Decryption dec(key, Sosemanuk::DEFAULT_KEYLENGTH, iv);
- //   dec.ProcessData(plaintext, ciphertext, 100);
-	Storage::SetDbPath(".");
+	Storage::Initialize();
+	Storage::SetDbPath(dbpath);
 
-	ifstream syntaxFile("Syntax.txt");
-	Parser::Initialize(libjson::parse(string((std::istreambuf_iterator<char>(syntaxFile)),
-                 std::istreambuf_iterator<char>())));
-	syntaxFile.close();
+	Database *syntaxDb = Storage::FindDatabase("syntax");
+	cout << "fuck1:" <<endl;
+	cout << (int)syntaxDb << endl;
+	cout << "fuck:1" <<endl;
+	Parser::Initialize(*syntaxDb->GetJson());
 
 	cout << "Hello and welcome to the Database service." << endl;
 	HttpServer server;
+	cout << "fuck2" <<endl;
+	server.SetAuthUrl(authurl);
 	server.SetHandler([] (const string &msg, const string &id) {		
+		cout << "Have a request!" << endl;
 		JSONNode data = libjson::parse(msg);
 		Query *query = Parser::Parse(data.find("query")->as_string(), id);
 		if (query == NULL)
@@ -42,8 +40,13 @@ int main()
 		JSONNode n;
 		n.push_back(JSONNode("status", "OK"));
 		n.push_back(*result);
+		delete result;
 		return n.write_formatted();
 	});
+	cout << "fuck3" <<endl;
 	server.Listen(port);
+
+	Storage::Flush();
+
 	return 0;
 }
