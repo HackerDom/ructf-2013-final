@@ -1,5 +1,11 @@
 -module(code_tools).
--export([compile/2, check_security/1]).
+-export([parse_data/1, compile/2, check_security/1]).
+
+parse_data(Data) when is_binary(Data) ->
+    parse_data(binary_to_list(Data));
+parse_data(Data) when is_list(Data) ->
+    {ok, Tokens, _} = erl_scan:string(Data),
+    erl_parse:parse_term(Tokens).
 
 compile(ModuleName, ErlangCode) when is_binary(ErlangCode) ->
     compile(ModuleName, binary_to_list(ErlangCode));

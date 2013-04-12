@@ -1,93 +1,43 @@
 -module(mr_appmod).
 -export([out/1]).
 
--include("/usr/lib/yaws/include/yaws_api.hrl").
--record(user, {id, first_name, last_name, email}).
+-include("../deps/yaws/include/yaws_api.hrl").
 
 out(Arg) ->
     Uri = yaws_api:request_url(Arg),
     Uri_path = Uri#url.path,
     Path = string:tokens(Uri_path, "/"),
     Method = (Arg#arg.req)#http_request.method,
+    ContentType = yaws_api:get_header(Arg#arg.headers, 'Content-Type'),
+    Appmod = case ContentType of
+            "application/json" -> json_appmod;
+            _                  -> web_appmod
+    end,
     try
-        {ok, User} = check_auth(Arg),
-        {ok, Json} = json2:decode_string(binary_to_list(Arg#arg.clidata)),
-        out(Path, Method, User, Json)
+        {ok, User} = appmod:check_auth(Arg),
+        case ContentType of
+            "application/json" -> Appmod:out(Path, Method, User, Arg);
+            _                  -> Appmod:out(Path, Method, User, Arg)
+        end
     of
-        Response -> Response
+        Response -> Appmod:return_ok(Response)
     catch
         _ : {badmatch, {error, badauth}} ->
-                return_error(0, "Authentication failure");
+                Appmod:return_error(0, "Authentication failure");
         _ : {badmatch, {error, compile_error, Error}} ->
-                return_error(1, Error);
+                Appmod:return_error(1, Error);
         _ : {badmatch, {error, beam_lib, {file_error, _, _}}} ->
-                return_error(2, "No such module");
+                Appmod:return_error(2, "No such module");
         _ : {badmatch, {error, secfail}} ->
-                return_error(3, "Security check fail");
+                Appmod:return_error(3, "Security check fail");
         _ : nopage ->
-                return_error(4, "No such page: 404")
+                Appmod:return_error(4, "No such page: 404");
+        _ : noname ->
+                Appmod:return_error(5, "Bad program name");
+        _ : nocode ->
+                Appmod:return_error(6, "Code not present");
+        _ : nodata ->
+                Appmod:return_error(7, "Data not present");
+        _ : _ ->
+                Appmod:return_error(8, "Something go wrong :(")
     end.
-
-out(["upload"], 'POST', User, {struct, [{"name", Name}, {"code", ErlangCode}]}) ->
-    ModuleName = make_module_name(User, Name),
-    {ok, Beam} = code_tools:compile(ModuleName, ErlangCode),
-    ok = file:write_file(ModuleName ++ ".beam", Beam),
-    return_ok();
-out(["exec"], 'POST', User, {struct, [{"name", Name}, {"data", {struct, Data}}]}) ->
-    ModuleName = list_to_atom(make_module_name(User, Name)),
-    ok = code_tools:check_security(ModuleName),
-    {module, ModuleName} = code:load_file(ModuleName),
-    {ok, Result} = mr:exec(ModuleName, Data),
-    return_ok(Result);
-out(_Path, _Method, _User, _Json) ->
-    throw(nopage).
-
-check_auth(Arg) ->
-    try
-        Session = yaws_api:find_cookie_val("session", Arg),
-        Json = json2:encode({struct, [{"session", Session}]}),
-        {ok, "200", _, JsonResp} =  ibrowse:send_req("http://192.168.1.111/user",
-                                                     [{"X-Requested-With", "XMLHttpRequest"},
-                                                      {"Content-Type", "application/json"}], post, Json),
-        {ok, {struct, Resp}} = json2:decode_string(JsonResp),
-        "OK" = proplists:get_value("status", Resp),
-        {struct,[{"$oid",Uid}]} = proplists:get_value("uid", Resp), %% workaround
-        FirstName = proplists:get_value("first_name", Resp),
-        LastName = proplists:get_value("last_name", Resp),
-        Email = proplists:get_value("email", Resp),
-        {ok, #user{id = Uid, first_name = FirstName, last_name = LastName, email = Email}}
-    of
-        Ok -> Ok
-    catch 
-        _:_ -> {error, badauth}
-    end.
-
-return_error(Code, Msg) ->
-    Json = {struct, [
-                {"status", "FAIL"},
-                {"error", {struct, [
-                    {"code", Code},
-                    {"str", Msg}
-                ]}}
-            ]},
-    return_json(json2:encode(Json)).
-
-return_ok(Result) ->
-    Json = {struct, [ {"status", "OK"}, {"result", Result} ] },
-    return_json(json2:encode(Json)).
-return_ok() ->
-    Json = {struct, [ {"status", "OK"} ] },
-    return_json(json2:encode(Json)).
-
-return_json(Json) ->
-    {content,
-    "application/json",
-    Json}.
-
-make_module_name(User, Name) ->
-    hexstring(crypto:md5(User#user.id ++ Name)).
-
-hexstring(Binary) when is_binary(Binary) ->
-    lists:flatten(lists:map(
-        fun(X) -> io_lib:format("~2.16.0b", [X]) end, 
-        binary_to_list(Binary))).
