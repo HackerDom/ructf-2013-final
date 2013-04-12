@@ -2,12 +2,13 @@
 
 use strict;
 use threads;
-use HTTP::Daemon;
 use Digest::SHA qw(sha1_hex);
-use Ses::Config;
+use HTTP::Daemon;
+use Ses::Message;
 use Ses::UserAPI;
-use Ses::Db;
+use Ses::Config;
 use Ses::Utils;
+use Ses::Db;
 
 ################ Configuration ####################
 
@@ -20,6 +21,7 @@ my %HANDLERS = (
     '/credentials/list' => \&API_Credentials_List,
     '/credentials/add'  => \&API_Credentials_Add,
     '/credentials/del'  => \&API_Credentials_Del,
+    '/mail/send'        => \&API_Mail_Send,
     # ...
 );
 
@@ -236,4 +238,39 @@ sub API_Credentials_Del {
     }
 }
 
+sub API_Mail_Send {
+    my ($c,$r,$db,$user) = @_;
+    print "  ** API_Mail_Send\n" if DEBUG;
+
+    my $req;
+    eval {
+        $req = JSON::from_json($r->content);
+    };
+    if (!defined $req) {
+        print $c result_err(254, "Bad JSON");
+        return;
+    }
+    defined($req->{from}) or do { print $c result_err(2, "Parameter 'from' not specified"); return };
+    defined($req->{to})   or do { print $c result_err(2, "Parameter 'to'   not specified"); return };
+    defined($req->{data}) or do { print $c result_err(2, "Parameter 'data' not specified"); return };
+
+    if ($req->{from} !~ /^[a-z0-9A-Z_\.-]+\@[a-z0-9A-Z_\.-]+\.[a-z]+$/) {
+        print $c result_err(3, "Invalid 'from' value");
+        return;
+    }
+    if ($req->{to} !~ /^[a-z0-9A-Z_\.-]+\@[a-z0-9A-Z_\.-]+\.[a-z]+$/) {
+        print $c result_err(3, "Invalid 'to' value");
+        return;
+    }
+    if (!$db->findIdentity($user,$req->{from})) {
+        print $c result_err(4, "Forbidden: you cannot send emails from this identity/email");
+        return;
+    }
+    my $msg = new Ses::Message;
+    $msg->{from} = $req->{from};
+    $msg->{to} = $req->{to};
+    $msg->write($req->{data});
+
+    print $c result_ok { id => $msg->{id} };
+}
 

@@ -110,6 +110,14 @@ sub delIdentity {
     return $rows>0;
 }
 
+sub findIdentity {
+    my ($self,$user,$email) = @_;
+    my $rows = $self->{db}->selectrow_arrayref("SELECT COUNT(*) FROM identities WHERE user=? AND email=?",
+            undef,$user->{id},$email)->[0];
+    printf "SELECT COUNT(*) FROM identities: $rows\n" if DEBUG;
+    return $rows;
+}
+
 sub getAllCredentials {
     my ($self,$user) = @_;
     my @result;
