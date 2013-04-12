@@ -11,7 +11,7 @@ out(Arg) ->
     Method = (Arg#arg.req)#http_request.method,
     try
         {ok, User} = check_auth(Arg),
-        {ok, Json} = json2:decode(Arg#arg.clidata),
+        {ok, Json} = json2:decode_string(binary_to_list(Arg#arg.clidata)),
         out(Path, Method, User, Json)
     of
         Response -> Response
@@ -23,7 +23,9 @@ out(Arg) ->
         _ : {badmatch, {error, beam_lib, {file_error, _, _}}} ->
                 return_error(2, "No such module");
         _ : {badmatch, {error, secfail}} ->
-                return_error(3, "Security check fail")
+                return_error(3, "Security check fail");
+        _ : nopage ->
+                return_error(4, "No such page: 404")
     end.
 
 out(["upload"], 'POST', User, {struct, [{"name", Name}, {"code", ErlangCode}]}) ->
@@ -38,19 +40,22 @@ out(["exec"], 'POST', User, {struct, [{"name", Name}, {"data", {struct, Data}}]}
     {ok, Result} = mr:exec(ModuleName, Data),
     return_ok(Result);
 out(_Path, _Method, _User, _Json) ->
-    {status, 404}.
+    throw(nopage).
 
 check_auth(Arg) ->
     try
         Session = yaws_api:find_cookie_val("session", Arg),
         Json = json2:encode({struct, [{"session", Session}]}),
-        {ok, {_, _, Resp}} =  httpc:request(post, {"http://localhost/user", [], "application/json", Json}, [], []),
-        {struct, [{"status", "OK"},
-                  {"id", Id}, 
-                  {"first_name", FirstName},
-                  {"last_name", LastName},
-                  {"email", Email}]} = json2:decode(Resp),
-        {ok, #user{id = Id, first_name = FirstName, last_name = LastName, email = Email}}
+        {ok, "200", _, JsonResp} =  ibrowse:send_req("http://192.168.1.111/user",
+                                                     [{"X-Requested-With", "XMLHttpRequest"},
+                                                      {"Content-Type", "application/json"}], post, Json),
+        {ok, {struct, Resp}} = json2:decode_string(JsonResp),
+        "OK" = proplists:get_value("status", Resp),
+        {struct,[{"$oid",Uid}]} = proplists:get_value("uid", Resp), %% workaround
+        FirstName = proplists:get_value("first_name", Resp),
+        LastName = proplists:get_value("last_name", Resp),
+        Email = proplists:get_value("email", Resp),
+        {ok, #user{id = Uid, first_name = FirstName, last_name = LastName, email = Email}}
     of
         Ok -> Ok
     catch 
@@ -80,7 +85,7 @@ return_json(Json) ->
     Json}.
 
 make_module_name(User, Name) ->
-    hexstring(crypto:md5(User#user.email ++ Name)).
+    hexstring(crypto:md5(User#user.id ++ Name)).
 
 hexstring(Binary) when is_binary(Binary) ->
     lists:flatten(lists:map(
