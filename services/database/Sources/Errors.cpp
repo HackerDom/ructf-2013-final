@@ -7,7 +7,8 @@ string errorStrings[ERROR_COUNT] = {
 	MakeError(ERR_PERMISSION, "Permission denied"),
 	MakeError(ERR_NO_DB, "Database does not exist"),
 	MakeError(ERR_NO_TABLE, "Table does not exist"),
-	MakeError(ERR_NO_COLUMN, "Column does not exist")
+	MakeError(ERR_NO_COLUMN, "Column does not exist"),
+	MakeError(ERR_CORRUPTED, "File is corrupted")
 };
 string MakeError(int code, const string &msg)
 {

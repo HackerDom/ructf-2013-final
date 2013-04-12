@@ -1,5 +1,5 @@
-#include <vector>
-#include <fstream>
+#include <ctime>
+#include <utility>
 #include "Database.h"
 
 JSONNode *Database::CreateTable(const string &name, const vector<string> &columnNames)
@@ -18,6 +18,8 @@ JSONNode *Database::CreateTable(const string &name, const vector<string> &column
 	table.push_back(rows);
 	auto tables = data.find("tables");
 	tables->push_back(table);
+	cout << tables->write_formatted() << endl;
+	cout << data.write_formatted() << endl;
 	auto t = tables->find(name);
 	return t == tables->end() ? NULL : &*t;
 }
@@ -38,7 +40,17 @@ bool Database::DropTable(const string &name)
 	tables->erase(t);
 }
 
-void Database::Save(ostream &out)
+Database::Database(const string &id, const JSONNode &json) : uid(id), data(json)
 {
-	out << data.write_formatted();
+	srand(time(0) ^ hash<string>()(id));
+}
+
+string Database::GetId()
+{
+	return uid;
+}
+
+JSONNode *Database::GetJson()
+{
+	return &data;
 }

@@ -4,7 +4,7 @@
 
 using namespace std;
 
-#define ERROR_COUNT 6
+#define ERROR_COUNT 7
 
 enum Errors
 {
@@ -13,7 +13,8 @@ enum Errors
 	ERR_PERMISSION = 2,
 	ERR_NO_DB = 3,
 	ERR_NO_TABLE = 4,
-	ERR_NO_COLUMN = 5
+	ERR_NO_COLUMN = 5,
+	ERR_CORRUPTED = 6
 };
 
 string MakeError(int code, const string &msg);

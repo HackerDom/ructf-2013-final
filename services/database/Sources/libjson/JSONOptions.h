@@ -35,7 +35,7 @@
  *  JSON_ISO_STRICT turns off all code that uses non-standard C++.  This removes all
  *  references to long long and long double as well as a few others
  */
-//#define JSON_ISO_STRICT
+#define JSON_ISO_STRICT
 
 
 /*
@@ -283,7 +283,7 @@
  *  JSON_INT_TYPE lets you change the int type for as_int.  If you ommit this option, the default
  *  long will be used
  */
-//#define JSON_INT_TYPE long
+#define JSON_INT_TYPE int
 
 
 /*

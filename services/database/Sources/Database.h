@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Utils.h"
+#include <string>
+#include <vector>
 #include "libjson/libjson.h"
 
 using namespace std;
@@ -8,11 +9,13 @@ using namespace std;
 class Database
 {
 public:
-	Database(const JSONNode& node) : data(node) {}
+	Database(const string &id, const JSONNode &json);
 	JSONNode *CreateTable(const string &name, const vector<string> &columns);
 	JSONNode *FindTable(const string &name);
 	bool DropTable(const string &name);
-	void Save(ostream &out);
+	string GetId();
+	JSONNode *GetJson();
 private:
 	JSONNode data;
+	string uid;
 };
