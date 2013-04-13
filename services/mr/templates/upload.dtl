@@ -1,0 +1,24 @@
+{% extends "index.dtl" %}
+{% block title %} Upload {% endblock %}
+
+{% block links %}
+<a class="btn" href="/exec">Execute</a>
+<a class="btn" href="/examples">Examples</a>
+{% endblock %}
+
+{% block content %}
+{% if method == 'get' %}
+<form method="POST" action="/upload">
+    <fieldset>
+        <label>Program name</label>
+        <input type="text" name="name">
+        <label>Erlang Code</label>
+        <input type="text" name="code">
+        <label><label>
+        <button type="submit" class="btn">Upload</button>
+    </fieldset>
+</form>
+{% else %}
+{{content}}
+{% endif %}
+{% endblock %}
