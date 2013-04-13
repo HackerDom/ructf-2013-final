@@ -3,6 +3,7 @@
 
 {% block links %}
 <a class="btn" href="/upload">Upload</a>
+<a class="btn" href="/examples">Examples</a>
 {% endblock %}
 
 {% block content %}
@@ -18,6 +19,10 @@
     </fieldset>
 </form>
 {% else %}
-{{content}}
+<pre class="prettyprint linenums">
+{% for e in content %}
+    {{e}}
+{% endfor %}
+</pre>
 {% endif %}
 {% endblock %}

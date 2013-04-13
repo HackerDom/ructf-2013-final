@@ -25,6 +25,7 @@
                 {% block links %}
                 <a class="btn" href="/upload">Upload</a>
                 <a class="btn" href="/exec">Execute</a>
+                <a class="btn" href="/examples">Examples</a>
                 {% endblock %}
               </div>
             </div>
