@@ -29,10 +29,10 @@ sub read {
     my $self = shift;
     $self->lock();
     open F, $self->{fnameMsg} or die "Error: Message.read() failed for '%s': $!\n", $self->{fnameMsg};
-    sysread F, my $data, -s F;
+    my @data = <F>;
     close F;
     $self->unlock();
-    return $data;
+    return @data;
 }
 
 sub writeRaw {
@@ -82,6 +82,13 @@ sub unlock {
     rmdir $self->{dirLock} and return 1;
     warn sprintf "Error: Message.unlock() failed for '%s'\n", $self->{fnameMsg};
     return undef;
+}
+
+sub remove {
+    my ($self,$data) = @_;
+    $self->lock();
+    unlink $self->{fnameMsg};
+    $self->unlock();
 }
 
 1;
