@@ -28,7 +28,7 @@ out(Arg) ->
                 Appmod:return_error(1, Error);
         _ : {badmatch, {error, beam_lib, {file_error, _, _}}} ->
                 Appmod:return_error(2, "No such module");
-        _ : {badmatch, {error, secfail}} ->
+        _ : secfail ->
                 Appmod:return_error(3, "Security check fail");
         _ : nopage ->
                 Appmod:return_error(4, "No such page: 404");

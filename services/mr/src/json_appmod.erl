@@ -9,7 +9,7 @@ out(Path, Method, User, Arg = #arg{})  ->
 out(["upload"], 'POST', User, {struct, [{"name", Name}, {"code", ErlangCode}]}) ->
     ok = appmod:upload(User, Name, ErlangCode),
     ok;
-out(["exec"], 'POST', User, {struct, [{"name", Name}, {"data", {struct, Data}}]}) ->
+out(["exec"], 'POST', User, {struct, [{"name", Name}, {"data", Data}]}) ->
     {ok, Result} = appmod:exec(User, Name, Data),
     {ok, Result};
 out(_Path, _Method, _User, _Json) ->
