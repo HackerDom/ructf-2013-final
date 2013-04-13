@@ -13,7 +13,6 @@ compile(ModuleName, ErlangCode) ->
     ModuleHeader = "-module(" ++ ModuleName ++ ").",
     ExportHeader = "-export([map/3, reduce/3]).",
     ModuleCode = string:join([ModuleHeader, ExportHeader, ErlangCode], "\n"),
-    erlang:display({prepare, ModuleCode}),
     {ok, Tokens, _} = erl_scan:string(ModuleCode),
     FormTokens = split_forms(Tokens),
     Forms  = lists:map(fun(T) -> {ok, Form} = erl_parse:parse_form(T), Form end, FormTokens),

@@ -3,6 +3,3 @@ deps
 log
 *.swp
 *.dump
-log/*.access
-log/*.log
-log/*.auth
