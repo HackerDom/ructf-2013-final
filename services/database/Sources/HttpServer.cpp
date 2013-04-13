@@ -64,8 +64,8 @@ int HttpServer::ConnectionHandler(mg_connection *conn)
 	}
 	string content(contentLength, 0);
 	mg_read(conn, (void *)content.c_str(), contentLength);
-	cout << content << endl;
-	char cookie[64];
+	//cout << content << endl;
+	char cookie[1024];
 	if (mg_get_cookie(conn, "session", cookie, sizeof(cookie)) < 0)
 	{
 		SendJson(conn, errorStrings[ERR_PERMISSION]);
@@ -91,6 +91,7 @@ void HttpServer::SendJson(mg_connection *conn, const string &json)
 size_t GetCurlResponse(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	((string *)userdata)->append(ptr, ptr + size * nmemb);
+	return size * nmemb;
 }
 
 void HttpServer::SetAuthUrl(const string &url)
@@ -115,6 +116,7 @@ string HttpServer::GetId(const string &cookie)
 	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "data", CURLFORM_COPYCONTENTS, n.write().c_str(), CURLFORM_END);
 	
 	headerlist = curl_slist_append(headerlist, "Expect:");
+	headerlist = curl_slist_append(headerlist, "X-Requested-With: XMLHttpRequest");
 	headerlist = curl_slist_append(headerlist, "Content-Type: application/json");
 	curl = curl_easy_init();
 
@@ -141,7 +143,7 @@ string HttpServer::GetId(const string &cookie)
 		//curl_formfree(formpost);
 		curl_slist_free_all (headerlist);
 
-		cout << response;
+		//cout << response;
 
 		if (!libjson::is_valid(response))
 			return "";

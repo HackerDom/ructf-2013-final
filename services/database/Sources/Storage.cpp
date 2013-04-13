@@ -26,10 +26,20 @@ void Storage::SafeAddDb(const string &name, Database *db)
 	bases[name] = new DbInfo(db, ++step);
 	if (bases.size() < MAX_BASES)
 		return;
-	unordered_map<string, DbInfo *>::iterator victim = bases.begin();
+	unordered_map<string, DbInfo *>::iterator victim = bases.end();
 	for (auto i = bases.begin(); i != bases.end(); i++)
-		if (i->second->lastAccess < victim->second->lastAccess)
+	{
+		if (pthread_mutex_trylock(&i->second->mutex) != 0)
+			continue;
+		pthread_mutex_unlock(&i->second->mutex);
+		if (victim == bases.end() || i->second->lastAccess < victim->second->lastAccess)
 			victim = i;
+	}
+	if (victim == bases.end())
+	{
+		cout << "Nothing to garbage, everyting is in use" << endl;
+		return;
+	}
 	cout << "Garbaging " << victim->first << endl;
 	SaveDatabase(victim->first);
 	delete victim->second;
@@ -69,16 +79,31 @@ Database *Storage::CreateDatabase(const string &name, const string &id)
 Database *Storage::FindDatabase(const string &name, bool capture)
 {
 	pthread_mutex_lock(&mutex);
+	cout << "Storage locked" << endl;
+	cout << "db count: " << bases.size() << endl;
 
 	if (bases.find(name) == bases.end())
 	{
 		auto db = LoadDatabase(name);
-		bases[name] = new DbInfo(db, step);
+		if (db == NULL)
+		{
+			cout << "Storage unlocked NULL" << endl;
+			pthread_mutex_unlock(&mutex);
+			return NULL;
+		}
+		SafeAddDb(name, db);
 	}
-	bases[name]->lastAccess = ++step;
-	if (capture)
-		pthread_mutex_lock(&bases[name]->mutex);
+	else
+		bases[name]->lastAccess = ++step;
 
+	if (capture)
+	{
+		cout << "Locked " << name << endl;
+		pthread_mutex_unlock(&mutex);
+		pthread_mutex_lock(&bases[name]->mutex);
+		pthread_mutex_lock(&mutex);
+	}
+	cout << "Storage unlocked" << endl;
 	pthread_mutex_unlock(&mutex);
 	return bases[name]->value;
 }
@@ -86,10 +111,16 @@ Database *Storage::FindDatabase(const string &name, bool capture)
 void Storage::ReleaseDatabase(const string &name)
 {
 	pthread_mutex_lock(&mutex);
+	cout << "Storage locked" << endl;
 	
 	if (bases.find(name) != bases.end())
+	{
+		cout << "Unlocked " << name << endl;
 		pthread_mutex_unlock(&bases[name]->mutex);
+	}
 
+
+	cout << "Storage unlocked" << endl;
 	pthread_mutex_unlock(&mutex);
 }
 

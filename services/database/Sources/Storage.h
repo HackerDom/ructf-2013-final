@@ -31,8 +31,8 @@ private:
 		pthread_mutex_t mutex;
 		int lastAccess;
 		Database *value;
-		DbInfo() : value(NULL), lastAccess(0), mutex(PTHREAD_MUTEX_INITIALIZER) {cout << "everything's empty" << endl; }
-		DbInfo(Database *db, int step) : value(db), lastAccess(step), mutex(PTHREAD_MUTEX_INITIALIZER) {cout << "everything's ok" << endl; }
+		DbInfo() : value(NULL), lastAccess(0), mutex(PTHREAD_MUTEX_INITIALIZER) { }
+		DbInfo(Database *db, int step) : value(db), lastAccess(step), mutex(PTHREAD_MUTEX_INITIALIZER) { }
 		~DbInfo()
 		{
 			cout << "NOOO" << endl;

@@ -66,7 +66,7 @@ int InsertQuery::Execute(JSONNode *& result)
 		return Errors::ERR_PERMISSION;
 	}
 
-	cout << "Found database" << endl;
+	//cout << "Found database" << endl;
 
 	JSONNode * table = db->FindTable(tablename);
 	if (table == NULL)
@@ -75,10 +75,10 @@ int InsertQuery::Execute(JSONNode *& result)
 		return Errors::ERR_NO_TABLE;
 	}
 
-	cout << "Found table" << endl;
+	//cout << "Found table" << endl;
 
-	cout << "Table has " << table->find("columns")->as_array().size() << " columns" << endl;
-	cout << "We got " << fields.size() << " values" << endl;
+	//cout << "Table has " << table->find("columns")->as_array().size() << " columns" << endl;
+	//cout << "We got " << fields.size() << " values" << endl;
 
 	if (table->find("columns")->as_array().size() != fields.size())
 	{
@@ -94,11 +94,12 @@ int InsertQuery::Execute(JSONNode *& result)
 		newRow.push_back(node);
 	}
 
-	cout << "Formed new row" << endl;
+	//cout << "Formed new row" << endl;
 
 	table->find("rows")->push_back(newRow);
-	cout << table->write_formatted() << endl;
-	cout << db->FindTable(tablename)->write_formatted() << endl;
+	//cout << table->write_formatted() << endl;
+	//cout << db->FindTable(tablename)->write_formatted() << endl;
+	cout << "Releasing" << endl;
 
 	Storage::ReleaseDatabase(dbname);
 	return Errors::ERR_OK;
