@@ -1,0 +1,6 @@
+{% extends "index.dtl" %}
+{% block title %} Error {% endblock %}
+
+{% block content %}
+Error: {{msg}}, code: {{code}}
+{% endblock %}

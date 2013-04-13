@@ -96,6 +96,12 @@ sub updateUser {
     printf "UPDATE users (id='%s'): %s\n", $user->{id}, $rows>0 ? "Success" : "Failure" if DEBUG;
 }
 
+sub addCounters {
+    my ($self,$user,$mails,$bytes) = @_;
+    my $rows = $self->{db}->do("UPDATE users SET mails=mails+?, bytes=bytes+? WHERE id=?", undef, $mails, $bytes, $user->{id});
+    printf "UPDATE users (id='%s'): %s\n", $user->{id}, $rows>0 ? "Success" : "Failure" if DEBUG;
+}
+
 sub addIdentity {
     my ($self,$user,$email) = @_;
     my $rows = $self->{db}->do("INSERT INTO identities(user,email) VALUES(?,?)",undef,$user->{id},$email);
@@ -108,6 +114,14 @@ sub delIdentity {
     my $rows = $self->{db}->do("DELETE FROM identities WHERE id=? AND user=?",undef,$id,$user->{id});
     printf "DELETE FROM identities(id='%s', user='%s'): %s\n", $id, $user->{id}, $rows>0 ? "Success" : "Failure" if DEBUG;
     return $rows>0;
+}
+
+sub findIdentity {
+    my ($self,$user,$email) = @_;
+    my $rows = $self->{db}->selectrow_arrayref("SELECT COUNT(*) FROM identities WHERE user=? AND email=?",
+            undef,$user->{id},$email)->[0];
+    printf "SELECT COUNT(*) FROM identities: $rows\n" if DEBUG;
+    return $rows;
 }
 
 sub getAllCredentials {
