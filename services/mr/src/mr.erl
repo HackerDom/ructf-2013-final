@@ -6,7 +6,7 @@
 
 exec(Module, Data) ->
     Mapped = parallel_exec(fun Module:map/3, Data),
-    parallel_exec(fun Module:map/3, Mapped).
+    parallel_exec(fun Module:reduce/3, Mapped).
 
 parallel_exec(Fun, Data) ->
     parallel_exec(Fun, Data, 0, orddict:new()).
@@ -14,7 +14,8 @@ parallel_exec(Fun, Data) ->
 parallel_exec(_Fun, [], 0, Collected)  ->
     orddict:to_list(Collected);
 parallel_exec(Fun, [Data|Tail], WorkersCnt, Collected) when WorkersCnt < ?QUEUE_SIZE ->
-    spawn_link(fun() -> worker(self(), Fun, Data) end),
+    Self = self(),
+    spawn_link(fun() -> worker(Self, Fun, Data) end),
     parallel_exec(Fun, Tail, WorkersCnt + 1, Collected);
 parallel_exec(Fun, Data, WorkersCnt, Collected)  ->
     receive 

@@ -8,10 +8,15 @@ upload(User, Name, ErlangCode) ->
     ModuleName = make_module_name(User, Name),
     {ok, Beam} = code_tools:compile(ModuleName, ErlangCode),
     file:write_file("priv/code/" ++ ModuleName ++ ".beam", Beam).
+
 exec(User, Name, Data) ->
     ModuleName = list_to_atom(make_module_name(User, Name)),
     ok = code_tools:check_security(ModuleName),
-    {module, ModuleName} = code:load_file(ModuleName),
+    case code:is_loaded(ModuleName) of 
+        {file, _} -> ok;
+        false     -> 
+            {module, ModuleName} = code:load_file(ModuleName)
+    end,
     mr:exec(ModuleName, Data).
 
 parse_arg(Arg) ->

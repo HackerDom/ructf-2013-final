@@ -5,6 +5,8 @@
 
 out(["index"], 'GET', _User, _Arg) ->
     {ok, index_dtl, []};
+out(["examples"], 'GET', _User, _Arg) ->
+    {ok, examples_dtl, []};
 out(["upload"], 'GET', _User, _Arg) ->
     {ok, upload_dtl, [{method, get}, {content, ""}]};
 out(["exec"], 'GET', _User, _Arg) ->
@@ -18,7 +20,7 @@ out(["exec"], 'POST', User, Arg) ->
     {ok, Data} = yaws_api:postvar(Arg, "data"),
     {ok, ErlData} = code_tools:parse_data(Data),
     {ok, Name} = yaws_api:postvar(Arg, "name"),
-    {ok, Result} = appmod:exec(User, Name, ErlData),
+    Result = appmod:exec(User, Name, ErlData),
     {ok, exec_dtl, [{method, post}, {content, Result}]};
 out(_Path, _Method, _User, _Json) ->
     throw(nopage).

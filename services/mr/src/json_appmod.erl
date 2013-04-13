@@ -9,8 +9,8 @@ out(Path, Method, User, Arg = #arg{})  ->
 out(["upload"], 'POST', User, {struct, [{"name", Name}, {"code", ErlangCode}]}) ->
     ok = appmod:upload(User, Name, ErlangCode),
     ok;
-out(["exec"], 'POST', User, {struct, [{"name", Name}, {"data", Data}]}) ->
-    {ok, Result} = appmod:exec(User, Name, Data),
+out(["exec"], 'POST', User, {struct, [{"name", Name}, {"data", {struct, Data}}]}) ->
+    Result = appmod:exec(User, Name, Data),
     {ok, Result};
 out(_Path, _Method, _User, _Json) ->
     throw(nopage).
@@ -29,7 +29,7 @@ return_ok(ok) ->
     Json = {struct, [ {"status", "OK"} ] },
     return_json(json2:encode(Json));
 return_ok({ok, Result}) ->
-    Json = {struct, [ {"status", "OK"}, {"result", Result} ] },
+    Json = {struct, [ {"status", "OK"}, {"result", {struct, Result}} ] },
     return_json(json2:encode(Json)).
 
 return_json(Json) ->

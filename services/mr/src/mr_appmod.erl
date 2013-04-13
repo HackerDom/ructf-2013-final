@@ -32,7 +32,6 @@ out(Arg) ->
                 Appmod:return_error(3, "Security check fail");
         _ : nopage ->
                 Appmod:return_error(4, "No such page: 404");
-        _ : _ ->
+        _ : E ->
                 Appmod:return_error(5, "Something go wrong :(")
-                %Appmod:return_error(5, E)
     end.

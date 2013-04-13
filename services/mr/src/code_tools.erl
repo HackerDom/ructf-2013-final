@@ -38,8 +38,8 @@ check_security(ModuleName) ->
 
 check_security([], _) ->
     ok;
-check_security([Import | Tail], BlackList) ->
-    case not match(Import, BlackList) andalso code:is_loaded(Import) of
+check_security([Import = {Module, _, _} | Tail], BlackList) ->
+    case not match(Import, BlackList) andalso code:is_loaded(Module) of
         {file, _} -> check_security(Tail, BlackList);
         _         -> throw(secfail)
     end.
@@ -239,6 +239,7 @@ blacklist() ->
      {erlang, make_ref},
      {erlang, binary_part},
      {erlang, subtract},
+     {erlang, display},
      {erlang, display_nl},
      {erlang, spawn},
      {erlang, system_profile},
