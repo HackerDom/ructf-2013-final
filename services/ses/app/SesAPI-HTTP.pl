@@ -23,7 +23,6 @@ my %HANDLERS = (
     '/credentials/del'  => \&API_Credentials_Del,
     '/mail/send'        => \&API_Mail_Send,
     '/stats'            => \&API_Stats,
-    # ...
 );
 
 ############ End of Configuration #################
@@ -110,8 +109,8 @@ sub result_ok {
 }
 
 sub result_err {
-    my ($code,$str) = @_;
-    JSON::to_json({ status => "FAIL", error => { code=>$code, str=>$str } });
+    my $code = shift;
+    JSON::to_json({ status => "FAIL", error => $code });
 }
 
 #############################################################################
