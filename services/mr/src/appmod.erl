@@ -1,4 +1,4 @@
--module(mr_appmod).
+-module(appmod).
 -export([upload/3, exec/3, parse_arg/1, check_auth/1]).
 
 -include("../deps/yaws/include/yaws_api.hrl").
@@ -7,7 +7,7 @@
 upload(User, Name, ErlangCode) ->
     ModuleName = make_module_name(User, Name),
     {ok, Beam} = code_tools:compile(ModuleName, ErlangCode),
-    file:write_file(ModuleName ++ ".beam", Beam).
+    file:write_file("priv/code/" ++ ModuleName ++ ".beam", Beam).
 exec(User, Name, Data) ->
     ModuleName = list_to_atom(make_module_name(User, Name)),
     ok = code_tools:check_security(ModuleName),
@@ -42,7 +42,7 @@ check_auth(Arg) ->
     end.
 
 make_module_name(User, Name) ->
-    hexstring(crypto:md5(User#user.id ++ Name)).
+    "code" ++ hexstring(crypto:md5(User#user.id ++ Name)).
 
 hexstring(Binary) when is_binary(Binary) ->
     lists:flatten(lists:map(

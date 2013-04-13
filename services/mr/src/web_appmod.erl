@@ -3,37 +3,30 @@
 
 -include("../deps/yaws/include/yaws_api.hrl").
 
+out(["index"], 'GET', _User, _Arg) ->
+    {ok, index_dtl, []};
+out(["upload"], 'GET', _User, _Arg) ->
+    {ok, upload_dtl, [{method, get}, {content, ""}]};
+out(["exec"], 'GET', _User, _Arg) ->
+    {ok, exec_dtl, [{method, get}, {content, ""}]};
 out(["upload"], 'POST', User, Arg) ->
-    ok = upload(User, yaws_api:postvar(Arg, "name"), yaws_api:postvar(Arg, "code")),
-    ok;
+    {ok, Name} = yaws_api:postvar(Arg, "name"), 
+    {ok, Code} = yaws_api:postvar(Arg, "code"),
+    ok = appmod:upload(User, Name, Code),
+    {ok, upload_dtl, [{method, post}, {content, "Uploaded!"}]};
 out(["exec"], 'POST', User, Arg) ->
-    {ok, Data} = code_tools:parse_data(yaws_api:postvar(Arg, "data")),
-    {ok, Result} = exec(User, yaws_api:postvar(Arg, "name"), Data),
-    {ok, Result};
+    {ok, Data} = yaws_api:postvar(Arg, "data"),
+    {ok, ErlData} = code_tools:parse_data(Data),
+    {ok, Name} = yaws_api:postvar(Arg, "name"),
+    {ok, Result} = appmod:exec(User, Name, ErlData),
+    {ok, exec_dtl, [{method, post}, {content, Result}]};
 out(_Path, _Method, _User, _Json) ->
     throw(nopage).
 
-exec(_User, undefined, _Code) ->
-    throw(noname);
-exec(_User, _Name, undefined) ->
-    throw(nocode);
-exec(User, Name, Code) ->
-    appmod:exec(User, Name, Code).
-
-upload(_User, undefined, _Code) ->
-    throw(noname);
-upload(_User, _Name, undefined) ->
-    throw(nocode);
-upload(User, Name, Code) ->
-    appmod:upload(User, Name, Code).
-
 return_error(Code, Msg) ->
-    return_html(io_lib:format("ERROR: code: ~b message: ~s", [Code, Msg])).
+    {ok, Output} = error_dtl:render([{code, Code}, {msg, Msg}]),
+    {html, Output}.
 
-return_ok(ok) ->
-    return_html("All ok.");
-return_ok({ok, Result}) ->
-    return_html(io_lib:format("Result: ~w", [Result])).
-
-return_html(Html) ->
-    {html, lists:flatten(Html)}.
+return_ok({ok, Render, Params}) ->
+    {ok, Output} = Render:render(Params),
+    {html, Output}.

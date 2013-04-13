@@ -32,12 +32,7 @@ out(Arg) ->
                 Appmod:return_error(3, "Security check fail");
         _ : nopage ->
                 Appmod:return_error(4, "No such page: 404");
-        _ : noname ->
-                Appmod:return_error(5, "Bad program name");
-        _ : nocode ->
-                Appmod:return_error(6, "Code not present");
-        _ : nodata ->
-                Appmod:return_error(7, "Data not present");
         _ : _ ->
-                Appmod:return_error(8, "Something go wrong :(")
+                Appmod:return_error(5, "Something go wrong :(")
+                %Appmod:return_error(5, E)
     end.
