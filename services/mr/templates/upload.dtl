@@ -18,6 +18,6 @@
     </fieldset>
 </form>
 {% else %}
-content
+{{content}}
 {% endif %}
 {% endblock %}
