@@ -126,7 +126,7 @@ sub process_client {
     my $msg = new Ses::Message;
     $msg->{from} = $from;
     $msg->{to} = $to;
-    $msg->write(join $/,@data);
+    $msg->writeRaw(join $/,@data);
     printf $c "250 2.0.0 Ok: queued as %s\r\n", $msg->{id};
     printf "Ok: queued as %s\r\n", $msg->{id};
     exit_client $c;

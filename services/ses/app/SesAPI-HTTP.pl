@@ -250,9 +250,10 @@ sub API_Mail_Send {
         print $c result_err(254, "Bad JSON");
         return;
     }
-    defined($req->{from}) or do { print $c result_err(2, "Parameter 'from' not specified"); return };
-    defined($req->{to})   or do { print $c result_err(2, "Parameter 'to'   not specified"); return };
-    defined($req->{data}) or do { print $c result_err(2, "Parameter 'data' not specified"); return };
+    defined($req->{from})    or do { print $c result_err(2, "Parameter 'from' not specified"); return };
+    defined($req->{to})      or do { print $c result_err(2, "Parameter 'to' not specified"); return };
+    defined($req->{message}) or do { print $c result_err(2, "Parameter 'message' not specified"); return };
+    defined($req->{subject}) or do { print $c result_err(2, "Parameter 'subject' not specified"); return };
 
     if ($req->{from} !~ /^[a-z0-9A-Z_\.-]+\@[a-z0-9A-Z_\.-]+\.[a-z]+$/) {
         print $c result_err(3, "Invalid 'from' value");
@@ -269,7 +270,7 @@ sub API_Mail_Send {
     my $msg = new Ses::Message;
     $msg->{from} = $req->{from};
     $msg->{to} = $req->{to};
-    $msg->write($req->{data});
+    $msg->writeMessage($req->{message},$req->{subject});
 
     print $c result_ok { id => $msg->{id} };
 }

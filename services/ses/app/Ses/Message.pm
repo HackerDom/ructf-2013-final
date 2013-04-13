@@ -2,6 +2,7 @@ package Ses::Message;
 
 use strict;
 use DBI;
+use Date::Format;
 use Ses::Config;
 use Ses::Utils;
 
@@ -33,7 +34,7 @@ sub read {
     return $data;
 }
 
-sub write {
+sub writeRaw {
     my ($self,$data) = @_;
     $self->lock();
     printf "Write to: %s ... (data: %d bytes)\n", $self->{fnameMsg}, length($data);
@@ -43,6 +44,24 @@ sub write {
     print F $data;
     close F;
     $self->unlock();
+}
+
+sub writeMessage {
+    my ($self,$msg,$subject) = @_;
+    $self->lock();
+    printf "Write to: %s ... \n", $self->{fnameMsg};
+    open F, '>', $self->{fnameMsg} or die "Error: Message.write() failed for '%s': $!\n", $self->{fnameMsg};
+    printf F "MAIL FROM: <%s>\n", $self->{from};
+    printf F "RCPT TO: <%s>\n",   $self->{to};
+    printf F "Message-ID: <%s\@ses>\n", $self->{id};
+    printf F "Date: %s\n",     time2str("%a, %d %h %Y %H:%M:%S %z",time);
+    printf F "From: %s\n",     $self->{from};
+    printf F "To: %s\n",       $self->{to};
+    printf F "Subject: %s\n",  $subject;
+    print  F "\n$msg";
+    close F;
+    $self->unlock();
+
 }
 
 sub lock {
