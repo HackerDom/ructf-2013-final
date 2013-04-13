@@ -13,6 +13,7 @@ compile(ModuleName, ErlangCode) ->
     ModuleHeader = "-module(" ++ ModuleName ++ ").",
     ExportHeader = "-export([map/3, reduce/3]).",
     ModuleCode = string:join([ModuleHeader, ExportHeader, ErlangCode], "\n"),
+    erlang:display({prepare, ModuleCode}),
     {ok, Tokens, _} = erl_scan:string(ModuleCode),
     FormTokens = split_forms(Tokens),
     Forms  = lists:map(fun(T) -> {ok, Form} = erl_parse:parse_form(T), Form end, FormTokens),
@@ -29,8 +30,10 @@ split_forms([{dot, N} | Tokens], CurrentToken, Acc) ->
 split_forms([Token | Tokens], CurrentToken, Acc) ->
     split_forms(Tokens, [Token | CurrentToken], Acc).
 
+check_security(ModuleName) when is_atom(ModuleName) ->
+    check_security(atom_to_list(ModuleName));
 check_security(ModuleName) ->
-    {ok, {ModuleName, [{imports, Imports}]}} = beam_lib:chunks(ModuleName, [imports]),
+    {ok, {_, [{imports, Imports}]}} = beam_lib:chunks("priv/code/" ++ ModuleName, [imports]),
     WhiteList = whitelist(),
     check_security(Imports, WhiteList).
 
