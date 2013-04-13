@@ -22,6 +22,7 @@ my %HANDLERS = (
     '/credentials/add'  => \&API_Credentials_Add,
     '/credentials/del'  => \&API_Credentials_Del,
     '/mail/send'        => \&API_Mail_Send,
+    '/stats'            => \&API_Stats,
     # ...
 );
 
@@ -272,6 +273,15 @@ sub API_Mail_Send {
     $msg->{to} = $req->{to};
     $msg->writeMessage($req->{message},$req->{subject});
 
+    $db->addCounters($user,1,$msg->{size});
+
     print $c result_ok { id => $msg->{id} };
+}
+
+sub API_Stats {
+    my ($c,$r,$db,$user) = @_;
+    print "  ** API_Stats\n" if DEBUG;
+
+    print $c result_ok { mails => $user->{mails}, bytes => $user->{bytes} };
 }
 

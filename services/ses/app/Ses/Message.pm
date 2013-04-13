@@ -20,6 +20,7 @@ sub new {
     $self->{id} = $id;
     $self->{fnameMsg} = sprintf "%s/%s.msg", CFG_QUEUE_DIR, $id;
     $self->{dirLock}  = sprintf "%s/%s.lck", CFG_QUEUE_DIR, $id;
+    $self->{size} = 0;
     bless $self, $class;
     return $self;
 }
@@ -42,6 +43,7 @@ sub writeRaw {
     printf F "MAIL FROM: %s\n", $self->{from};
     printf F "RCPT TO: %s\n",   $self->{to};
     print F $data;
+    $self->{size} = tell F;
     close F;
     $self->unlock();
 }
@@ -59,6 +61,7 @@ sub writeMessage {
     printf F "To: %s\n",       $self->{to};
     printf F "Subject: %s\n",  $subject;
     print  F "\n$msg";
+    $self->{size} = tell F;
     close F;
     $self->unlock();
 
