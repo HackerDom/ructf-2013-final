@@ -17,7 +17,7 @@ $VERSION     = 1.00;
 @EXPORT_OK   = ();
 %EXPORT_TAGS = ();
 
-sub CFG_USERAPI_ENDPOINT { 'http://127.0.0.1/cgi-bin/user' }
+sub CFG_USERAPI_ENDPOINT { 'http://127.0.0.1' }
 sub CFG_API_TIMEOUT      { 2 }
 sub CFG_DB_DIR           { '/home/ses/db' }
 sub CFG_QUEUE_DIR        { '/home/ses/queue' }
