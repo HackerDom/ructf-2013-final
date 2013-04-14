@@ -30,10 +30,10 @@ auto_reload: 0
 
 db_host: 127.0.0.1
 db_port: 5432
-db_name: ructfe
-db_user: ructfe
-db_pass: o8yuiLAYHS32r42ut_ 
+db_name: ructfetest
+db_user: testuser
+db_pass: test1234
 
-git_src:     /home/dimmo/ructfe2012/checkers
-git_dst:     /home/dimmo/ructfe2012/checksystem/project/checkers
-git_askpass: /home/dimmo/.git/askpass
+git_src:     /home/user/git/ructf2013-final/checkers
+git_dst:     /home/user/git/ructf2013-final/checksystem/project/checkers
+git_askpass: /home/user/.git/askpass
