@@ -4,8 +4,8 @@ require 'sinatra'
 require 'net/http'
 require 'json'
 require 'digest/md5'
-require 'templates/add'
-require 'templates/show'
+require './templates/add.rb'
+require './templates/show.rb'
 #require 'connect.rb'
 
 set :environment, :production
@@ -33,7 +33,7 @@ get '/' do
       r_has_records = false
       r_dns_records = {}
       r_user_name = r_hash['first_name'] + " " + r_hash['last_name'] + "!"
-      message = ERB.new(show_template, 0, "%<>")
+      message = ERB.new($show_template, 0, "%<>")
       payload = message.result
       "#{payload}"
     end
@@ -42,7 +42,7 @@ get '/' do
     r_has_records = false
     r_dns_records = {}
     r_user_name = "Log in!"
-    message = ERB.new(show_template, 0, "%<>")
+    message = ERB.new($show_template, 0, "%<>")
     payload = message.result
     "#{payload}"
   end
