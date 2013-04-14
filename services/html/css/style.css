@@ -23,7 +23,7 @@ html, body {
     /*height: auto !important;
     height: 100%;
     margin: 0 auto -30px;*/
-    padding-bottom: 100px;
+    padding-bottom: 50px;
 }
 #wrap > .container {
     padding-top: 60px;
@@ -190,6 +190,7 @@ html, body {
 .name {
     color: #d13654;
     text-decoration: none;
+    margin: 7px;
 }
 
 .name:hover,
@@ -415,11 +416,11 @@ html, body {
     padding: 20px;
     margin: 0;
 }
-/*------------------------------------------------Inputs, Selects focus starts-----------------------------------------*/
+/*----------------------------------------Inputs, Selects, Textareas focus starts--------------------------------------*/
 input, select {
     border: 1px solid #dbe3de;
 }
-input[type="text"]:focus {
+input[type="text"]:focus, textarea:focus {
     border-color: rgba(41, 115, 184, 0.8);
     outline: 0;
     outline: thin dotted \9;
@@ -445,7 +446,19 @@ option:disabled,
 option[disabled]{
     color: #8f9792;
 }
-/*------------------------------------------------Inputs, Selects focus ends-------------------------------------------*/
+
+.control-group.error input {
+    border-color: rgba(209, 54, 84, 0.8);
+    outline: 0;
+    outline: thin dotted \9;
+    /* IE6-9 */
+
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(209, 54, 84, 0.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(209, 54, 84, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(209, 54, 84, 0.6);
+}
+
+/*---------------------------------------Inputs, Selects, Textareas  focus ends----------------------------------------*/
 
 /*------------------------------------------------DNS styles starts----------------------------------------------------*/
 .tab-content > .add-record {
@@ -469,3 +482,52 @@ option[disabled]{
     width: 40px;
 }
 /*------------------------------------------------DNS styles ends------------------------------------------------------*/
+
+/*-----------------------------------------------Login, sign up styles starts------------------------------------------*/
+#login {
+    margin: 5% 20%;
+    padding-left: 0;
+    border: 2px solid #dbe3de ;
+}
+.login > fieldset {
+    margin: 6% 100px;
+}
+.login > fieldset > input {
+    margin-left: 0;
+}
+.login > fieldset > button {
+    margin-left: 71%;
+}
+
+#sign-up {
+    margin: 5% 20%;
+    border: 2px solid #dbe3de ;
+}
+
+.sign-up  > fieldset{
+    margin: 6% 30%;
+}
+
+.sign-up  > fieldset > button {
+    margin-left: 71%;
+}
+
+/*----------------------------------------------Login, sign up  styles ends--------------------------------------------*/
+
+/*---------------------------------------------Database styles starts--------------------------------------------------*/
+.db-input {
+    display: table-cell;
+    vertical-align:middle;
+    line-height: 50px;
+}
+
+.db-input > textarea {
+    margin: 10px 100px 10px 40%;
+    width: 70%;
+    resize: none
+}
+
+.db-input > .btn {
+    margin-left: 100%;
+}
+/*---------------------------------------------Database styles ends----------------------------------------------------*/
