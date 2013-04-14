@@ -9,7 +9,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <style>@import "scoreboard.css";</style>
         <script type="text/javascript" src="scripts.js"></script>
-        <title>RuCTF 2010 - Захваченные флаги</title>
+        <title>RuCTF 2013 - Захваченные флаги</title>
         <meta http-equiv="Refresh" content="30"/>
       </head>
       <body onload="parse_emails()">       
@@ -25,8 +25,8 @@
                     <a class="menulink" href="news.html">Новости</a>
                     <a class="menulink" href="scoreboard.xml">Скорборд</a>
                     <a class="selected" href="#">Флаги</a>
-                    <a class="menulink" href="/advisories/">Адвайзори</a>
-                    <a class="menulink" href="visualizer.html">Визуализация</a>
+<!--                <a class="menulink" href="/advisories/">Адвайзори</a>
+                    <a class="menulink" href="visualizer.html">Визуализация</a> -->
                   </div>
 
                   <div style="text-align:right">
@@ -61,9 +61,8 @@
               </a>
               <xsl:element name="br"/>
               Официальная рассылка соревнований: <a href="http://groups.google.com/group/ructf/">http://groups.google.com/group/ructf/</a><xsl:element name="br"/>
-              IRC-канал: #ructf@<a href="http://ru.wikipedia.org/wiki/IrcNet.ru">IrcNet.ru</a>
             </div>
-            <div id="copyright">&#xA9; 2010 HackerDom</div>
+            <div id="copyright">&#xA9; 2013 HackerDom</div>
           </div>
         </div>
       </body>
@@ -74,13 +73,13 @@
     <table width="855" class="scoreboard" cellspacing="0" cellpadding="10">
       
       <col width="50" /><!-- лого команды -->
-      <col width="100" /><!-- имя команды -->     
+      <col/><!-- имя команды -->     
 
       <tr>
         <th>Лого  </th>
         <th>Команда</th>
         <xsl:for-each select="services/service">
-          <th>
+          <th width="50px">
             <xsl:value-of select="@name"/>
           </th>
         </xsl:for-each>

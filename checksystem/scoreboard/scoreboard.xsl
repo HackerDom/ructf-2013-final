@@ -10,7 +10,7 @@
         <style>@import "scoreboard.css";</style>
         <script type="text/javascript" src="scripts.js"></script>
         <script type="text/javascript" src="scoreboard.js"></script>
-        <title>RuCTF 2010 - Скорборд</title>
+        <title>RuCTF 2013 - Скорборд</title>
         <meta http-equiv="Refresh" content="120"/>
       </head>
       <body onload="restoreState(); parse_emails();">
@@ -26,8 +26,8 @@
                     <a class="menulink" href="news.html">Новости</a>
                     <a class="selected" href="#">Скорборд</a>
                     <a class="menulink" href="flags.xml">Флаги</a>
-                    <a class="menulink" href="/advisories/">Адвайзори</a>
-                    <a class="menulink" href="visualizer.html">Визуализация</a>
+<!--                <a class="menulink" href="/advisories/">Адвайзори</a> 
+                    <a class="menulink" href="visualizer.html">Визуализация</a> -->
                   </div>
 
                   <div style="text-align:right">
@@ -72,9 +72,8 @@
               </a>
               <xsl:element name="br"/>
               Официальная рассылка соревнований: <a href="http://groups.google.com/group/ructf/">http://groups.google.com/group/ructf/</a><xsl:element name="br"/>
-              IRC-канал: #ructf2010@<a href="http://ru.wikipedia.org/wiki/IrcNet.ru">IrcNet.ru</a>
             </div>
-            <div id="copyright">&#xA9; 2010 HackerDom</div>
+            <div id="copyright">&#xA9; 2013 HackerDom</div>
           </div>
         </div>
       </body>
@@ -87,7 +86,7 @@
       
       <col width="10" /><!-- место -->
       <col width="50" /><!-- лого команды -->
-      <col width="100" /><!-- имя команды -->
+      <col />           <!-- имя команды -->
       
       
       <col width="50" /><!-- Рейтинг -->
@@ -205,7 +204,7 @@
           <!-- Лого -->
           <td>
             <xsl:element name="img">
-              <xsl:attribute name="src">img/<xsl:value-of select="@name"/></xsl:attribute>
+              <xsl:attribute name="src">img/<xsl:value-of select="@name"/>.png</xsl:attribute>
               <xsl:attribute name="alt"><xsl:value-of select="@name"/></xsl:attribute>
 			        <xsl:attribute name="width">50</xsl:attribute>
 			        <xsl:attribute name="height">50</xsl:attribute>
