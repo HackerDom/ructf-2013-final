@@ -9,7 +9,7 @@ CheckerPassword="DXjAtYeAq6extWEx"
 
 def SendRequest(host, session, requestString):
     data=bytes(json.dumps({ "query" : requestString }), "ASCII")
-    request=urllib.request.Request(host + "/Database", data)
+    request=urllib.request.Request(host, data)
     request.add_header("Cookie", "session=" + session)
     response = json.loads(urllib.request.urlopen(request).readall().decode('ascii'))
     #print(response)
@@ -139,7 +139,7 @@ dictFile.close()
 
 flagsTableName = dictionary[(int(time.time() / 60 / 15) * 42167) % len(dictionary)]
 
-CheckerHost = "http://" + sys.argv[2]
+CheckerHost = "http://db." + sys.argv[2]
 TeamName = sys.argv[2]
 CheckerMode = sys.argv[1]
 
