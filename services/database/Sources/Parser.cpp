@@ -1,5 +1,4 @@
 #include "Parser.h"
-#include "libjson/libjson.h"
 
 function<int(Query*&, char)> Parser::modifierHandlers[] = {
 	[] (Query *& query, char parameter) {
@@ -35,9 +34,15 @@ function<int(Query*&, char)> Parser::modifierHandlers[] = {
 		return 0;
 	},
 	[] (Query *& query, char parameter) {
-		cout << "Creating select query" << endl;
 		query = new SelectQuery();
-		cout << "Succefuly created select query" << endl;
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
+		query = new InsertQuery();
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
+		query = new SelectQuery(true);
 		return 0;
 	}
 };
@@ -58,20 +63,38 @@ SymbolAutomaton::SymbolAutomaton(const JSONNode & _syntax)
 		for (auto k = transitions.begin(); k != transitions.end(); ++k)
 		{
 			if (k->name().length() == 1)
-				node->transitions[k->name()[0]] = mapping[k->as_int()];
+			{
+				char ch = k->name()[0];
+				if (isalpha(ch))
+				{
+					node->transitions[toupper(ch)] = mapping[k->as_int()];
+					node->transitions[tolower(ch)] = mapping[k->as_int()];
+				}
+				else
+				{
+					node->transitions[ch] = mapping[k->as_int()];
+				}
+
+			}
 			else
 			{
 				if (k->name() == "alpha")
+				{
 					for (char c = 'a' ; c <= 'z'; ++c)
 						node->transitions[c] = mapping[k->as_int()];
+					for (char c = 'A' ; c <= 'Z'; ++c)
+						node->transitions[c] = mapping[k->as_int()];
+				}
 				if (k->name() == "digit")
 					for (char c = '0' ; c <= '9'; ++c)
+						node->transitions[c] = mapping[k->as_int()];
+				if (k->name() == "any")
+					for (char c = 0x20; c <= 0x7e; ++c)
 						node->transitions[c] = mapping[k->as_int()];
 			}
 		}
 	}
 	initialState = mapping[0];
-	currentState = initialState;
 }
 
 SymbolAutomaton::~SymbolAutomaton()
@@ -79,19 +102,19 @@ SymbolAutomaton::~SymbolAutomaton()
 	delete initialState;
 }
 
-vector<int> * SymbolAutomaton::GetModifiers()
+vector<int> * SymbolAutomaton::Iterator::GetModifiers()
 {
 	if (currentState == NULL)
 		return NULL;
 	return &currentState->modifiers;
 }
 
-void SymbolAutomaton::MoveInitialState(void)
+SymbolAutomaton::Iterator SymbolAutomaton::GetIterator(void)
 {
-	currentState = initialState;
+	return Iterator(initialState);
 }
 
-bool SymbolAutomaton::MoveNextState(char symbol)
+bool SymbolAutomaton::Iterator::MoveNextState(char symbol)
 {
 	if (currentState == NULL)
 	{
@@ -120,25 +143,24 @@ void Parser::Initialize(const JSONNode & syntax)
 Query * Parser::Parse(const string & queryString, const string & userID)
 {
 	Query * query = NULL;
-	automaton->MoveInitialState();
-	cout << "Starting parsing" << endl;
+	SymbolAutomaton::Iterator iter = automaton->GetIterator();
 	for (int i = 0; i < queryString.length(); ++i)
 	{
-		cout << "Trying to move with symbol \"" << queryString[i] << "\"" << endl;
-		if (!automaton->MoveNextState(queryString[i]))
-			return NULL;
-		auto modifiers = automaton->GetModifiers();
-		cout << "Got " << modifiers->size() << " modifiers:" << endl;
-		if (modifiers->size() != 0)
+		//cout << "Making transition with char \'" << queryString[i] << "\'" << endl;
+		if (!iter.MoveNextState(queryString[i]))
 		{
-			for (auto j = modifiers->begin(); j != modifiers->end(); ++j)
-				cout << (*j) << ' ';
-			cout << endl;
+			//cout << "FUCK, SYNTAX ERROR";
+			return NULL;
 		}
+		auto modifiers = iter.GetModifiers();
+		//cout << "Got " << modifiers->size() << " modifier(s)" << endl;
 		for (auto j = modifiers->begin(); j != modifiers->end(); ++j)
+		{
+			//cout << (*j) << ' ';
 			modifierHandlers[*j](query, queryString[i]);
+		}
+		//cout << endl;
 	}
-	cout << "Parsing complete" << endl;
 	if (query != NULL)
 		query->SetID(userID);
 	return query;

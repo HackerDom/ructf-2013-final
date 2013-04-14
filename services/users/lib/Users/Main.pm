@@ -47,7 +47,7 @@ sub register {
   eval {
     my $uid = $db->get_collection('user')->insert($user, {safe => 1});
     if ($self->req->is_xhr) {
-      return $self->render_json({status => 'OK', uid => $uid});
+      return $self->render_json({status => 'OK', uid => $uid->to_string});
     } else {
       $self->stash(register => 1);
       return $self->redirect_to('sign_in');
@@ -99,13 +99,14 @@ sub login {
         : $self->render_exception;
     }
     if ($user->{hash} eq sha1_sum $password . $user->{salt}) {
-      my $response;
-      @{$response}{'uid', 'first_name', 'last_name', 'language'} =
-        @{$user}{'_id',   'first_name', 'last_name', 'language'};
+      my $response = {uid => $user->{_id}->to_string};
+      my @fields = qw/first_name last_name language/;
+      @{$response}{@fields} = @{$user}{@fields};
       my $json    = Mojo::JSON->new;
       my $data    = b64_encode($json->encode($response), '');
       my $session = $data . '!' . hmac_sha1_sum $data, $self->app->secret;
-      $self->cookie(session => $session);
+      my ($domain) = $self->req->headers->host =~ /(team\d+\.ructf)$/;
+      $self->cookie(session => $session, {domain => ".$domain"});
       return $self->req->is_xhr
         ? $self->render_json({status => 'OK'})
         : $self->redirect_to('index');
@@ -147,6 +148,10 @@ sub user {
   } else {
     return $self->render_json($self->_error(5, 'invalid sign, possible hack attempt'));
   }
+}
+
+sub options {
+  shift->render_data('');
 }
 
 sub _salt {

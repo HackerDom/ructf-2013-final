@@ -12,7 +12,6 @@ protected:
 	string dbname;
 	string tablename;
 	vector<string> fields;
-	void InitFields();
 public:
 	virtual int Execute(JSONNode *&) = 0;
 
@@ -29,10 +28,22 @@ public:
 
 class SelectQuery : public Query
 {
+private:
+		bool godMode;
 public:
-	SelectQuery(const string & _userID) { SetID(_userID); InitFields(); }
+	SelectQuery(const string & _userID, bool _godMode = false) : godMode(_godMode) { SetID(_userID); }
 
-	SelectQuery() {  InitFields(); }
+	SelectQuery(bool _godMode = false) : godMode(_godMode) { }
+
+	int Execute(JSONNode *&);
+};
+
+class InsertQuery : public Query
+{
+public:
+	InsertQuery(const string & _userID) { SetID(_userID); }
+
+	InsertQuery() { }
 
 	int Execute(JSONNode *&);
 };
@@ -40,9 +51,9 @@ public:
 class CreateDatabaseQuery : public Query
 {
 public:
-	CreateDatabaseQuery(const string & _userID) { SetID(_userID); InitFields(); }
+	CreateDatabaseQuery(const string & _userID) { SetID(_userID); }
 
-	CreateDatabaseQuery() { InitFields(); }
+	CreateDatabaseQuery() { }
 
 	int Execute(JSONNode *&);
 };
@@ -50,9 +61,9 @@ public:
 class CreateTableQuery : public Query
 {
 public:
-	CreateTableQuery(const string & _userID) { SetID(_userID); InitFields(); }
+	CreateTableQuery(const string & _userID) { SetID(_userID); }
 
-	CreateTableQuery() { InitFields(); }
+	CreateTableQuery() { }
 
 	int Execute(JSONNode *&);
 };
@@ -60,9 +71,9 @@ public:
 class DropDatabaseQuery : public Query
 {
 public:
-	DropDatabaseQuery(const string & _userID) { SetID(_userID); InitFields(); }
+	DropDatabaseQuery(const string & _userID) { SetID(_userID); }
 
-	DropDatabaseQuery() { InitFields(); }
+	DropDatabaseQuery() { }
 
 	int Execute(JSONNode *&);
 };
@@ -70,9 +81,9 @@ public:
 class DropTableQuery : public Query
 {
 public:
-	DropTableQuery(const string & _userID) { SetID(_userID); InitFields(); }
+	DropTableQuery(const string & _userID) { SetID(_userID); }
 
-	DropTableQuery() { InitFields(); }
+	DropTableQuery() { }
 
 	int Execute(JSONNode *&);
 };

@@ -21,17 +21,29 @@ private:
 		}
 	};
 
-	Node * initialState, * currentState;
+	Node * initialState;
 public:
+
+	class Iterator
+	{
+	private:
+		Node * currentState;
+
+		Iterator (Node * initState) : currentState(initState) { }
+
+		friend class SymbolAutomaton;
+	public:
+
+		bool MoveNextState(char);
+
+		vector<int> * GetModifiers();
+	};
+
 	SymbolAutomaton(const JSONNode & _syntax);
 
 	~SymbolAutomaton();
 
-	vector<int> * GetModifiers();
-
-	bool MoveNextState(char);
-
-	void MoveInitialState();
+	Iterator GetIterator();
 };
 
 class Parser

@@ -1,3 +1,9 @@
+function ClearOutput() {
+	$("#output").html("");
+	$("#status").html("");
+	$("#message").html("");
+}
+
 function FillOutput(data) {
 	var table = $("#output");
 	var html = "";
@@ -17,6 +23,14 @@ function FillOutput(data) {
 	}
 	table.html(html);
 }
+function FillStatus(response) {
+	var status = $("#status");
+	status.html(response.status);
+	if (!response.error)
+		return;
+	var message = $("#message");
+	message.html("error " + response.error.code + ": " + response.error.str);
+}
 
 $(function () {
 	$("#send").click(function () {
@@ -25,15 +39,16 @@ $(function () {
 		$.ajax({
 			url: "http://dqteam.org/Database",
 			method: "POST",
-			data: {
-				data: escape(JSON.stringify({ 
-					query: query
-				}))
-			}
-
+			contentType: "application/json",
+			data: JSON.stringify({ 
+				query: query
+			})
 		}).done(function (response) {
 			console.log(response);
-			json = JSON.parse(response);
+			//json = JSON.parse(response); //not needed if content-type is application/json
+			json = response;
+			ClearOutput();
+			FillStatus(json);
 			if (json.status == "OK")
 				FillOutput(json.data);
 			else

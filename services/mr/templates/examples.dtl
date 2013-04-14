@@ -1,0 +1,29 @@
+{% extends "index.dtl" %}
+{% block title %} Examples {% endblock %}
+
+{% block links %}
+<a class="btn" href="/exec">Execute</a>
+<a class="btn" href="/upload">Upload</a>
+{% endblock %}
+
+{% block content %}
+Counting values:
+<pre class="prettyprint linenums">
+map(_Key, Value, Emit) ->
+    Emit(Value, 1).
+reduce(Key, Values, Emit) ->
+    S = lists:sum(Values),
+    Emit(Key, integer_to_list(S)).
+</pre>
+Input data:
+<pre class="prettyprint linenums">
+[{"1", "foo"}, {"2", "foo"}, {"3", "bar"}, {"4", "foo"}, {"5", "buzz"}, {"6", "bar"}].
+%% don't forget about dot at end!
+</pre>
+Result should look like this:
+<pre class="prettyprint linenums">
+    {"bar",["2"]}
+    {"buzz",["1"]}
+    {"foo",["3"]}
+</pre>
+{% endblock %}

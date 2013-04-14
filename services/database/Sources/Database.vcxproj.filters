@@ -36,6 +36,9 @@
     <ClCompile Include="Storage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Encode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Makefile" />

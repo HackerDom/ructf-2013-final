@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Database.cpp" />
+    <ClCompile Include="Encode.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="HttpServer.cpp" />
     <ClCompile Include="Parser.cpp" />
