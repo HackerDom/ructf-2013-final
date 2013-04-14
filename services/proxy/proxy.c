@@ -97,7 +97,7 @@ connect_with_timeout(int addr, int port, int timeout_sec){
 //                        fprintf(stderr, "Error in delayed connection() %d - %s\n", valopt, strerror(valopt)); 
 //                       exit(0); 
 //                    } 
-                    break; 
+                    return server_socket;
                 } 
                 else { 
                     perror("timeout on connect");                    
@@ -129,7 +129,7 @@ process_read(int fd, char *buff, int already_read){
 
 int
 process_write(int fd, char *buff, int already_read, int already_sent){
-    int to_write = already_sent - already_read;
+    int to_write = already_read - already_sent;
     if (to_write <= 0)
         return 0;
 
@@ -166,17 +166,39 @@ thread_func(int *fd_ptr)
         FD_ZERO(&writeset);
         FD_ZERO(&exset);
 
+        int max_fd = 0;
+
         if (!client_closed){
-            FD_SET(state->client_fd, &readset);
-            FD_SET(state->client_fd, &writeset);    
+            if (!server_closed){
+                FD_SET(state->client_fd, &readset);
+                max_fd = max(max_fd, state->client_fd);
+            }
+                
+
+            if (state->buff_s2c_n_written != state->buff_s2c_n_read){
+                FD_SET(state->client_fd, &writeset);
+                max_fd = max(max_fd, state->client_fd);
+            }
+                
         }
         
         if (!server_closed){
-            FD_SET(state->server_fd, &readset);        
-            FD_SET(state->server_fd, &writeset);
-        }        
+            if (!client_closed){
+                FD_SET(state->server_fd, &readset);
+                max_fd = max(max_fd, state->server_fd);
+            }
+                
 
-        if (select(max(state->client_fd, state->server_fd) + 1, &readset, &writeset, &exset, NULL) < 0) {
+            if (state->buff_c2s_n_written != state->buff_c2s_n_read){
+                FD_SET(state->server_fd, &writeset);
+                max_fd = max(max_fd, state->server_fd);
+            }                
+        }
+
+        if (max_fd == 0)
+            break;
+
+        if (select(max_fd + 1, &readset, &writeset, &exset, NULL) < 0) {
             perror("select on transfer");
             return;
         }
@@ -227,7 +249,7 @@ thread_func(int *fd_ptr)
             else
             {
                 close(state->client_fd);
-                server_closed = 1;
+                client_closed = 1;
             }
 
         }
@@ -261,8 +283,11 @@ thread_func(int *fd_ptr)
 
     free_conn_state(state);
 
-    close(state->client_fd);
-    close(state->server_fd);
+    if (!client_closed)
+        close(state->client_fd);
+
+    if (!server_closed)
+        close(state->server_fd);
  
     return;
 }
