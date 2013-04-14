@@ -105,7 +105,6 @@ def CheckPlantedFlag(host, session, tableName, flagID, flag):
     return False
 
 def Authorize(host):
-    if True : return "FUCK"
     data=bytes(json.dumps({ "login" : CheckerLogin, "password" : CheckerPassword}), "ASCII")
     request=urllib.request.Request(host + "/login", data)
     request.add_header("X-Requested-With", "XMLHttpRequest")
