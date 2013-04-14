@@ -36,14 +36,15 @@
                     </h5>
                   </div>
                   
-                  
+
+<!--                  
                   <h1 id="centeredTitle">
                     Выбранные команды
                   </h1>
                   
                   <xsl:apply-templates select="scoreboard">
                     <xsl:with-param name="class">inSelectedScoreboard</xsl:with-param>
-                  </xsl:apply-templates>
+                  </xsl:apply-templates> -->
 
                   <h1 id="centeredTitle">
                     Все команды
@@ -84,43 +85,21 @@
     <xsl:param name="class"/>
     <table width="855" class="scoreboard" cellspacing="0" cellpadding="10">
       
-      <col width="10" /><!-- место -->
-      <col width="50" /><!-- лого команды -->
-      <col />           <!-- имя команды -->
-      
-      
-      <col width="50" /><!-- Рейтинг -->
-      <col width="50" /><!-- Защита -->
-      <col width="50" /><!-- Атака -->
-      <col width="50" /><!-- Адвайзори -->
-      <col width="50" /> <!-- Таски -->
-      
-      <col width="50" />
-      <col width="50" />
-      <col width="50" />
-      <col width="50" />
-      <col width="50" />
-      <col width="50" />
-      <col width="50" />
-      
-
       <tr>
-        <th>#</th>
-        <th>Лого  </th>
+        <th width="20">#</th>
+        <th width="50">Лого  </th>
         <th>Команда</th>
-        <th>Рейтинг</th>
-        <th>Защита</th>
-        <th>Атака</th>
-        <th>Адвайзори</th>
-        <th>Таски</th>
+        <th width="50">Рейтинг</th>
+        <th width="50">Защита</th>
+        <th width="50">Атака</th>
+<!--    <th>Адвайзори</th> -->
+<!--    <th>Таски</th> -->
         <xsl:for-each select="team[1]/services/service">
-          <th>
+          <th width="40">
             <xsl:value-of select="@name"/>
           </th>
         </xsl:for-each>
-        <th>
-          #
-        </th>
+<!--    <th width="20">#</th> -->
       </tr>
 
 
@@ -269,7 +248,7 @@
             <xsl:value-of select="$viewAttackPercent"/><![CDATA[%]]><br/>
             (<xsl:value-of select="format-number(scores/@attack, '0', 'NaN2ZeroFormat')"/>)            
           </td>
-          <td>
+<!--       <td>
             <xsl:variable name="viewAdvisoriesPercent">
               <xsl:value-of select="format-number(100 * scores/@advisories div $maxAdvisories, '0.##', 'NaN2ZeroFormat')"/>
             </xsl:variable>
@@ -284,8 +263,8 @@
             <xsl:value-of select="$viewAdvisoriesPercent"/><![CDATA[%]]><br/>
             (<xsl:value-of select="format-number(scores/@advisories, '0', 'NaN2ZeroFormat')"/>)
             
-          </td>
-          <td>
+          </td> -->
+<!--      <td>
             <xsl:variable name="viewTasksPercent">
               <xsl:value-of select="format-number(100 * scores/@tasks div $maxTasks, '0.##', 'NaN2ZeroFormat')"/>
             </xsl:variable>
@@ -298,7 +277,7 @@
 
             <xsl:value-of select="$viewTasksPercent"/><![CDATA[%]]><br/>
             (<xsl:value-of select="format-number(scores/@tasks, '0', 'NaN2ZeroFormat')"/>)
-          </td>
+          </td> -->
           
           <xsl:for-each select="services/service">
             <xsl:element name="td">
@@ -356,32 +335,25 @@
             </xsl:element>
 
           </xsl:for-each>
-          <td>
-            <input type="checkbox" id="{$class}_chk{@vulnBox}" onclick="checkBox_OnClick('{@vulnBox}', this)"/>
-          </td>
+<!--      <td><input type="checkbox" id="{$class}_chk{@vulnBox}" onclick="checkBox_OnClick('{@vulnBox}', this)"/></td> -->
         </tr>
       </xsl:for-each>
       <tr>
         <th>#</th>
-        <th>Лого  </th>
+        <th>Лого</th>
         <th>Команда</th>
-        <th>Общее</th>
+        <th>Рейтинг</th>
         <th>Защита</th>
         <th>Атака</th>
-        <th>Адвайзори</th>
-        <th>Таски</th>
+<!--    <th>Адвайзори</th> -->
+<!--    <th>Таски</th> -->
         <xsl:for-each select="team[1]/services/service">
           <th>
             <xsl:value-of select="@name"/>
           </th>
         </xsl:for-each>
-        
-          <th>
-            #
-          </th>
-        
+<!--    <th>#</th> -->
       </tr>
-      
     </table>    
   </xsl:template>
 
