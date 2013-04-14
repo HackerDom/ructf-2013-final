@@ -2,6 +2,8 @@
 
 import hashlib, sys, json, time, random, string, urllib, os
 import urllib.request
+import urllib.error
+import socket
 from urllib.parse import *
 
 CheckerLogin="DatabaseChecker"
@@ -132,76 +134,78 @@ if len(sys.argv) < 3:
     sys.stderr.write("Not enough parameters")
     exit(110)
 
-dictFile = open("./DatabaseChecker/Dictionary.txt")
-dictionary = dictFile.read().split("\n")
-dictFile.close()
+try:
+    dictFile = open("./DatabaseChecker/Dictionary.txt")
+    dictionary = dictFile.read().split("\n")
+    dictFile.close()
 
-flagsTableName = dictionary[(int(time.time() / 60 / 15) * 42167) % len(dictionary)]
+    flagsTableName = dictionary[(int(time.time() / 60 / 15) * 42167) % len(dictionary)]
 
-AuthorizationHost = "http://" + sys.argv[2]
-CheckerHost = "http://db." + sys.argv[2]
-TeamName = sys.argv[2]
-CheckerMode = sys.argv[1]
+    AuthorizationHost = "http://" + sys.argv[2]
+    CheckerHost = "http://db." + sys.argv[2]
+    TeamName = sys.argv[2]
+    CheckerMode = sys.argv[1]
 
-if not os.path.exists("./DatabaseChecker/" + TeamName):
-    plantedFlagsFile = open("./DatabaseChecker/" + TeamName, "w")
-    plantedFlagsFile.close()
-    plantedFlags = {}
-else:
-    plantedFlagsFile = open("./DatabaseChecker/" + TeamName)
-    platedFlagFileContent = plantedFlagsFile.read()
-    if len(platedFlagFileContent) == 0:
+    if not os.path.exists("./DatabaseChecker/" + TeamName):
+        plantedFlagsFile = open("./DatabaseChecker/" + TeamName, "w")
+        plantedFlagsFile.close()
         plantedFlags = {}
     else:
-        plantedFlags = json.loads(platedFlagFileContent)
-    plantedFlagsFile.close()
+        plantedFlagsFile = open("./DatabaseChecker/" + TeamName)
+        platedFlagFileContent = plantedFlagsFile.read()
+        if len(platedFlagFileContent) == 0:
+            plantedFlags = {}
+        else:
+            plantedFlags = json.loads(platedFlagFileContent)
+        plantedFlagsFile.close()
 
-session = Authorize(AuthorizationHost)
+    session = Authorize(AuthorizationHost)
 
-#sys.stderr.write("session is " + session)
+    #sys.stderr.write("session is " + session)
 
-
-if CheckerMode == "check":
-    sys.stderr.write("Starting checking")
-    if not DoCheck(CheckerHost, session):
-        sys.stderr.write("Something gone wrong with checking")
-        exit(103)
-    sys.stderr.write("Everything working fine")
-    exit(101)
-
-if CheckerMode == "put" or CheckerMode == "get":
-    if len(sys.argv) < 5:
-        sys.stderr.write("Flag ID or flag are not supplied")
-        exit(110)
-
-    flagID = sys.argv[3].replace("-", "")
-    print(flagID)
-    flag = sys.argv[4]
-
-    if CheckerMode == "put":
-        sys.stderr.write("Starting putting flag")
-        if not PlantFlag(CheckerHost, session, flagsTableName, flagID, flag):
-            sys.stderr.write("Something gone wrong")
+    if CheckerMode == "check":
+        sys.stderr.write("Starting checking")
+        if not DoCheck(CheckerHost, session):
+            sys.stderr.write("Something gone wrong with checking")
             exit(103)
-        else:
-            sys.stderr.write("Flag successfully planted")
-            plantedFlags[flagID] = flagsTableName
-            plantedFlagsFile = open("./DatabaseChecker/" + TeamName , "w")
-            plantedFlagsFile.write(json.dumps(plantedFlags, "ASCII"))
-            plantedFlagsFile.close()
-            exit(101)
-    elif CheckerMode == "get":
-        sys.stderr.write("Starting getting flag")
-        if not flagID in plantedFlags:
-            sys.stderr.write("YOU LIE TO ME, THERE'S NO SUCH FLAG")
-            exit(102)
-        tableName = plantedFlags[flagID]
-        if not CheckPlantedFlag(CheckerHost, session, tableName, flagID, flag):
-            sys.stderr.write("Something gone wrong, no flag in there")
-            exit(102)
-        else:
-            sys.stderr.write("Correct flag detected")
-            exit(101)
+        sys.stderr.write("Everything working fine")
+        exit(101)
 
-sys.stderr.write("Mode is incorrect")
-exit(110)
+    if CheckerMode == "put" or CheckerMode == "get":
+        if len(sys.argv) < 5:
+            sys.stderr.write("Flag ID or flag are not supplied")
+            exit(110)
+
+        flagID = sys.argv[3].replace("-", "")
+        print(flagID)
+        flag = sys.argv[4]
+
+        if CheckerMode == "put":
+            sys.stderr.write("Starting putting flag")
+            if not PlantFlag(CheckerHost, session, flagsTableName, flagID, flag):
+                sys.stderr.write("Something gone wrong")
+                exit(103)
+            else:
+                sys.stderr.write("Flag successfully planted")
+                plantedFlags[flagID] = flagsTableName
+                plantedFlagsFile = open("./DatabaseChecker/" + TeamName , "w")
+                plantedFlagsFile.write(json.dumps(plantedFlags, "ASCII"))
+                plantedFlagsFile.close()
+                exit(101)
+        elif CheckerMode == "get":
+            sys.stderr.write("Starting getting flag")
+            if not flagID in plantedFlags:
+                sys.stderr.write("YOU LIE TO ME, THERE'S NO SUCH FLAG")
+                exit(102)
+            tableName = plantedFlags[flagID]
+            if not CheckPlantedFlag(CheckerHost, session, tableName, flagID, flag):
+                sys.stderr.write("Something gone wrong, no flag in there")
+                exit(102)
+            else:
+                sys.stderr.write("Correct flag detected")
+                exit(101)
+
+    sys.stderr.write("Mode is incorrect")
+    exit(110)
+except (urllib.error.URLError, socket.gaierror):
+    exit(104)
