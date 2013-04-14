@@ -21,6 +21,7 @@ sub CallUserAPI {
 
     my $req = HTTP::Request->new('POST', CFG_USERAPI_ENDPOINT);
     $req->header('Content-Type' => 'application/json');
+    $req->header('X-Requested-With' => 'XMLHttpRequest');
     $req->content(JSON::to_json({ session => $session }));
 
     my $ua = LWP::UserAgent->new;
