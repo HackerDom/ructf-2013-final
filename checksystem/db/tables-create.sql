@@ -11,7 +11,7 @@ CREATE TABLE teams (
 	id		INTEGER			PRIMARY KEY,
 	name		VARCHAR(256)		UNIQUE,
 	network		CIDR,
-	vuln_box	INET			NOT NULL,
+	vuln_box	VARCHAR(64)		NOT NULL,
 	enabled		BOOLEAN			NOT NULL DEFAULT TRUE
 );
 
