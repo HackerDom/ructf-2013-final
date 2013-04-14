@@ -96,6 +96,12 @@ sub updateUser {
     printf "UPDATE users (id='%s'): %s\n", $user->{id}, $rows>0 ? "Success" : "Failure" if DEBUG;
 }
 
+sub addCounters {
+    my ($self,$user,$mails,$bytes) = @_;
+    my $rows = $self->{db}->do("UPDATE users SET mails=mails+?, bytes=bytes+? WHERE id=?", undef, $mails, $bytes, $user->{id});
+    printf "UPDATE users (id='%s'): %s\n", $user->{id}, $rows>0 ? "Success" : "Failure" if DEBUG;
+}
+
 sub addIdentity {
     my ($self,$user,$email) = @_;
     my $rows = $self->{db}->do("INSERT INTO identities(user,email) VALUES(?,?)",undef,$user->{id},$email);

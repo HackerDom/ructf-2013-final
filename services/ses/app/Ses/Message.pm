@@ -2,6 +2,7 @@ package Ses::Message;
 
 use strict;
 use DBI;
+use Date::Format;
 use Ses::Config;
 use Ses::Utils;
 
@@ -19,6 +20,7 @@ sub new {
     $self->{id} = $id;
     $self->{fnameMsg} = sprintf "%s/%s.msg", CFG_QUEUE_DIR, $id;
     $self->{dirLock}  = sprintf "%s/%s.lck", CFG_QUEUE_DIR, $id;
+    $self->{size} = 0;
     bless $self, $class;
     return $self;
 }
@@ -27,13 +29,13 @@ sub read {
     my $self = shift;
     $self->lock();
     open F, $self->{fnameMsg} or die "Error: Message.read() failed for '%s': $!\n", $self->{fnameMsg};
-    sysread F, my $data, -s F;
+    my @data = <F>;
     close F;
     $self->unlock();
-    return $data;
+    return @data;
 }
 
-sub write {
+sub writeRaw {
     my ($self,$data) = @_;
     $self->lock();
     printf "Write to: %s ... (data: %d bytes)\n", $self->{fnameMsg}, length($data);
@@ -41,8 +43,28 @@ sub write {
     printf F "MAIL FROM: %s\n", $self->{from};
     printf F "RCPT TO: %s\n",   $self->{to};
     print F $data;
+    $self->{size} = tell F;
     close F;
     $self->unlock();
+}
+
+sub writeMessage {
+    my ($self,$msg,$subject) = @_;
+    $self->lock();
+    printf "Write to: %s ... \n", $self->{fnameMsg};
+    open F, '>', $self->{fnameMsg} or die "Error: Message.write() failed for '%s': $!\n", $self->{fnameMsg};
+    printf F "MAIL FROM: <%s>\n", $self->{from};
+    printf F "RCPT TO: <%s>\n",   $self->{to};
+    printf F "Message-ID: <%s\@ses>\n", $self->{id};
+    printf F "Date: %s\n",     time2str("%a, %d %h %Y %H:%M:%S %z",time);
+    printf F "From: %s\n",     $self->{from};
+    printf F "To: %s\n",       $self->{to};
+    printf F "Subject: %s\n",  $subject;
+    print  F "\n$msg";
+    $self->{size} = tell F;
+    close F;
+    $self->unlock();
+
 }
 
 sub lock {
@@ -60,6 +82,13 @@ sub unlock {
     rmdir $self->{dirLock} and return 1;
     warn sprintf "Error: Message.unlock() failed for '%s'\n", $self->{fnameMsg};
     return undef;
+}
+
+sub remove {
+    my ($self,$data) = @_;
+    $self->lock();
+    unlink $self->{fnameMsg};
+    $self->unlock();
 }
 
 1;

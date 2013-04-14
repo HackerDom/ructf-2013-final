@@ -55,8 +55,6 @@ SymbolAutomaton::SymbolAutomaton(const JSONNode & _syntax)
 		mapping[j->find("id")->as_int()] = new Node();
 	for (auto j = syntax.begin(); j != syntax.end(); ++j)
 	{
-		if (j->find("id")->as_int() == 71)
-			cout << j->write_formatted() << endl;
 		Node * node = mapping[j->find("id")->as_int()];
 		auto modifiers = j->find("modifiers")->as_array();
 		for (auto k = modifiers.begin(); k != modifiers.end(); ++k)
@@ -65,12 +63,28 @@ SymbolAutomaton::SymbolAutomaton(const JSONNode & _syntax)
 		for (auto k = transitions.begin(); k != transitions.end(); ++k)
 		{
 			if (k->name().length() == 1)
-				node->transitions[k->name()[0]] = mapping[k->as_int()];
+			{
+				char ch = k->name()[0];
+				if (isalpha(ch))
+				{
+					node->transitions[toupper(ch)] = mapping[k->as_int()];
+					node->transitions[tolower(ch)] = mapping[k->as_int()];
+				}
+				else
+				{
+					node->transitions[ch] = mapping[k->as_int()];
+				}
+
+			}
 			else
 			{
 				if (k->name() == "alpha")
+				{
 					for (char c = 'a' ; c <= 'z'; ++c)
 						node->transitions[c] = mapping[k->as_int()];
+					for (char c = 'A' ; c <= 'Z'; ++c)
+						node->transitions[c] = mapping[k->as_int()];
+				}
 				if (k->name() == "digit")
 					for (char c = '0' ; c <= '9'; ++c)
 						node->transitions[c] = mapping[k->as_int()];
@@ -115,9 +129,6 @@ bool SymbolAutomaton::Iterator::MoveNextState(char symbol)
 	else
 	{
 		currentState = currentState->transitions[symbol];
-		if (currentState != NULL)
-            for (auto j = currentState->transitions.begin(); j != currentState->transitions.end(); ++j)
-                    cout << (*j).first;
 	}
 	return true;
 }
@@ -135,20 +146,20 @@ Query * Parser::Parse(const string & queryString, const string & userID)
 	SymbolAutomaton::Iterator iter = automaton->GetIterator();
 	for (int i = 0; i < queryString.length(); ++i)
 	{
-		cout << "Making transition with char \'" << queryString[i] << "\'" << endl;
+		//cout << "Making transition with char \'" << queryString[i] << "\'" << endl;
 		if (!iter.MoveNextState(queryString[i]))
 		{
-			cout << "FUCK, SYNTAX ERROR";
+			//cout << "FUCK, SYNTAX ERROR";
 			return NULL;
 		}
 		auto modifiers = iter.GetModifiers();
-		cout << "Got " << modifiers->size() << " modifier(s)" << endl;
+		//cout << "Got " << modifiers->size() << " modifier(s)" << endl;
 		for (auto j = modifiers->begin(); j != modifiers->end(); ++j)
 		{
-			cout << (*j) << ' ';
+			//cout << (*j) << ' ';
 			modifierHandlers[*j](query, queryString[i]);
 		}
-		cout << endl;
+		//cout << endl;
 	}
 	if (query != NULL)
 		query->SetID(userID);

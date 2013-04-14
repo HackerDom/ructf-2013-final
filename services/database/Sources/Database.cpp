@@ -18,8 +18,8 @@ JSONNode *Database::CreateTable(const string &name, const vector<string> &column
 	table.push_back(rows);
 	auto tables = data.find("tables");
 	tables->push_back(table);
-	cout << tables->write_formatted() << endl;
-	cout << data.write_formatted() << endl;
+	//cout << tables->write_formatted() << endl;
+	//cout << data.write_formatted() << endl;
 	auto t = tables->find(name);
 	return t == tables->end() ? NULL : &*t;
 }
