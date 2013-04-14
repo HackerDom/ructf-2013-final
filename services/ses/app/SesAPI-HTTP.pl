@@ -84,7 +84,6 @@ sub Call_API {
         print $c result_err(1, "UserAPI Auth error: $err");
         return;
     }
-
     my $db = new Ses::Db;
     my $user = $db->findUser(uid => $uid);
     $db->addUser($uid) unless defined $user->{id};
@@ -119,7 +118,8 @@ sub Auth {
     my $r = shift;
     $r->header('Cookie') =~ /session=(\S+)/;
     my $session = $1 or return (undef, "No session cookie");
-    return CallUserAPI($session);
+    my $api = new Ses::UserAPI("http://127.0.0.1");
+    return $api->user($session);
 };
 
 #############################################################################

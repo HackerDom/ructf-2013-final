@@ -4,38 +4,61 @@ use strict;
 require LWP::UserAgent;
 use Ses::Config;
 use JSON -no_export;
-use Exporter;
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 
-$VERSION     = 1.00;
-@ISA         = qw(Exporter);
-@EXPORT      = qw(CallUserAPI);
-@EXPORT_OK   = ();
-%EXPORT_TAGS = ();
+#########################################################################################
 
-# Проверить сессию у User API
-
-sub CallUserAPI {
-
-    my $session = shift;
-
-    my $req = HTTP::Request->new('POST', CFG_USERAPI_ENDPOINT);
-    $req->header('Content-Type' => 'application/json');
-    $req->header('X-Requested-With' => 'XMLHttpRequest');
-    $req->content(JSON::to_json({ session => $session }));
+sub new {
+    my ($class, $endpoint) = @_;
 
     my $ua = LWP::UserAgent->new;
     $ua->timeout(CFG_API_TIMEOUT);
-    my $r = $ua->request($req);
 
+    my $self = { endpoint => $endpoint, ua => $ua };
+    bless $self, $class;
+    return $self;
+}
+
+sub sendRequest {
+    my ($self, $url, $args) = @_;
+
+    my $req = HTTP::Request->new('POST', $self->{endpoint}."/$url");
+    $req->header('Content-Type'     => 'application/json');
+    $req->header('X-Requested-With' => 'XMLHttpRequest');
+    $req->content(JSON::to_json($args));
+
+    my $r = $self->{ua}->request($req);
     return undef, $r->status_line unless $r->is_success;
 
     my $json = JSON::from_json($r->decoded_content);
-    return undef, sprintf "Status: %s, error.code: %d, error.str: %s",
-        $json->{status}, $json->{error}->{code}, $json->{error}->{str} 
-        unless $json->{status} eq 'OK';
+    return undef, $r->decoded_content unless $json->{status} eq 'OK';
 
-    return $json->{uid};
+    return $json, undef, $r->header("Set-Cookie");
+}
+
+###############################################################################################
+
+sub user {
+    my ($self,$session) = @_;
+    my ($r,$err) = $self->sendRequest("user", { session => $session } );
+    return defined $r ? $r->{uid} : (undef,$err);
+}
+
+sub register {
+    my ($self,$login,$pass,$first,$last,$lang) = @_;
+    my ($r,$err) = $self->sendRequest("register", {
+        login      => $login,
+        password   => $pass,
+        first_name => $first,
+        last_name  => $last,
+        language   => $lang
+    });
+    return defined $r ? $r->{uid} : (undef,$err);
+}
+
+sub login {
+    my ($self,$login,$pass) = @_;
+    my ($r,$err,$cookie) = $self->sendRequest("login", { login => $login, password => $pass } );
+    return defined $r ? $cookie : (undef,$err);
 }
 
 1;
