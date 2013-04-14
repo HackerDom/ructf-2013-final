@@ -83,15 +83,14 @@
   
   <xsl:template match="scoreboard">
     <xsl:param name="class"/>
-    <table width="855" class="scoreboard" cellspacing="0" cellpadding="10">
-      
+    <table width="900" class="scoreboard" cellspacing="0" cellpadding="10">
       <tr>
         <th width="20">#</th>
-        <th width="50">Лого  </th>
+        <th width="50">Лого</th>
         <th>Команда</th>
-        <th width="50">Рейтинг</th>
-        <th width="50">Защита</th>
-        <th width="50">Атака</th>
+        <th width="40">Рейтинг</th>
+        <th width="40">Защита</th>
+        <th width="40">Атака</th>
 <!--    <th>Адвайзори</th> -->
 <!--    <th>Таски</th> -->
         <xsl:for-each select="team[1]/services/service">
@@ -317,7 +316,7 @@
                     down
                   </xsl:when>
                   <xsl:otherwise>
-                    checker error
+                    error
                   </xsl:otherwise>
                 </xsl:choose>
                 <xsl:if test="@fail_comment != ''">                
