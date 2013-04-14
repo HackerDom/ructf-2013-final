@@ -103,9 +103,8 @@ def CheckPlantedFlag(host, session, tableName, flagID, flag):
     return False
 
 def Authorize(host):
-    if True: return "FUCK"
     data=bytes(json.dumps({ "login" : CheckerLogin, "password" : CheckerPassword}), "ASCII")
-    request=urllib.request.Request(host + ":12345/login", data)
+    request=urllib.request.Request(host + "/login", data)
     request.add_header("X-Requested-With", "XMLHttpRequest")
     request.add_header("Content-Type", "application/json")
     response = urllib.request.urlopen(request)
@@ -139,6 +138,7 @@ dictFile.close()
 
 flagsTableName = dictionary[(int(time.time() / 60 / 15) * 42167) % len(dictionary)]
 
+AuthorizationHost = "http://" + sys.argv[2]
 CheckerHost = "http://db." + sys.argv[2]
 TeamName = sys.argv[2]
 CheckerMode = sys.argv[1]
@@ -156,7 +156,7 @@ else:
         plantedFlags = json.loads(platedFlagFileContent)
     plantedFlagsFile.close()
 
-session = Authorize(CheckerHost)
+session = Authorize(AuthorizationHost)
 
 #print("session is " + session)
 
