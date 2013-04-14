@@ -150,6 +150,10 @@ sub user {
   }
 }
 
+sub options {
+  shift->render_data('');
+}
+
 sub _salt {
   return sha1_sum rand . $$;
 }
