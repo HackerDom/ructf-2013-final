@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import hashlib, sys, json, time, random, string, urllib
+import hashlib, sys, json, time, random, string, urllib, socket
 import urllib.request
 from urllib.parse import *
 
@@ -153,5 +153,6 @@ try:
     else:
         sys.stderr.write("Mode is incorrect"+"\n")
         exit(110)
-except:
+except (urllib.error.URLError, socket.gaierror):
+    sys.stderr.write("I-net error" + "\n")
     exit(104)
