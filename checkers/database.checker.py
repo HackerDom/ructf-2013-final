@@ -12,12 +12,12 @@ def SendRequest(host, session, requestString):
     request=urllib.request.Request(host, data)
     request.add_header("Cookie", "session=" + session)
     response = json.loads(urllib.request.urlopen(request).readall().decode('ascii'))
-    #print(response)
+    #sys.stderr.write(response)
     return response
 
 def CheckCreateDatabase(host, session, databaseName):
     response=SendRequest(host, session, "create database " + databaseName)
-    #print(response)
+    #sys.stderr.write(response)
     return response["status"] == "OK"
 
 def CheckCreateTable(host, session, databaseName, tableName, fields):
@@ -51,33 +51,33 @@ def GetRandomString(length):
 
 def DoCheck(host, session):
     databaseName = GetRandomString(random.randint(20, 40))
-    print("Creating database")
+    sys.stderr.write("Creating database")
     if not CheckCreateDatabase(host, session, databaseName): return False
-    print("Successfully created database " + databaseName)
+    sys.stderr.write("Successfully created database " + databaseName)
 
     tableName = GetRandomString(random.randint(20, 40))
     fields = [ GetRandomString(random.randint(20, 40)) ]
-    print("Creating table")
+    sys.stderr.write("Creating table")
     if not CheckCreateTable(host, session, databaseName, tableName, fields): return False
 
     values = [ GetRandomString(random.randint(20, 40)) ]
 
-    print("Planting values")
+    sys.stderr.write("Planting values")
     if not CheckInsertValue(host, session, databaseName, tableName, values): return False
-    print("Checking planted values")
+    sys.stderr.write("Checking planted values")
     if not CheckSelect(host, session, databaseName, tableName, fields, values): return False
 
-    print("Checking drop table")
+    sys.stderr.write("Checking drop table")
     if not CheckDropTable(host, session, databaseName, tableName): return False
-    print("Checking drop database")
+    sys.stderr.write("Checking drop database")
     if not CheckDropDatabase(host, session, databaseName): return False
 
     return True
 
 def PlantFlag(host, session, tableName, flagID, flag):
     response = SendRequest(host, session, "insert into flags." + tableName + " values ( '" + flagID + "', '" + flag + "')")
-    #print("insert into flags." + tableName + " values ( '" + flagID + "', '" + flag + "')")
-    #print(response)
+    #sys.stderr.write("insert into flags." + tableName + " values ( '" + flagID + "', '" + flag + "')")
+    #sys.stderr.write(response)
     if response["status"] == "FAIL":
         if response["error"]["code"] == 3:
             tResponse = SendRequest(host, session, "create database flags")
@@ -93,8 +93,8 @@ def PlantFlag(host, session, tableName, flagID, flag):
 
 def CheckPlantedFlag(host, session, tableName, flagID, flag):
     response = SendRequest(host, session, "select * from flags." + tableName)
-    #print("select * from flags." + tableName)
-    #print(response)
+    #sys.stderr.write("select * from flags." + tableName)
+    #sys.stderr.write(response)
     if response["status"] == "FAIL" or len(response["data"]["rows"]) < 1: return False
     rows = list(response["data"]["rows"])
     for row in rows:
@@ -112,24 +112,24 @@ def Authorize(host):
     if responseJson["status"] != "OK": 
         if responseJson["error"]["code"] == 3:
             registerData = bytes(json.dumps({ "login" : CheckerLogin, "password" : CheckerPassword, "first_name" : "checker", "last_name" : "checker", "language" : "checker" }), "ASCII")
-            #print(registerData)
+            #sys.stderr.write(registerData)
             registerRequest = urllib.request.Request(host + ":12345/register", registerData)
             registerRequest.add_header("X-Requested-With", "XMLHttpRequest")
             registerRequest.add_header("Content-Type", "application/json")
             registerResponse = json.loads(urllib.request.urlopen(registerRequest).readall().decode('ascii'))
-            #print(registerResponse)
+            #sys.stderr.write(registerResponse)
             if registerResponse["status"] != "OK":
-                print("Login system corrupted")
+                sys.stderr.write("Login system corrupted")
                 exit(110)
             response = urllib.request.urlopen(request).readall()
         else:
-            print("Some weird shit is happening with login system")
+            sys.stderr.write("Some weird shit is happening with login system")
             exit(110)
     return response.info()["Set-Cookie"].split("session=")[1]
 
 
 if len(sys.argv) < 3:
-    print("Not enough parameters")
+    sys.stderr.write("Not enough parameters")
     exit(110)
 
 dictFile = open("./DatabaseChecker/Dictionary.txt")
@@ -158,49 +158,50 @@ else:
 
 session = Authorize(AuthorizationHost)
 
-#print("session is " + session)
+#sys.stderr.write("session is " + session)
 
 
 if CheckerMode == "check":
-    print("Starting checking")
+    sys.stderr.write("Starting checking")
     if not DoCheck(CheckerHost, session):
-        print("Something gone wrong with checking")
+        sys.stderr.write("Something gone wrong with checking")
         exit(103)
-    print("Everything working fine")
+    sys.stderr.write("Everything working fine")
     exit(101)
 
 if CheckerMode == "put" or CheckerMode == "get":
     if len(sys.argv) < 5:
-        print("Flag ID or flag are not supplied")
+        sys.stderr.write("Flag ID or flag are not supplied")
         exit(110)
 
-    flagID = sys.argv[3]
+    flagID = sys.argv[3].replace("-", "")
+    print(flagID)
     flag = sys.argv[4]
 
     if CheckerMode == "put":
-        print("Starting putting flag")
+        sys.stderr.write("Starting putting flag")
         if not PlantFlag(CheckerHost, session, flagsTableName, flagID, flag):
-            print("Something gone wrong")
+            sys.stderr.write("Something gone wrong")
             exit(103)
         else:
-            print("Flag successfully planted")
+            sys.stderr.write("Flag successfully planted")
             plantedFlags[flagID] = flagsTableName
             plantedFlagsFile = open("./DatabaseChecker/" + TeamName , "w")
             plantedFlagsFile.write(json.dumps(plantedFlags, "ASCII"))
             plantedFlagsFile.close()
             exit(101)
     elif CheckerMode == "get":
-        print("Starting getting flag")
+        sys.stderr.write("Starting getting flag")
         if not flagID in plantedFlags:
-            print("YOU LIE TO ME, THERE'S NO SUCH FLAG")
+            sys.stderr.write("YOU LIE TO ME, THERE'S NO SUCH FLAG")
             exit(102)
         tableName = plantedFlags[flagID]
         if not CheckPlantedFlag(CheckerHost, session, tableName, flagID, flag):
-            print("Something gone wrong, no flag in there")
+            sys.stderr.write("Something gone wrong, no flag in there")
             exit(102)
         else:
-            print("Correct flag detected")
+            sys.stderr.write("Correct flag detected")
             exit(101)
 
-print("Mode is incorrect")
+sys.stderr.write("Mode is incorrect")
 exit(110)
