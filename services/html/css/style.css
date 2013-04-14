@@ -80,7 +80,7 @@ html, body {
 }
 
 
-.navbar .nav {
+.navbar > navbar-inner > .container > nav-collapse > .nav {
     position: relative;
     left: 0;
     display: block;
@@ -164,9 +164,25 @@ html, body {
     border: 0;
 }
 
-.pull-right {
+#wrap > .navbar > .navbar-inner > .container > .nav-collapse > .pull-right {
     padding-right: 5%;
-    padding-top: 5px;
+    padding-top: 10px;
+}
+/**
+* Gamer name
+**/
+#wrap > .navbar > .navbar-inner > .container > .nav-collapse > .pull-right > span {
+
+}
+.name {
+    color: #d13654;
+    text-decoration: none;
+}
+
+.name:hover,
+.name:focus {
+    color: #ffd64d;
+    text-decoration: none;
 }
 
 /**
@@ -175,7 +191,6 @@ html, body {
 
 .btn {
     line-height: 15px;
-    font-size: 14px;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
     padding-right: 10px;
     background-color: #ffd64d;
@@ -272,10 +287,11 @@ html, body {
 **/
 #footer {
     height: 30px;
-    background-color: #dbe3de;/*#cfcfcf;*/
+    background-color: #dbe3de;
 }
 #footer > .container .pull-right {
     padding-right: 5%;
+    padding-top: 5px;
 }
 
 #footer > .container > .pull-right > a {
@@ -300,8 +316,8 @@ html, body {
 #content {
     margin-right: auto;
     margin-left: auto;
-    margin-top: 5%;
     width: 940px;
+    *zoom: 1;
 }
 
 /**
@@ -310,9 +326,9 @@ html, body {
 
 #content > .container > .header-main {
     font-size: 35px;
-    color: #2973B8;
+    color: #2973b8;
     font-weight: bold;
-    margin-top: 5%;
+    margin-top: 10%;
     margin-left: 40%;
     text-shadow: 2px 2px 2px #dbe3de;
 }
@@ -337,3 +353,46 @@ html, body {
     display: inline-block;
 }
 
+
+/**
+* Tabs
+**/
+.nav-pills {
+    margin-bottom: 5px;
+}
+.nav-pills > .active > a,
+.nav-pills > .active > a:hover,
+.nav-pills > .active > a:focus {
+    color: #ffffff;
+    background-color: #2973b8;
+    box-shadow:  2px 2px 2px #dbe3de;
+}
+
+.nav-pills > a {
+    color:  #2973b8;
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+    text-decoration: none;
+    background-color: #dbe3de;
+    /*box-shadow:  2px 2px 2px #dbe3de;*/
+}
+
+.nav-pills > li > a {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+#content > .container > .tab-content {
+    widht: 85%;
+    min-height: 200px;
+    height: auto;
+    border: 2px solid #dbe3de;
+    padding: 10px;
+    margin: 0;
+}
