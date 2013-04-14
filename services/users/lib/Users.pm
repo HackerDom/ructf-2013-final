@@ -20,6 +20,15 @@ sub startup {
   $r->get('/register')->to('main#sign_up')->name('sign_up');
   $r->get('/logout')->to('main#logout')->name('logout');
 
+  $r->options('/*any')->to('main#options');
+
+  $self->hook(after_render => sub {
+    my ($c, $output, $format) = @_;
+    $c->res->headers->add('Access-Control-Allow-Origin' => '*');
+    $c->res->headers->add('Access-Control-Allow-Methods' => 'GET, POST, OPTIONS');
+    $c->res->headers->add('Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With');
+  });
+
   $self->helper(
     db => sub {
       state $db = MongoDB::MongoClient->new;
