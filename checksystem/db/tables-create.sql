@@ -310,7 +310,7 @@ CREATE VIEW cached_score AS
 CREATE VIEW xmlCachedScoreboard AS
 	SELECT xmlroot(
 	(SELECT xmlconcat(
-		(SELECT xmlpi(name "xml-stylesheet", 'type="text/xsl" href="scoreboard.en.xsl"')),	
+		(SELECT xmlpi(name "xml-stylesheet", 'type="text/xsl" href="scoreboard.xsl"')),	
 		(SELECT
 			xmlelement(
 				name scoreboard,
@@ -363,7 +363,7 @@ CREATE VIEW xmlCachedScoreboard AS
 CREATE VIEW xmlScoreboard AS	
 	SELECT xmlroot(
 	(SELECT xmlconcat(
-		(SELECT xmlpi(name "xml-stylesheet", 'type="text/xsl" href="scoreboard.en.xsl"')),	
+		(SELECT xmlpi(name "xml-stylesheet", 'type="text/xsl" href="scoreboard.xsl"')),	
 		(SELECT
 			xmlelement(
 				name scoreboard,
@@ -445,7 +445,7 @@ CREATE VIEW services_flags_stolen AS
 CREATE VIEW xmlFlags AS
 	SELECT xmlroot(
 	(SELECT xmlconcat(
-		(SELECT xmlpi(name "xml-stylesheet", 'type="text/xsl" href="flags.en.xsl"')),	
+		(SELECT xmlpi(name "xml-stylesheet", 'type="text/xsl" href="flags.xsl"')),	
 		(SELECT
 			xmlelement(
 				name "servicesFlagsStolen",
