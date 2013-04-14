@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SOCKET_BUF_LEN 1024
+#define SOCKET_BUF_LEN 16384
 #define CONNECT_TIMEOUT 3
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
@@ -167,82 +167,92 @@ thread_func(int *fd_ptr)
         FD_ZERO(&exset);
 
         if (!client_closed){
-            FD_SET(client_socket, &readset);
-            FD_SET(client_socket, &writeset);    
+            FD_SET(state->client_fd, &readset);
+            FD_SET(state->client_fd, &writeset);    
         }
         
         if (!server_closed){
-            FD_SET(server_socket, &readset);        
-            FD_SET(server_socket, &writeset);
+            FD_SET(state->server_fd, &readset);        
+            FD_SET(state->server_fd, &writeset);
         }        
 
-        if (select(max(client_socket,server_socket) + 1, &readset, &writeset, &exset, NULL) < 0) {
+        if (select(max(state->client_fd, state->server_fd) + 1, &readset, &writeset, &exset, NULL) < 0) {
             perror("select on transfer");
             return;
         }
 
-        if (!client_closed && FD_ISSET(client_socket, &readset))
+        if (!client_closed && FD_ISSET(state->client_fd, &readset))
         {
-            int result = process_read(client_socket, state->buff_c2s, state->buff_c2s_n_read);
+            int result = process_read(state->client_fd, state->buff_c2s, state->buff_c2s_n_read);
             if (result >= 0)
                 state->buff_c2s_n_read += result;                
             else
             {
-                close(client_socket);
+                close(state->client_fd);
                 client_closed = 1;
             }
         }
 
-        if (!server_closed && FD_ISSET(server_socket, &readset))
+        if (!server_closed && FD_ISSET(state->server_fd, &readset))
         {
-            int result = process_read(server_socket, state->buff_s2c, state->buff_s2c_n_read);
+            int result = process_read(state->server_fd, state->buff_s2c, state->buff_s2c_n_read);
             if (result >= 0)
                 state->buff_s2c_n_read += result;                
             else
             {
-                close(server_socket);
+                close(state->server_fd);
                 server_closed = 1;
             }
         }
 
 
-        if(!client_socket && FD_ISSET(client_socket, &writeset))
+        if(!client_closed && FD_ISSET(state->client_fd, &writeset))
         {
-            int result = process_write(client_socket, state->buff_s2c, state->buff_s2c_n_read, state->buff_s2c_n_written);
+            int result = process_write(state->client_fd, state->buff_s2c, state->buff_s2c_n_read, state->buff_s2c_n_written);
             if (result >= 0){
                 state->buff_s2c_n_written += result;
 
-                //TODO "сокращать" указатели и сдвигать буфер
+                if (state->buff_s2c_n_written > SOCKET_BUF_LEN/2){
+                    int delta = state->buff_s2c_n_read - state->buff_s2c_n_written;
+                    memmove(state->buff_s2c, state->buff_s2c + state->buff_s2c_n_written, delta);
+                    state->buff_s2c_n_read -= state->buff_s2c_n_written;
+                    state->buff_s2c_n_written -= state->buff_s2c_n_written;
+                }
 
                 if (server_closed && state->buff_s2c_n_written == state->buff_s2c_n_read){
-                    close(client_socket);
+                    close(state->client_fd);
                     client_closed = 1;
                 }                    
             }
             else
             {
-                close(client_socket);
+                close(state->client_fd);
                 server_closed = 1;
             }
 
         }
 
-        if(!server_closed && FD_ISSET(server_socket, &writeset))
+        if(!server_closed && FD_ISSET(state->server_fd, &writeset))
         {
-            int result = process_write(server_socket, state->buff_c2s, state->buff_c2s_n_read, state->buff_c2s_n_written);
+            int result = process_write(state->server_fd, state->buff_c2s, state->buff_c2s_n_read, state->buff_c2s_n_written);
             if (result >= 0){
                 state->buff_c2s_n_written += result;
 
-                //TODO "сокращать" указатели и сдвигать буфер
+                if (state->buff_c2s_n_written > SOCKET_BUF_LEN/2){
+                    int delta = state->buff_c2s_n_read - state->buff_c2s_n_written;
+                    memmove(state->buff_c2s, state->buff_c2s + state->buff_c2s_n_written, delta);
+                    state->buff_c2s_n_read -= state->buff_c2s_n_written;
+                    state->buff_c2s_n_written -= state->buff_c2s_n_written;
+                }
 
                 if (client_closed && state->buff_c2s_n_read == state->buff_c2s_n_written){
-                    close(server_socket);
+                    close(state->server_fd);
                     server_closed = 1;
                 }                    
             }
             else
             {
-                close(server_socket);
+                close(state->server_fd);
                 server_closed = 1;
             }
 
@@ -251,8 +261,8 @@ thread_func(int *fd_ptr)
 
     free_conn_state(state);
 
-    close(client_socket);
-    close(server_socket);
+    close(state->client_fd);
+    close(state->server_fd);
  
     return;
 }
