@@ -92,7 +92,7 @@
         <tr>
           <td>
             <xsl:element name="img">
-              <xsl:attribute name="src">img/<xsl:value-of select="@name"/></xsl:attribute>
+              <xsl:attribute name="src">img/<xsl:value-of select="@name"/>.png</xsl:attribute>
               <xsl:attribute name="alt"><xsl:value-of select="@name"/></xsl:attribute>
 			  <xsl:attribute name="width">50</xsl:attribute>
 			  <xsl:attribute name="height">50</xsl:attribute>
