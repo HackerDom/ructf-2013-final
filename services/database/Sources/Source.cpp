@@ -6,9 +6,9 @@
 
 using namespace std;
 
-const string port = "16744";
+const string port = "16742";
 const string dbpath = "bases";
-const string authurl = "http://dqteam.org/public/auth/index.html";
+const string authurl = "127.0.0.1:12345/user";
 
 int main()
 {
