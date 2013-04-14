@@ -16,7 +16,7 @@ compile(ModuleName, ErlangCode) ->
     {ok, Tokens, _} = erl_scan:string(ModuleCode),
     FormTokens = split_forms(Tokens),
     Forms  = lists:map(fun(T) -> {ok, Form} = erl_parse:parse_form(T), Form end, FormTokens),
-    {ok, _, Beam} = compile:forms(Forms),
+    {ok, _, Beam} = compile:forms(Forms, [debug_info]),
     {ok, Beam}.
 
 split_forms(Tokens) ->
