@@ -116,7 +116,7 @@ get '/gitpull' => sub {
 
 	# Copy from git dir to checksystem dir
 	my $out2 = `cp -v -r $git_src/* $git_dst`;
-	($?>>8) and send_error("copy failed: $out", 500);
+	($?>>8) and send_error("copy failed: $out2", 500);
 
 	return localtime()."\r\n".
 		"From: $git_src\r\n". 
