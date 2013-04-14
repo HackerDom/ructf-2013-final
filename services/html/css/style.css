@@ -1,19 +1,32 @@
 /*------------------------------------------------General template starts------------------------------------------------------*/
 html, body {
-  height: 100%;
-  font-weight: 500;
+    height: 100%;
+    font-weight: 500;
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
 }
+.page {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -30px;
+}
+
 /**
 *Head menu
 **/
 #wrap {
-  min-height: 100%;
-  height: auto !important;
-  height: 100%;
-  margin: 0 auto -30px;
+    min-height: 100%;
+    /*height: auto !important;
+    height: 100%;
+    margin: 0 auto -30px;*/
+    padding-bottom: 100px;
 }
 #wrap > .container {
-  padding-top: 60px;
+    padding-top: 60px;
 }
 
 .navbar {
@@ -166,13 +179,13 @@ html, body {
 
 #wrap > .navbar > .navbar-inner > .container > .nav-collapse > .pull-right {
     padding-right: 5%;
-    padding-top: 10px;
+    padding-top: 5px;
 }
 /**
 * Gamer name
 **/
 #wrap > .navbar > .navbar-inner > .container > .nav-collapse > .pull-right > span {
-
+    padding: 20px;
 }
 .name {
     color: #d13654;
@@ -190,9 +203,10 @@ html, body {
 **/
 
 .btn {
-    line-height: 15px;
+    width: 55px;
+    padding: 2px 5px;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-    padding-right: 10px;
+   /* padding-right: 10px;*/
     background-color: #ffd64d;
     *background-color: #ffca1a;
     background-image: -moz-linear-gradient(top, #ffd64d, #ffca1a);
@@ -224,7 +238,9 @@ html, body {
 }
 
 .btn-success {
+    width: 55px;
     color: #333333;
+    padding: 2px 5px;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
     background-color: #58bc39;
     *background-color: #4fa833;
@@ -253,8 +269,9 @@ html, body {
 }
 
 .btn-delete {
-    width: 70px;
+    width: 55px;
     color: #333333;
+    padding: 2px 5px;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
     background-color: #d13654;
     *background-color: #c12c49;
@@ -288,6 +305,7 @@ html, body {
 #footer {
     height: 30px;
     background-color: #dbe3de;
+    margin-top: -30px;
 }
 #footer > .container .pull-right {
     padding-right: 5%;
@@ -329,7 +347,6 @@ html, body {
     color: #2973b8;
     font-weight: bold;
     margin-top: 10%;
-    margin-left: 40%;
     text-shadow: 2px 2px 2px #dbe3de;
 }
 
@@ -372,7 +389,9 @@ html, body {
     color:  #2973b8;
 }
 
-.nav > li > a:hover, .nav > li > a:focus {
+.nav > li > a:hover,
+.nav > li > a:focus {
+    color: #264F87;
     text-decoration: none;
     background-color: #dbe3de;
     /*box-shadow:  2px 2px 2px #dbe3de;*/
@@ -393,6 +412,60 @@ html, body {
     min-height: 200px;
     height: auto;
     border: 2px solid #dbe3de;
-    padding: 10px;
+    padding: 20px;
     margin: 0;
 }
+/*------------------------------------------------Inputs, Selects focus starts-----------------------------------------*/
+input, select {
+    border: 1px solid #dbe3de;
+}
+input[type="text"]:focus {
+    border-color: rgba(41, 115, 184, 0.8);
+    outline: 0;
+    outline: thin dotted \9;
+    /* IE6-9 */
+
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(41, 115, 184, 0.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(41, 115, 184, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(41, 115, 184, 0.6);
+}
+
+select:focus {
+    border-color: rgba(41, 115, 184, 0.8);
+    outline: 0;
+    outline: thin dotted \9;
+    /* IE6-9 */
+
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(41, 115, 184, 0.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(41, 115, 184, 0.6);
+    box-shadow: insert 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(41, 115, 184, 0.6);
+}
+
+option:disabled,
+option[disabled]{
+    color: #8f9792;
+}
+/*------------------------------------------------Inputs, Selects focus ends-------------------------------------------*/
+
+/*------------------------------------------------DNS styles starts----------------------------------------------------*/
+.tab-content > .add-record {
+    margin-top: 3%;
+}
+
+.tab-content > .add-record > fieldset > select,
+.tab-content > .add-record > fieldset > input{
+    display:inline-block;
+    vertical-align:middle;
+    width: 70%;
+}
+.tab-content > .add-record > fieldset > select {
+    width: 71.5%;
+}
+.btn-add {
+    margin-left: 65%;
+}
+
+.btn-td {
+    width: 40px;
+}
+/*------------------------------------------------DNS styles ends------------------------------------------------------*/
