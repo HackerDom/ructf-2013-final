@@ -48,22 +48,22 @@ show_template = %q{
                     <li class="active"><a href="http://<%= r_host %>/show">View all records</a></li>
                 </ul>
                 <div class="tab-content">
-                	% if r_authored do
-                	%	if r_has_records do
+                	%% if r_authored do
+                	%%	if r_has_records do
                     <table class="table table-striped table-hover">
                         <tbody>
-                        	% r_dns_records.each do |r_record|
+                        	%% r_dns_records.each do |r_record|
 		                        <tr>
 		                            <td><%= r_record %></td>
 		                            <td class="btn-td"><button type="submit" class="btn btn-delete">Delete</button></td>
 		                        </tr>
-                        	% end
+                        	%% end
                         </tbody>
                     </table>
-                    %	else
+                    %%	else
                     <p> You have no records</p>
-                    %	end
-                    % else
+                    %%	end
+                    %% else
                     <p> Log in, please</p>
                 </div>
             </div>

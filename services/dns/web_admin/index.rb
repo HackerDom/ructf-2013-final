@@ -5,7 +5,9 @@ require 'net/http'
 require 'json'
 require 'digest/md5'
 require './templates/add.rb'
-require './templates/show.rb'
+#require './templates/show.rb'
+show_template = ""
+eval File.open('./templates/show.rb').read
 #require 'connect.rb'
 
 set :environment, :production
@@ -15,6 +17,12 @@ def md5(s)
 end
 
 r_host = '172.16.16.102'
+r_user_name = "qqq"
+r_dns_records = {}
+#template = %q{
+
+message = ERB.new(show_template, nil, "%")
+puts message.result
 
 get '/' do
   if request.cookies['session'] != nil
@@ -33,7 +41,7 @@ get '/' do
       r_has_records = false
       r_dns_records = {}
       r_user_name = r_hash['first_name'] + " " + r_hash['last_name'] + "!"
-      message = ERB.new($show_template, 0, "%<>")
+      message = ERB.new(show_template, 0, "%<>")
       payload = message.result
       "#{payload}"
     end
@@ -42,7 +50,7 @@ get '/' do
     r_has_records = false
     r_dns_records = {}
     r_user_name = "Log in!"
-    message = ERB.new($show_template, 0, "%<>")
+    message = ERB.new(show_template, nil, "%")
     payload = message.result
     "#{payload}"
   end
