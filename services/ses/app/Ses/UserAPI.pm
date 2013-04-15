@@ -42,7 +42,7 @@ sub sendRequest {
 sub user {
     my ($self,$session) = @_;
     my ($r,$err) = $self->sendRequest("user", { session => $session } );
-    return defined $r ? $r->{uid} : (undef,$err);
+    return defined $r ? ($r->{uid},$r->{language}) : (undef,undef,$err);
 }
 
 sub register {

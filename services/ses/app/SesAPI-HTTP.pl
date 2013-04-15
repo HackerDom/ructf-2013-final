@@ -9,6 +9,7 @@ use Ses::UserAPI;
 use Ses::Config;
 use Ses::Utils;
 use Ses::Db;
+use Ses::I18N;
 
 ################ Configuration ####################
 
@@ -23,6 +24,7 @@ my %HANDLERS = (
     '/credentials/del'  => \&API_Credentials_Del,
     '/mail/send'        => \&API_Mail_Send,
     '/stats'            => \&API_Stats,
+    '/error'            => \&API_Error,
 );
 
 ############ End of Configuration #################
@@ -78,20 +80,20 @@ sub Call_API {
     $c->send_header("Content-type", "application/json");
     $c->send_crlf;
 
-    my ($uid, $err) = Auth($r);
+    my ($uid, $lang, $err) = Auth($r);
     if (!defined $uid) {
         print "  -> UserAPI Auth error: $err\n" if DEBUG;
-        print $c result_err(1, "UserAPI Auth error: $err");
+        print $c result_err(1);
         return;
     }
     my $db = new Ses::Db;
     my $user = $db->findUser(uid => $uid);
-    $db->addUser($uid) unless defined $user->{id};
+    $db->addUser($uid,$lang) unless defined $user->{id};
     $user = $db->findUser(uid => $uid);
     if (!defined $user->{id}) {
         $db->close();
         printf "  -> DB: Cannot find new user after creation (uid='%s')\n", $uid if DEBUG;
-        print $c result_err(255, "Cannot find new user after creation");
+        print $c result_err(2);
         return;
     }
     printf "  -> UserAPI Auth OK (user.id='%d', user.uid='%s')\n", $user->{id}, $user->{uid} if DEBUG;
@@ -138,23 +140,23 @@ sub API_Identity_Add {
         $req = JSON::from_json($r->content);
     };
     if (!defined $req) {
-        print $c result_err(254, "Bad JSON");
+        print $c result_err(3);
         return;
     }
     printf "     email: '%s'\n", $req->{email} if DEBUG;
     if (!defined($req->{email})) {
-        print $c result_err(2, "Parameter 'email' not specified");
+        print $c result_err(4);
         return;
     }
     if ($req->{email} !~ /^[a-z0-9A-Z_\.-]+\@[a-z0-9A-Z_\.-]+\.[a-z]+$/) {
-        print $c result_err(3, "Invalid 'email' value");
+        print $c result_err(5);
         return;
     }
     if ($db->addIdentity($user, $req->{email})) {
         print $c result_ok;
     }
     else {
-        print $c result_err(4, "Failed");
+        print $c result_err(6);
     }
 }
 
@@ -166,23 +168,23 @@ sub API_Identity_Del {
         $req = JSON::from_json($r->content);
     };
     if (!defined $req) {
-        print $c result_err(254, "Bad JSON");
+        print $c result_err(3);
         return;
     }
     printf "     id: '%s'\n", $req->{id} if DEBUG;
     if (!defined($req->{id})) {
-        print $c result_err(2, "Parameter 'id' not specified");
+        print $c result_err(7);
         return;
     }
     if ($req->{id} !~ /^[0-9]+$/) {
-        print $c result_err(3, "Invalid 'id' value");
+        print $c result_err(8);
         return;
     }
     if ($db->delIdentity($user, $req->{id})) {
         print $c result_ok;
     }
     else {
-        print $c result_err(4, "Failed");
+        print $c result_err(6);
     }
 }
 
@@ -206,7 +208,7 @@ sub API_Credentials_Add {
         print $c result_ok { login => $login, pass => $pass };
     }
     else {
-        print $c result_err(4, "Failed");
+        print $c result_err(6);
     }
 }
 
@@ -218,23 +220,23 @@ sub API_Credentials_Del {
         $req = JSON::from_json($r->content);
     };
     if (!defined $req) {
-        print $c result_err(254, "Bad JSON");
+        print $c result_err(3);
         return;
     }
     printf "     id: '%s'\n", $req->{id} if DEBUG;
     if (!defined($req->{id})) {
-        print $c result_err(2, "Parameter 'id' not specified");
+        print $c result_err(7);
         return;
     }
     if ($req->{id} !~ /^[0-9]+$/) {
-        print $c result_err(3, "Invalid 'id' value");
+        print $c result_err(8);
         return;
     }
     if ($db->delCredentials($user, $req->{id})) {
         print $c result_ok;
     }
     else {
-        print $c result_err(4, "Failed");
+        print $c result_err(6);
     }
 }
 
@@ -247,24 +249,24 @@ sub API_Mail_Send {
         $req = JSON::from_json($r->content);
     };
     if (!defined $req) {
-        print $c result_err(254, "Bad JSON");
+        print $c result_err(3);
         return;
     }
-    defined($req->{from})    or do { print $c result_err(2, "Parameter 'from' not specified"); return };
-    defined($req->{to})      or do { print $c result_err(2, "Parameter 'to' not specified"); return };
-    defined($req->{message}) or do { print $c result_err(2, "Parameter 'message' not specified"); return };
-    defined($req->{subject}) or do { print $c result_err(2, "Parameter 'subject' not specified"); return };
+    defined($req->{from})    or do { print $c result_err(9); return };
+    defined($req->{to})      or do { print $c result_err(9); return };
+    defined($req->{message}) or do { print $c result_err(9); return };
+    defined($req->{subject}) or do { print $c result_err(9); return };
 
     if ($req->{from} !~ /^[a-z0-9A-Z_\.-]+\@[a-z0-9A-Z_\.-]+\.[a-z]+$/) {
-        print $c result_err(3, "Invalid 'from' value");
+        print $c result_err(10);
         return;
     }
     if ($req->{to} !~ /^[a-z0-9A-Z_\.-]+\@[a-z0-9A-Z_\.-]+\.[a-z]+$/) {
-        print $c result_err(3, "Invalid 'to' value");
+        print $c result_err(10);
         return;
     }
     if (!$db->findIdentity($user,$req->{from})) {
-        print $c result_err(4, "Forbidden: you cannot send emails from this identity/email");
+        print $c result_err(11);
         return;
     }
     my $msg = new Ses::Message;
@@ -282,5 +284,20 @@ sub API_Stats {
     print "  ** API_Stats\n" if DEBUG;
 
     print $c result_ok { mails => $user->{mails}, bytes => $user->{bytes} };
+}
+
+sub API_Error {
+    my ($c,$r,$db,$user) = @_;
+    print "  ** API_Error\n" if DEBUG;
+    my $req;
+    eval {
+        $req = JSON::from_json($r->content);
+    };
+    if (!defined $req) {
+        print $c result_err(3);
+        return;
+    }
+    my $h = Ses::I18N->get_handle($user->{language});
+    print $c result_ok { text => $h->maketext($req->{id}) };
 }
 
