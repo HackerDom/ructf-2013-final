@@ -42,6 +42,7 @@ type QueuesMap = LinearMap<~str,OwnedQueue>;
 enum Command {
     User{username:~str},
     Auth{cookie:~str},
+    List,
     Create{qname:~str},
     Delete{qname:~str},
     Enqueue{qname:~str, val:~str},
@@ -69,6 +70,18 @@ impl Command {
                     usercontext.is_authorized = true;
                 }
                 return ~"OK";
+            }
+            List => {
+                let mut list = ~"OK: ";
+                do queues_arc.read |queues: &QueuesMap| {
+                    for queues.each_key() |&key|{
+                        match queues.find(&key) {
+                            Some(val) => {list += val.owner + ":" + key + " "}
+                            None => {}
+                        }
+                    }
+                }
+                return copy list;
             }
             Create{qname: qname} => {
                 let mut is_authorized = false;
@@ -223,7 +236,7 @@ impl Command {
 
                     user_ok = match target_queue {
                         Some(found_queue) => {
-                            username == found_queue.owner
+                            str::starts_with(username, found_queue.owner)
                         },
                         None => false
                     };
@@ -297,6 +310,7 @@ fn parse_command(cmd: &str) -> Command{
     return match (words[0].to_lower(), arglen) {
         (~"user", 2) => User{username:copy words[1]},
         (~"auth", 2) => Auth{cookie:copy words[1]},
+        (~"list", 1) => List,
         (~"create", 2) => Create{qname:copy words[1]},
         (~"delete", 2) => Delete{qname:copy words[1]},
         (~"enqueue", 3) => Enqueue{qname:copy words[1], val:copy words[2]},
@@ -304,6 +318,7 @@ fn parse_command(cmd: &str) -> Command{
         (~"help", 1) => Help,
         (~"user", _) => Wrong,
         (~"auth", _) => Wrong,
+        (~"list", _) => Wrong,
         (~"create", _) => Wrong,
         (~"delete", _) => Wrong,
         (~"enqueue", _) => Wrong,
