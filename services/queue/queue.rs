@@ -6,14 +6,26 @@ use std::net::tcp::{listen, accept, TcpSocket, TcpErrData, TcpNewConnection};
 use std::net::ip;
 use std::task;
 use std::uv;
+use std::deque::Deque;
 
 use core::comm::{stream, SharedChan};
+use core::hashmap::linear::LinearMap;
 // use std::timer::sleep;
+use std::arc::{RWARC};
+
+static maxqueuesize: uint = 3;
 
 struct UserContext {
     name:~str,
     is_authorized:bool
 }
+
+struct OwnedQueue {
+    owner:~str,
+    queue: Deque<~str>
+}
+
+type QueuesMap = LinearMap<~str,OwnedQueue>;
 
 enum Command {
     User{username:~str},
@@ -27,32 +39,187 @@ enum Command {
 }
 
 impl Command {
-    fn run(self, usercontext: &mut UserContext) -> ~str {
+    fn run(self,
+           usercontext: &RWARC<UserContext>,
+           queues_arc:&RWARC<QueuesMap>) -> ~str {
         match self{
             User{username: username} => {
                 usercontext.name = username;
                 return ~"OK";
             }
-            Auth{cookie: c} => {
-                return ~"auth";
+            Auth{cookie: _} => {
+                usercontext.is_authorized = true;
+                return ~"OK";
             }
-            Create{qname: q} => {
-                return ~"Create";
+            Create{qname: qname} => {
+                if !usercontext.is_authorized {
+                    return ~"ERR: Not authorized";
+                }
+
+                let mut queue_exists = false;
+                do queues_arc.read |queues: &QueuesMap| {
+                    queue_exists = queues.contains_key(&qname);
+                }
+
+                if queue_exists {
+                    return ~"ERR: Queue already exists";
+                }
+
+                do queues_arc.write |queues_wr: &mut QueuesMap| {
+                    let owned_queue = OwnedQueue{
+                        owner: copy usercontext.name,
+                        queue: Deque::new()
+                    };
+                    queues_wr.insert(copy qname, owned_queue);
+                }
+                return ~"OK"
             }
-            Delete{qname: q} => {
-                return ~"Delete";
+            Delete{qname: qname} => {
+                if !usercontext.is_authorized {
+                    return ~"ERR: Not authorized";
+                }
+
+                let mut user_ok = false;
+
+                do queues_arc.read |queues: &QueuesMap| {
+                    let target_queue = queues.find(&qname);
+                    user_ok = match target_queue {
+                        Some(found_queue) => {
+                            usercontext.name == found_queue.owner
+                        },
+                        None => false
+                    };
+                }
+
+                if !user_ok {
+                    return ~"ERR: Wrong user";
+                }
+
+                do queues_arc.write |queues_wr: &mut QueuesMap| {
+                    queues_wr.remove(&copy qname);
+                }
+                return ~"OK"
             }
-            Enqueue{qname: q, val: v} => {
-                return ~"Enqueue";
+            Enqueue{qname: qname, val: val} => {
+                if !usercontext.is_authorized {
+                    return ~"ERR: Not authorized";
+                }
+
+                let mut queue_ok = false;
+                let mut user_ok = false;
+                let mut size_ok = false;
+
+                do queues_arc.read |queues: &QueuesMap| {
+                    let target_queue = queues.find(&qname);
+
+                    queue_ok = match target_queue {
+                        Some(_) => true,
+                        None => false
+                    };
+
+                    user_ok = match target_queue {
+                        Some(found_queue) => {
+                            usercontext.name == found_queue.owner
+                        },
+                        None => false
+                    };
+
+                    size_ok = match target_queue {
+                        Some(found_queue) => {
+                            found_queue.queue.len() < maxqueuesize
+                        },
+                        None => false
+                    };
+                };
+
+                if !queue_ok {
+                    return ~"ERR: Wrong queue";
+                }
+
+                if !user_ok {
+                    return ~"ERR: Wrong user";
+                }
+
+                if !size_ok {
+                    return ~"ERR: To many elements in queue";
+                }
+
+                do queues_arc.write |queues_wr: &mut QueuesMap| {
+                    let target_queue = queues_wr.find_mut(&qname);
+                    match target_queue {
+                        Some(found_queue) => {
+                            found_queue.queue.add_back(copy val);
+                        },
+                        None => {}
+                    };
+                };
+
+
+                return ~"OK"
             }
-            Dequeue{qname: q} => {
-                return ~"Dequeue";
+            Dequeue{qname: qname} => {
+                if !usercontext.is_authorized {
+                    return ~"ERR: Not authorized";
+                }
+
+                let mut queue_ok = false;
+                let mut user_ok = false;
+                let mut size_ok = false;
+
+                do queues_arc.read |queues: &QueuesMap| {
+                    let target_queue = queues.find(&qname);
+
+                    queue_ok = match target_queue {
+                        Some(_) => true,
+                        None => false
+                    };
+
+                    user_ok = match target_queue {
+                        Some(found_queue) => {
+                            usercontext.name == found_queue.owner
+                        },
+                        None => false
+                    };
+
+                    size_ok = match target_queue {
+                        Some(found_queue) => {
+                            found_queue.queue.len() != 0
+                        },
+                        None => false
+                    };
+                };
+
+                if !queue_ok {
+                    return ~"ERR: Wrong queue";
+                }
+
+                if !user_ok {
+                    return ~"ERR: Wrong user";
+                }
+
+                if !size_ok {
+                    return ~"ERR: The queue is empty";
+                }
+
+                let mut text = ~"OK: ";
+
+                do queues_arc.write |queues_wr: &mut QueuesMap| {
+                    match queues_wr.find_mut(&qname) {
+                        Some(found_queue) => {
+                            if !found_queue.queue.is_empty() {
+                                text += found_queue.queue.pop_front();
+                            }
+                        },
+                        None => {}
+                    };
+                };
+                return text;
             }
             Wrong => {
-                return ~"Wrong command";
+                return ~"ERR: Wrong args";
             }
             Unknown => {
-                return ~"Unknown command";
+                return ~"ERR: Unknown command";
             }
         }
 
@@ -93,8 +260,9 @@ fn parse_command(cmd: &str) -> Command{
     }
 }
 
-fn handle_client(sock: TcpSocket) {
+fn handle_client(sock: TcpSocket, queues_arc: &RWARC<QueuesMap>) {
     sock.write(str::to_bytes("Queue server is ready\n"));
+
 
     let mut buf = ~"";
     let mut cur_user_ctx = ~UserContext{name: ~"none", is_authorized: false};
@@ -119,15 +287,18 @@ fn handle_client(sock: TcpSocket) {
 
         buf += str::from_bytes(new_data);
 
-        // while !str::find_char(buf, '\n').is_none() {
         for str::each_split_char_no_trailing(buf, '\n') |s|{
             let cmd = parse_command(s);
 
-            // RUN!!!
-            let ans = cmd.run(cur_user_ctx);
+            let cur_user_ctx_arc = RWARC(cur_user_ctx);
 
-            sock.write(str::to_bytes(ans + "\n"));
-            // sock.write(str::to_bytes("\n"));
+            // RUN!!!
+            do task::spawn {
+                let ans = cmd.run(cur_user_ctx_arc, queues_arc);
+
+                sock.write(str::to_bytes(ans + "\n"));
+            }
+
         }
 
 
@@ -140,17 +311,19 @@ fn handle_client(sock: TcpSocket) {
     }
 }
 
-fn on_start_listen(kill_ch: SharedChan<Option<TcpErrData>>) {
+fn on_start_listen(_: SharedChan<Option<TcpErrData>>) {
     // pass the kill_ch to your main loop or wherever you want
     // to be able to externally kill the server from
     println("LISTEN");
 }
 
 fn on_connect(new_conn: TcpNewConnection,
-              kill_ch: SharedChan<Option<TcpErrData>>) {
-    println("CONNECT");
+              kill_ch: SharedChan<Option<TcpErrData>>,
+              queues_arc: RWARC<QueuesMap>) {
     let (cont_po, cont_ch) = stream::<Option<TcpErrData>>();
+
     do task::spawn_unlinked {
+
         let accept_result = accept(new_conn);
         match accept_result {
             Err(accept_error) => {
@@ -159,22 +332,36 @@ fn on_connect(new_conn: TcpNewConnection,
             },
             Ok(sock) => {
                 cont_ch.send(None);
-                handle_client(sock);
-
+                handle_client(sock, &queues_arc);
                 // sleep(&uv::global_loop::get(), 5000);
                 // do work here
             }
         }
     };
     match cont_po.recv() {
-        // shut down listen()
-        Some(err_data) => kill_ch.send(Some(err_data)),
-        // wait for next connection
-        None => ()
+        Some(err_data) => kill_ch.send(Some(err_data)),  // shut down listen()
+        None => ()  // wait for next connection
     }
 }
 
 
 fn main() {
-    listen(ip::v4::parse_addr("0.0.0.0"), 3255, 5, &uv::global_loop::get(), on_start_listen, on_connect);
+    let mut queues: QueuesMap;
+    queues = LinearMap::new();
+
+
+    // queues.insert(~"bay", OwnedQueue{owner: ~"test", queue: Deque::new()});
+    // println(fmt!("%?\n", queues));
+
+    // do queues_arc.write |queues_wr: &mut QueuesMap| {
+        // queues_wr.insert(~"bay2", OwnedQueue{owner: ~"test", queue: Deque::new()});
+    // }
+    let queues_arc = RWARC(queues);
+
+    listen(ip::v4::parse_addr("0.0.0.0"), 3255, 5, &uv::global_loop::get(),
+        on_start_listen,
+        |conn, kill_ch| {
+            println("CONNECT");
+            on_connect(conn, kill_ch, queues_arc.clone());
+        });
 }
