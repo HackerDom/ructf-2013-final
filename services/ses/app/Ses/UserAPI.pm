@@ -32,7 +32,9 @@ sub sendRequest {
     my $json = JSON::from_json($r->decoded_content);
     return undef, $r->decoded_content unless $json->{status} eq 'OK';
 
-    return $json, undef, $r->header("Set-Cookie");
+    my $cookie = $r->header("Set-Cookie");
+    $cookie=~/^([^;]+)/;
+    return $json, undef, $1;
 }
 
 ###############################################################################################
