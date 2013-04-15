@@ -11,9 +11,9 @@ use std::deque::Deque;
 use core::comm::{stream, SharedChan};
 use core::hashmap::linear::LinearMap;
 // use std::timer::sleep;
-use std::arc::{RWARC};
+use std::arc::RWARC;
 
-static maxqueuesize: uint = 3;
+static maxqueuesize: uint = 100;
 
 struct UserContext {
     name:~str,
@@ -40,19 +40,31 @@ enum Command {
 
 impl Command {
     fn run(self,
-           usercontext: &RWARC<UserContext>,
+           usercontext_arc: &RWARC<UserContext>,
            queues_arc:&RWARC<QueuesMap>) -> ~str {
         match self{
             User{username: username} => {
-                usercontext.name = username;
+                do usercontext_arc.write |usercontext: &mut UserContext| {
+                    usercontext.name = copy username;
+                    usercontext.is_authorized = false;
+                }
                 return ~"OK";
             }
             Auth{cookie: _} => {
-                usercontext.is_authorized = true;
+                do usercontext_arc.write |usercontext: &mut UserContext| {
+                    usercontext.is_authorized = true;
+                }
                 return ~"OK";
             }
             Create{qname: qname} => {
-                if !usercontext.is_authorized {
+                let mut is_authorized = false;
+                let mut username = ~"";
+                do usercontext_arc.read |usercontext: &UserContext| {
+                    is_authorized = usercontext.is_authorized;
+                    username = copy usercontext.name;
+                }
+
+                if !is_authorized {
                     return ~"ERR: Not authorized";
                 }
 
@@ -67,7 +79,7 @@ impl Command {
 
                 do queues_arc.write |queues_wr: &mut QueuesMap| {
                     let owned_queue = OwnedQueue{
-                        owner: copy usercontext.name,
+                        owner: copy username,
                         queue: Deque::new()
                     };
                     queues_wr.insert(copy qname, owned_queue);
@@ -75,7 +87,14 @@ impl Command {
                 return ~"OK"
             }
             Delete{qname: qname} => {
-                if !usercontext.is_authorized {
+                let mut is_authorized = false;
+                let mut username = ~"";
+                do usercontext_arc.read |usercontext: &UserContext| {
+                    is_authorized = usercontext.is_authorized;
+                    username = copy usercontext.name;
+                }
+
+                if !is_authorized {
                     return ~"ERR: Not authorized";
                 }
 
@@ -85,7 +104,7 @@ impl Command {
                     let target_queue = queues.find(&qname);
                     user_ok = match target_queue {
                         Some(found_queue) => {
-                            usercontext.name == found_queue.owner
+                            username == found_queue.owner
                         },
                         None => false
                     };
@@ -101,7 +120,14 @@ impl Command {
                 return ~"OK"
             }
             Enqueue{qname: qname, val: val} => {
-                if !usercontext.is_authorized {
+                let mut is_authorized = false;
+                let mut username = ~"";
+                do usercontext_arc.read |usercontext: &UserContext| {
+                    is_authorized = usercontext.is_authorized;
+                    username = copy usercontext.name;
+                }
+
+                if !is_authorized {
                     return ~"ERR: Not authorized";
                 }
 
@@ -119,7 +145,7 @@ impl Command {
 
                     user_ok = match target_queue {
                         Some(found_queue) => {
-                            usercontext.name == found_queue.owner
+                            username == found_queue.owner
                         },
                         None => false
                     };
@@ -158,7 +184,14 @@ impl Command {
                 return ~"OK"
             }
             Dequeue{qname: qname} => {
-                if !usercontext.is_authorized {
+                let mut is_authorized = false;
+                let mut username = ~"";
+                do usercontext_arc.read |usercontext: &UserContext| {
+                    is_authorized = usercontext.is_authorized;
+                    username = copy usercontext.name;
+                }
+
+                if !is_authorized {
                     return ~"ERR: Not authorized";
                 }
 
@@ -176,7 +209,7 @@ impl Command {
 
                     user_ok = match target_queue {
                         Some(found_queue) => {
-                            usercontext.name == found_queue.owner
+                            username == found_queue.owner
                         },
                         None => false
                     };
@@ -222,8 +255,6 @@ impl Command {
                 return ~"ERR: Unknown command";
             }
         }
-
-        // return ~"Success";
     }
 }
 
@@ -265,7 +296,8 @@ fn handle_client(sock: TcpSocket, queues_arc: &RWARC<QueuesMap>) {
 
 
     let mut buf = ~"";
-    let mut cur_user_ctx = ~UserContext{name: ~"none", is_authorized: false};
+    let mut cur_user_ctx = UserContext{name: ~"none", is_authorized: false};
+    let cur_user_ctx_arc = RWARC(cur_user_ctx);
 
     loop {
         println("Reading");
@@ -287,18 +319,30 @@ fn handle_client(sock: TcpSocket, queues_arc: &RWARC<QueuesMap>) {
 
         buf += str::from_bytes(new_data);
 
+        let (port, chan): (Port<~str>, Chan<~str>) = stream();
+        let chan = SharedChan(chan);
+
+        let mut n: uint = 0;
         for str::each_split_char_no_trailing(buf, '\n') |s|{
             let cmd = parse_command(s);
 
-            let cur_user_ctx_arc = RWARC(cur_user_ctx);
+            let queues_arc_clone = queues_arc.clone();
+            let cur_user_ctx_arc_clone = cur_user_ctx_arc.clone();
+
+            let child_chan = chan.clone();
 
             // RUN!!!
             do task::spawn {
-                let ans = cmd.run(cur_user_ctx_arc, queues_arc);
+                let own_cmd = copy cmd;
 
-                sock.write(str::to_bytes(ans + "\n"));
+                let ans = own_cmd.run(&cur_user_ctx_arc_clone, &queues_arc_clone);
+                child_chan.send(ans);
             }
+            n += 1
+        }
 
+        for iter::repeat(n) {
+            sock.write(str::to_bytes(port.recv() + "\n"));
         }
 
 
@@ -321,7 +365,8 @@ fn on_connect(new_conn: TcpNewConnection,
               kill_ch: SharedChan<Option<TcpErrData>>,
               queues_arc: RWARC<QueuesMap>) {
     let (cont_po, cont_ch) = stream::<Option<TcpErrData>>();
-
+    // queues_arc.clone();
+    // let x = ~RWARC(1);
     do task::spawn_unlinked {
 
         let accept_result = accept(new_conn);
@@ -349,14 +394,13 @@ fn main() {
     let mut queues: QueuesMap;
     queues = LinearMap::new();
 
-
-    // queues.insert(~"bay", OwnedQueue{owner: ~"test", queue: Deque::new()});
+    queues.insert(~"bay", OwnedQueue{owner: ~"test", queue: Deque::new()});
     // println(fmt!("%?\n", queues));
 
+    let queues_arc = RWARC(queues);
     // do queues_arc.write |queues_wr: &mut QueuesMap| {
         // queues_wr.insert(~"bay2", OwnedQueue{owner: ~"test", queue: Deque::new()});
     // }
-    let queues_arc = RWARC(queues);
 
     listen(ip::v4::parse_addr("0.0.0.0"), 3255, 5, &uv::global_loop::get(),
         on_start_listen,
