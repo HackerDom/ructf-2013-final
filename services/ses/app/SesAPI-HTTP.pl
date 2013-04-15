@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
 use strict;
-use threads;
 use Digest::SHA qw(sha1_hex);
 use HTTP::Daemon;
 use Ses::Message;
@@ -42,8 +41,16 @@ $SIG{'INT'} = sub {
     exit 0;
 };
 
+$SIG{'CHLD'} = 'IGNORE';
+
 while (my $c = $d->accept) {
-    threads->create(\&process_one_req, $c)->detach();
+    my $pid = fork();
+    defined $pid or die "Error: fork() failed: $!\n";
+    if ($pid==0) {
+        print "Child started: $$\n";
+        process_one_req($c);
+        exit 0;
+    }
 }
 
 exit 0;
