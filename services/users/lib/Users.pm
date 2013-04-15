@@ -29,6 +29,13 @@ sub startup {
     $c->res->headers->add('Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With');
   });
 
+  $self->hook(before_routes => sub {
+    my $c = shift;
+    my ($domain) = $c->req->headers->host =~ /(team\d+\.ructf)$/;
+    $domain //= 'teamX.ructf';
+    $c->stash(domain => $domain);
+  });
+
   $self->helper(
     db => sub {
       state $db = MongoDB::MongoClient->new;
