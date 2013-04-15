@@ -17,7 +17,7 @@
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
 typedef struct conn_state_s {
-    char buff_s2c[SOCKET_BUF_LEN];    
+    char buff_s2c[SOCKET_BUF_LEN];
     char buff_c2s[SOCKET_BUF_LEN];
 
     int server_fd;
@@ -71,36 +71,25 @@ connect_with_timeout(int addr, int port, int timeout_sec){
 
     int res = connect(server_socket, (struct sockaddr*)&sin, sizeof(sin));
     if (res < 0){
-        if (errno == EINPROGRESS) {            
-            fd_set myset; 
-            struct timeval tv; 
+        if (errno == EINPROGRESS) {
+            fd_set myset;
+            struct timeval tv;
 
             do {
-                tv.tv_sec = timeout_sec; 
-                tv.tv_usec = 0; 
-                FD_ZERO(&myset); 
-                FD_SET(server_socket, &myset); 
-                res = select(server_socket+1, NULL, &myset, NULL, &tv); 
-                if (res < 0 && errno != EINTR) { 
-                    perror("select on connect");                  
+                tv.tv_sec = timeout_sec;
+                tv.tv_usec = 0;
+                FD_ZERO(&myset);
+                FD_SET(server_socket, &myset);
+                res = select(server_socket+1, NULL, &myset, NULL, &tv);
+                if (res < 0 && errno != EINTR) {
+                    perror("select on connect");
                     return -1;
                 } 
                 else if (res > 0) { 
-                    // Socket selected for write 
-//                    lon = sizeof(int); 
-//                    if (getsockopt(soc, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) { 
-//                        fprintf(stderr, "Error in getsockopt() %d - %s\n", errno, strerror(errno)); 
-//                        exit(0); 
-//                    } 
-                    // Check the value returned... 
-//                    if (valopt) { 
-//                        fprintf(stderr, "Error in delayed connection() %d - %s\n", valopt, strerror(valopt)); 
-//                       exit(0); 
-//                    } 
                     return server_socket;
                 } 
                 else { 
-                    perror("timeout on connect");                    
+                    perror("timeout on connect");
                     return -1;
                 } 
             } while (1);
@@ -207,7 +196,7 @@ thread_func(int *fd_ptr)
         {
             int result = process_read(state->client_fd, state->buff_c2s, state->buff_c2s_n_read);
             if (result >= 0)
-                state->buff_c2s_n_read += result;                
+                state->buff_c2s_n_read += result;
             else
             {
                 close(state->client_fd);
@@ -219,7 +208,7 @@ thread_func(int *fd_ptr)
         {
             int result = process_read(state->server_fd, state->buff_s2c, state->buff_s2c_n_read);
             if (result >= 0)
-                state->buff_s2c_n_read += result;                
+                state->buff_s2c_n_read += result;
             else
             {
                 close(state->server_fd);
@@ -244,7 +233,7 @@ thread_func(int *fd_ptr)
                 if (server_closed && state->buff_s2c_n_written == state->buff_s2c_n_read){
                     close(state->client_fd);
                     client_closed = 1;
-                }                    
+                }
             }
             else
             {
@@ -270,7 +259,7 @@ thread_func(int *fd_ptr)
                 if (client_closed && state->buff_c2s_n_read == state->buff_c2s_n_written){
                     close(state->server_fd);
                     server_closed = 1;
-                }                    
+                }
             }
             else
             {
@@ -278,8 +267,8 @@ thread_func(int *fd_ptr)
                 server_closed = 1;
             }
 
-        }        
-    }    
+        }
+    }
 
     free_conn_state(state);
 
@@ -288,7 +277,7 @@ thread_func(int *fd_ptr)
 
     if (!server_closed)
         close(state->server_fd);
- 
+
     return;
 }
 
@@ -352,7 +341,7 @@ main(int argc, char **argv)
         return 1;
     }
 
-    dst_addr = inet_addr(argv[2]);    
+    dst_addr = inet_addr(argv[2]);
     if (dst_addr == -1){
         fprintf(stderr, "Invalid dst_addr '%s'\n", argv[2]);
         return 1;   
