@@ -36,6 +36,8 @@ sub usage {
 
 sub debug {
     my $msg = shift;
+    $msg =~ s/</&lt;/g;
+    $msg =~ s/>/&gt;/g;
     printf STDERR "$msg\n",@_ if $DEBUG;
 }
 
@@ -82,7 +84,10 @@ sub put {
 
     my ($uid,$err) = $userAPI->register($login, $pass, $first, $last, $lang);
     debug "put: UserAPI register: uid='$uid', err='$err'";
-    length($uid) or EXIT_CORRUPT "register failed: $err";
+    if (length($uid) == 0) {
+        my $msg = "register failed: $err";
+        $err =~ /^500 Can't connect/ ? EXIT_DOWN $msg : EXIT_CORRUPT $msg;
+    }
 
     my ($cookie,$err) = $userAPI->login($login, $pass);
     debug "put: UserAPI login: cookie='$cookie', err='$err'";
@@ -91,7 +96,8 @@ sub put {
     my ($ok,$data,$status) = $sesAPI->sendRequest("identity/add", { email => "$flag\@$host" });
     debug "put: SesAPI identity/add: ok='$ok', data='$data', status='$status'";
 
-    EXIT_OK;
+    EXIT_OK if $ok;
+    EXIT_CORRUPT "Put flag failed with status '$status'";
 }
 
 sub get {
@@ -106,7 +112,7 @@ sub get {
 
     my $sesAPI = new Ses::SesAPI("http://ses.$host", $cookie);
     my ($ok,$data,$status) = $sesAPI->sendRequest("identity/list", {});
-    debug "put: SesAPI identity/list: ok='$ok', data='$data', status='$status'";
+    debug "get: SesAPI identity/list: ok='$ok', data='$data', status='$status'";
 
     if ($data=~/$flag/) {
         EXIT_OK;
