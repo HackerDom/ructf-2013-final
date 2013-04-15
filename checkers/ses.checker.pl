@@ -36,6 +36,8 @@ sub usage {
 
 sub debug {
     my $msg = shift;
+    $msg =~ s|<!--.*?-->||gsi;
+    $msg =~ s|<html>.*?</html>|<html>[Cut out by checker...]</html>|si;
     $msg =~ s/</&lt;/g;
     $msg =~ s/>/&gt;/g;
     printf STDERR "$msg\n",@_ if $DEBUG;
