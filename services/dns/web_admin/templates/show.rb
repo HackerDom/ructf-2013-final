@@ -3,6 +3,7 @@
 # r_host
 # teamN
 # r_dns_records
+# r_has_records
 
 show_template = %q{
 	<!DOCTYPE html>
