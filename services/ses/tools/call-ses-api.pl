@@ -2,50 +2,43 @@
 use strict;
 use warnings;
 use JSON;
-use LWP::UserAgent;
+use Ses::SesAPI;
 
 sub DEBUG{1};
 
-my $url     = shift or print_usage();
-my $session = shift or print_usage();
-
+my $endpoint = shift or print_usage();
+my $method   = shift or print_usage();
+my $session  = shift or print_usage();
 my $params = get_params(@ARGV);
-my $json = to_json( $params, {pretty=>0} );
-
-my $cookie = "session=$session";
+my $json = JSON::to_json($params);
 
 if (DEBUG) {
     print "#------------------> REQUEST ----------------------------\n";
-    print "# URL:    $url\n";
-    print "# Cookie: $cookie\n";
-    print "# JSON:   $json\n";
+    print "# Endpoint: $endpoint\n";
+    print "# Method:   $method\n";
+    print "# Session:  $session\n";
+    print "# JSON:     $json\n";
     print "#------------------< REPLY ------------------------------\n";
 }
 
-my $ua       = LWP::UserAgent->new();
-$ua->default_header('Cookie' => $cookie);
-my $response = $ua->post( $url, Content => $json );
-my $content  = $response->decoded_content();
-#$content = encode(CODEPAGE, decode 'utf-8', $content);
+my $api = new Ses::SesAPI($endpoint,"session=$session");
+my ($reply,$status) = $api->sendRequest($method,$params);
 
-print "# Status: ",$response->status_line,$/ if DEBUG;
-if ($response->is_success) {
-    print to_json( from_json($content), {pretty=>1} ).$/;
-    exit 0;
-}
-else {
-    exit 1;
-}
+printf "# Status: %s\n", $status;
+print  defined $reply ? JSON::to_json($reply) : '{}';
+print $/;
+
+#exit defined $reply ? 0 : 1;
 
 #####################################################################################################################
 
 sub print_usage {
-	print <<'END';
-	
-  Usage: call-ses-api.pl <URL> <Session> [param1:value1] [param2:value2] ...
+    print <<'END';
+
+  Usage: call-ses-api.pl <Endpoint> <Method> <Session> [param1:value1] [param2:value2] ...
 
 END
-	exit 0;
+    exit 0;
 }
 
 sub get_params {
@@ -56,3 +49,4 @@ sub get_params {
 	}
 	return \%params;
 }
+

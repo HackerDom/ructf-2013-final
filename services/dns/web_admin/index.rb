@@ -4,8 +4,10 @@ require 'sinatra'
 require 'net/http'
 require 'json'
 require 'digest/md5'
-require 'templates/add'
-require 'templates/show'
+require './templates/add.rb'
+#require './templates/show.rb'
+show_template = ""
+eval File.open('./templates/show.rb').read
 #require 'connect.rb'
 
 set :environment, :production
@@ -15,15 +17,23 @@ def md5(s)
 end
 
 r_host = '172.16.16.102'
+teamN = 'team2'
+r_user_name = "qqq"
+r_dns_records = {}
+r_authored = false
+#template = %q{
+
+#message = ERB.new(show_template, nil, "%")
+#puts message.result
 
 get '/' do
   if request.cookies['session'] != nil
     r_host = request.host
-    #url = URI.parse(URI.encode("http://#{r_host}/user/"))
-    req = Net::HTTP::Post.new("http://#{r_host}/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
+    teamN = r_host[/team\d+/]
+    req = Net::HTTP::Post.new("http://#{teamN}.ructf/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     payload = {'session' => request.cookies['session']}.to_json
     req.body = payload
-    response = Net::HTTP.new("http://#{r_host}/user/", 80).start {|http| http.request(req) }
+    response = Net::HTTP.new("http://#{teamN}.ructf/user/", 80).start {|http| http.request(req) }
     r_hash = JSON.parse(response)
 
     if r_hash['status'] != 'OK'
@@ -42,7 +52,7 @@ get '/' do
     r_has_records = false
     r_dns_records = {}
     r_user_name = "Log in!"
-    message = ERB.new(show_template, 0, "%<>")
+    message = ERB.new(show_template, nil, "%")
     payload = message.result
     "#{payload}"
   end

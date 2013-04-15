@@ -1,4 +1,8 @@
-add_template = %q{
+# need to set up:
+# r_user_name
+# r_host
+
+$add_template = %q{
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,16 +19,16 @@ add_template = %q{
                 <a class="brand" href="#">RuCTF 2013</a>
                 <div class="nav-collapse collapse">
                     <ul class="nav">
-                        <li class="active"><a href="#">SES</a></li>
+                        <li><a href="#">SES</a></li>
                         <li><a href="#">MapReduse</a></li>
                         <li><a href="#">DB</a></li>
                         <li><a href="#">MessageQueue</a></li>
-                        <li><a href="#">DNS</a></li>
+                        <li class="active"><a href="#">DNS</a></li>
                         <li><a href="#">Balanser</a></li>
                         <li><a href="#">ScriptAPI</a></li>
                     </ul>
                     <div class="pull-right name-pan">
-                        <a href="#" class="name">Gamer Name</a>
+                        <a href="#" class="name"><%= r_user_name %></a>
                     </div>
                 </div>
             </div>

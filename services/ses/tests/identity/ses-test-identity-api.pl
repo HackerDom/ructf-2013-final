@@ -10,7 +10,7 @@ my $CALLAPI = '../../tools/call-ses-api.pl';
 my $HOST    = '127.0.0.1';
 my $PORT    = 8888;
 my $SESSION = 'qwer';
-my $RUNS    = 50;
+my $RUNS    = 10;
 my $OUTPUT  = 0;    # Print commands' stdout
 
 ######################### End of config #########################
@@ -25,7 +25,7 @@ sub genmail {
 sub callSesApi {
     my ($action,$args) = @_;
     print "$action ... ";
-    my @S = `$CALLAPI http://$HOST:$PORT/$action $SESSION $args`;
+    my @S = `$CALLAPI http://$HOST:$PORT $action $SESSION $args`;
     print $/,@S,$/ if $OUTPUT;
     my $exit = $?>>8;
     if ($exit) {
@@ -35,7 +35,7 @@ sub callSesApi {
     my $Json = join '', grep { /^[^#]/ } @S;
     my $Reply = from_json($Json);
     if ($Reply->{status} ne "OK") {
-        printf "%s (%s,%s)\n", $Reply->{status}, $Reply->{error}->{code}, $Reply->{error}->{str};
+        printf "%s (%d)\n", $Reply->{status}, $Reply->{error};
         return undef;
     }
     else {
@@ -69,7 +69,7 @@ if ($ARGS{list}) {
     $tStart = time();
     print "       ";
     my $R = callSesApi("identity/list");
-    @A = @{$R->{result}};
+    @A = @{$R->{result}} if defined $R;
     printf "# Got %d mails\n", 0+@A;
     printf "# Done in %d sec\n", time()-$tStart;
 }
