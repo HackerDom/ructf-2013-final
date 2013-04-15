@@ -3,6 +3,7 @@ use Dancer ':syntax';
 use DBI;
 use Sys::Hostname;
 use strict;
+no warnings;
 
 our $VERSION = '0.1';
 
@@ -37,6 +38,10 @@ get '/logs' => sub {
     template 'logs';
 };
 
+get '/stats' => sub {
+    template 'stats';
+};
+
 any '/logs/view' => sub {
     template 'logs';
 };
@@ -57,6 +62,21 @@ get '/teams' => sub {
 get '/teams/detail' => sub {
 	db_connect();
 	return db_readtable('SELECT id, name, network, vuln_box FROM teams');
+};
+
+get '/stats/10' => sub {
+	db_connect();
+    return read_stats(10);
+};
+
+get '/stats/60' => sub {
+	db_connect();
+    return read_stats(60);
+};
+
+get '/stats/180' => sub {
+	db_connect();
+    return read_stats(180);
 };
 
 get '/services' => sub {
@@ -162,3 +182,7 @@ sub json {
 	return "{" . join(',', map {"\"$_\":\"$in{$_}\""} sort keys %in) . "}";
 }
 
+sub read_stats {
+    my $min = shift;
+	return db_readtable("select services.name as serv, teams.name as team,retvals.name as ret,count from (select service_id,team_id,status,count(*) from access_checks where now()-time < '$min minutes' group by service_id,team_id,status order by team_id,service_id,status) a inner join teams on team_id=teams.id inner join services on service_id=services.id left outer join retvals on status=retvals.code order by serv,team");
+}
