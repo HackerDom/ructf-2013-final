@@ -1,0 +1,29 @@
+# apply me first
+
+# unmasking
+file {'/etc/portage/package.accept_keywords':
+     ensure  => present,
+     content =>
+"#required by mongodb
+app-arch/snappy ~x86
+dev-db/mongodb ~x86
+dev-libs/boost ~x86
+dev-util/boost-build ~x86
+
+# required by dev-perl/EV
+=dev-perl/EV-4.110.0 ~x86
+
+dev-perl/Mojolicious ~x86
+
+# required by mongodb perl module
+dev-perl/Module-ScanDeps ~x86
+dev-perl/Class-Method-Modifiers ~x86
+dev-perl/boolean ~x86
+dev-perl/Module-Install ~x86
+dev-perl/DateTime-Tiny ~x86
+", }
+
+
+
+file {'/etc/env.d/03portdir': ensure => present, content => "PORTDIR=/usr/portage"}
+exec {'/usr/sbin/env-update': subscribe => File['/etc/env.d/03portdir']}

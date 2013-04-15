@@ -1,0 +1,31 @@
+#!/sbin/runscript
+# Copyright 1999-2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+#extra_commands=""
+#extra_started_commands=""
+
+depend() {
+        use logger mongodb_user
+        need net
+}
+
+PIDFILE="/var/run/${SVCNAME}.pid"
+DIR="/home/${SVCNAME}/users/"
+BINARY="/usr/bin/hypnotoad"
+USER="${SVCNAME}:${SVCNAME}"
+
+start() {
+        ebegin "Starting ${SVCNAME}"
+        start-stop-daemon --start --exec "${BINARY}" \
+            --background --interpreted --make-pidfile --pidfile "${PIDFILE}" --user "${USER}" \
+            --chdir "${DIR}" -- -f script/users
+        eend $?
+}
+
+stop() {
+        ebegin "Stopping ${SVCNAME}"
+        start-stop-daemon --stop --exec "${BINARY}" \
+            --interpreted --pidfile "${PIDFILE}" --user "${USER}" --quiet
+        eend $?
+}
