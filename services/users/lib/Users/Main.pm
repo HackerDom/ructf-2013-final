@@ -12,6 +12,7 @@ sub index {
     $self->stash(fname => $user->{first_name});
     $self->stash(lname => $user->{last_name});
   }
+  $self->_domain;
   $self->render();
 }
 
@@ -24,6 +25,7 @@ sub logout {
 sub register {
   my $self = shift;
   $self->render_later;
+  $self->_domain;
   my $db = $self->db->get_database('users');
   my $user;
 
@@ -73,6 +75,7 @@ sub register {
 sub login {
   my $self = shift;
   $self->render_later;
+  $self->_domain;
   my $db = $self->db->get_database('users');
   my ($login, $password);
 
@@ -148,6 +151,13 @@ sub user {
   } else {
     return $self->render_json($self->_error(5, 'invalid sign, possible hack attempt'));
   }
+}
+
+sub _domain {
+  my $self = shift;
+  my ($domain) = $self->req->headers->host =~ /(team\d+\.ructf)$/;
+  $domain //= 'teamX.ructf';
+  $self->stash(domain => $domain);
 }
 
 sub options {

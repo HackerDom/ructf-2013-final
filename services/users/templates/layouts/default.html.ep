@@ -14,7 +14,7 @@
             <a class="brand" href="#">RuCTF</a>
             <div class="nav-collapse collapse">
               <ul class="nav">
-                <li><a href="#">dsaf</a></li>
+                <li><a href="<%= "http://dns.$domain" %>">DNS</a></li>
                 <li><a href="#">wert</a></li>
                 <li><a href="#">wert</a></li>
                 <li><a href="#">wert</a></li>
