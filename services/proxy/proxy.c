@@ -4,20 +4,21 @@
 #include <fcntl.h>
 
 #include <errno.h>
+#include <limits.h>
 
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SOCKET_BUF_LEN 16384
+#define SOCKET_BUF_LEN 65536
 #define CONNECT_TIMEOUT 3
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
 typedef struct conn_state_s {
-    char buff_s2c[SOCKET_BUF_LEN];    
+    char buff_s2c[SOCKET_BUF_LEN];
     char buff_c2s[SOCKET_BUF_LEN];
 
     int server_fd;
@@ -71,36 +72,25 @@ connect_with_timeout(int addr, int port, int timeout_sec){
 
     int res = connect(server_socket, (struct sockaddr*)&sin, sizeof(sin));
     if (res < 0){
-        if (errno == EINPROGRESS) {            
-            fd_set myset; 
-            struct timeval tv; 
+        if (errno == EINPROGRESS) {
+            fd_set myset;
+            struct timeval tv;
 
             do {
-                tv.tv_sec = timeout_sec; 
-                tv.tv_usec = 0; 
-                FD_ZERO(&myset); 
-                FD_SET(server_socket, &myset); 
-                res = select(server_socket+1, NULL, &myset, NULL, &tv); 
-                if (res < 0 && errno != EINTR) { 
-                    perror("select on connect");                  
+                tv.tv_sec = timeout_sec;
+                tv.tv_usec = 0;
+                FD_ZERO(&myset);
+                FD_SET(server_socket, &myset);
+                res = select(server_socket+1, NULL, &myset, NULL, &tv);
+                if (res < 0 && errno != EINTR) {
+                    perror("select on connect");
                     return -1;
                 } 
                 else if (res > 0) { 
-                    // Socket selected for write 
-//                    lon = sizeof(int); 
-//                    if (getsockopt(soc, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) { 
-//                        fprintf(stderr, "Error in getsockopt() %d - %s\n", errno, strerror(errno)); 
-//                        exit(0); 
-//                    } 
-                    // Check the value returned... 
-//                    if (valopt) { 
-//                        fprintf(stderr, "Error in delayed connection() %d - %s\n", valopt, strerror(valopt)); 
-//                       exit(0); 
-//                    } 
                     return server_socket;
                 } 
                 else { 
-                    perror("timeout on connect");                    
+                    perror("timeout on connect");
                     return -1;
                 } 
             } while (1);
@@ -124,7 +114,7 @@ process_read(int fd, char *buff, int already_read){
     else if (result == 0 || result < 0 && errno != EAGAIN)
         return -1;
     
-    return 0;    
+    return 0;
 }
 
 int
@@ -207,7 +197,7 @@ thread_func(int *fd_ptr)
         {
             int result = process_read(state->client_fd, state->buff_c2s, state->buff_c2s_n_read);
             if (result >= 0)
-                state->buff_c2s_n_read += result;                
+                state->buff_c2s_n_read += result;
             else
             {
                 close(state->client_fd);
@@ -219,7 +209,7 @@ thread_func(int *fd_ptr)
         {
             int result = process_read(state->server_fd, state->buff_s2c, state->buff_s2c_n_read);
             if (result >= 0)
-                state->buff_s2c_n_read += result;                
+                state->buff_s2c_n_read += result;
             else
             {
                 close(state->server_fd);
@@ -234,7 +224,7 @@ thread_func(int *fd_ptr)
             if (result >= 0){
                 state->buff_s2c_n_written += result;
 
-                if (state->buff_s2c_n_written > SOCKET_BUF_LEN/2){
+                if (state->buff_s2c_n_written == SOCKET_BUF_LEN){
                     int delta = state->buff_s2c_n_read - state->buff_s2c_n_written;
                     memmove(state->buff_s2c, state->buff_s2c + state->buff_s2c_n_written, delta);
                     state->buff_s2c_n_read -= state->buff_s2c_n_written;
@@ -244,7 +234,7 @@ thread_func(int *fd_ptr)
                 if (server_closed && state->buff_s2c_n_written == state->buff_s2c_n_read){
                     close(state->client_fd);
                     client_closed = 1;
-                }                    
+                }
             }
             else
             {
@@ -260,7 +250,7 @@ thread_func(int *fd_ptr)
             if (result >= 0){
                 state->buff_c2s_n_written += result;
 
-                if (state->buff_c2s_n_written > SOCKET_BUF_LEN/2){
+                if (state->buff_c2s_n_written == SOCKET_BUF_LEN){
                     int delta = state->buff_c2s_n_read - state->buff_c2s_n_written;
                     memmove(state->buff_c2s, state->buff_c2s + state->buff_c2s_n_written, delta);
                     state->buff_c2s_n_read -= state->buff_c2s_n_written;
@@ -270,7 +260,7 @@ thread_func(int *fd_ptr)
                 if (client_closed && state->buff_c2s_n_read == state->buff_c2s_n_written){
                     close(state->server_fd);
                     server_closed = 1;
-                }                    
+                }
             }
             else
             {
@@ -278,8 +268,8 @@ thread_func(int *fd_ptr)
                 server_closed = 1;
             }
 
-        }        
-    }    
+        }
+    }
 
     free_conn_state(state);
 
@@ -288,7 +278,7 @@ thread_func(int *fd_ptr)
 
     if (!server_closed)
         close(state->server_fd);
- 
+
     return;
 }
 
@@ -325,11 +315,21 @@ run(int listen_port)
         if (fd < 0) {
             perror("accept");
         } else {
-            if (pthread_create(&thread, NULL, thread_func, &fd) != 0) //TODO давать мало стека
+            pthread_attr_t tattr;
+            if (pthread_attr_init(&tattr) != 0) {
+                perror("pthread_attr_init");
+                return;
+            }
+            if (pthread_attr_setstacksize(&tattr, PTHREAD_STACK_MIN) != 0) {
+                perror("pthread_attr_setstacksize");
+                return;
+            }
+            if (pthread_create(&thread, &tattr, thread_func, &fd) != 0)
             {
                 perror("pthread_create");
                 return;
             }
+            pthread_attr_destroy(&tattr);
         }
     }
 }
@@ -352,7 +352,7 @@ main(int argc, char **argv)
         return 1;
     }
 
-    dst_addr = inet_addr(argv[2]);    
+    dst_addr = inet_addr(argv[2]);
     if (dst_addr == -1){
         fprintf(stderr, "Invalid dst_addr '%s'\n", argv[2]);
         return 1;   
