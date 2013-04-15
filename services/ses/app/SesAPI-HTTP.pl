@@ -155,7 +155,7 @@ sub API_Identity_Add {
         print $c result_err(4);
         return;
     }
-    if ($req->{email} !~ /^[a-z0-9A-Z_\.-]+\@[a-z0-9A-Z_\.-]+\.[a-z]+$/) {
+    if ($req->{email} !~ /^[a-z0-9A-Z_\.=-]+\@[a-z0-9A-Z_\.-]+\.[a-z]+$/) {
         print $c result_err(5);
         return;
     }
