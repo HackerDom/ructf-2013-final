@@ -19,10 +19,11 @@ end
 r_host = '172.16.16.102'
 r_user_name = "qqq"
 r_dns_records = {}
+r_authored = false
 #template = %q{
 
-message = ERB.new(show_template, nil, "%")
-puts message.result
+#message = ERB.new(show_template, nil, "%")
+#puts message.result
 
 get '/' do
   if request.cookies['session'] != nil
