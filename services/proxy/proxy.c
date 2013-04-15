@@ -4,13 +4,14 @@
 #include <fcntl.h>
 
 #include <errno.h>
+#include <limits.h>
 
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SOCKET_BUF_LEN 16384
+#define SOCKET_BUF_LEN 65536
 #define CONNECT_TIMEOUT 3
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
@@ -113,7 +114,7 @@ process_read(int fd, char *buff, int already_read){
     else if (result == 0 || result < 0 && errno != EAGAIN)
         return -1;
     
-    return 0;    
+    return 0;
 }
 
 int
@@ -223,7 +224,7 @@ thread_func(int *fd_ptr)
             if (result >= 0){
                 state->buff_s2c_n_written += result;
 
-                if (state->buff_s2c_n_written > SOCKET_BUF_LEN/2){
+                if (state->buff_s2c_n_written == SOCKET_BUF_LEN){
                     int delta = state->buff_s2c_n_read - state->buff_s2c_n_written;
                     memmove(state->buff_s2c, state->buff_s2c + state->buff_s2c_n_written, delta);
                     state->buff_s2c_n_read -= state->buff_s2c_n_written;
@@ -249,7 +250,7 @@ thread_func(int *fd_ptr)
             if (result >= 0){
                 state->buff_c2s_n_written += result;
 
-                if (state->buff_c2s_n_written > SOCKET_BUF_LEN/2){
+                if (state->buff_c2s_n_written == SOCKET_BUF_LEN){
                     int delta = state->buff_c2s_n_read - state->buff_c2s_n_written;
                     memmove(state->buff_c2s, state->buff_c2s + state->buff_c2s_n_written, delta);
                     state->buff_c2s_n_read -= state->buff_c2s_n_written;
@@ -314,11 +315,21 @@ run(int listen_port)
         if (fd < 0) {
             perror("accept");
         } else {
-            if (pthread_create(&thread, NULL, thread_func, &fd) != 0) //TODO давать мало стека
+            pthread_attr_t tattr;
+            if (pthread_attr_init(&tattr) != 0) {
+                perror("pthread_attr_init");
+                return;
+            }
+            if (pthread_attr_setstacksize(&tattr, PTHREAD_STACK_MIN) != 0) {
+                perror("pthread_attr_setstacksize");
+                return;
+            }
+            if (pthread_create(&thread, &tattr, thread_func, &fd) != 0)
             {
                 perror("pthread_create");
                 return;
             }
+            pthread_attr_destroy(&tattr);
         }
     }
 }
