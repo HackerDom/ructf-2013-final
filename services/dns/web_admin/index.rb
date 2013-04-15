@@ -5,7 +5,7 @@ require 'net/http'
 require 'json'
 require 'digest/md5'
 require './templates/add.rb'
-#require './templates/show.rb'
+
 show_template = ""
 eval File.open('./templates/show.rb').read
 #require 'connect.rb'
@@ -22,10 +22,6 @@ r_user_name = "qqq"
 r_dns_records = {}
 r_authored = false
 r_has_records = false
-#template = %q{
-
-#message = ERB.new(show_template, nil, "%")
-#puts message.result
 
 get '/' do
   if request.cookies['session'] != nil
