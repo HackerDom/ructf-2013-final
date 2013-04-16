@@ -9,6 +9,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+// Класс для обновления цены украденных флагов в таблицах
+//   * flag_price (туда новые данные добавляются - хранится вся история за все раунды) 
+//   * teams (там данные о стоимости флагов заменяются - хранится только стоимость за последний раунд) 
+
 public class FlagPriceManager {
 	
 	private static double epsilon = 0.0001d;
