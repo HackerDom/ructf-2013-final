@@ -139,6 +139,27 @@ CREATE TABLE rounds_cache (
 	tasks		INTEGER	
 );
 
+-- Стоимость флага (очков за атаку) каждой команды за каждый раунд
+-- Записывается пров. системой в конце каждого раунда
+
+CREATE TABLE flag_price (
+    round       INTEGER         NOT NULL,
+    time        TIMESTAMP       NOT NULL,
+    team        INTEGER         REFERENCES teams(id),
+    price       INTEGER         NOT NULL CHECK(price>0)
+);
+
+-- Названия статусов (для удобства в CCP)
+
+CREATE TABLE retvals (
+    code        INTEGER PRIMARY KEY,
+    name        VARCHAR(16)     NOT NULL
+);
+
+INSERT INTO retvals VALUES(101, 'Up');
+INSERT INTO retvals VALUES(102, 'Corrupt');
+INSERT INTO retvals VALUES(103, 'Mumble');
+INSERT INTO retvals VALUES(104, 'Down');
 
 -- Log table
 
