@@ -127,7 +127,8 @@ sub Auth {
     my $r = shift;
     $r->header('Cookie') =~ /session=(\S+)/;
     my $session = $1 or return (undef, "No session cookie");
-    my $api = new Ses::UserAPI("http://127.0.0.1");
+    my ($host) = $r->header('Host') =~ /(team\d+\.ructf)$/;
+    my $api = new Ses::UserAPI($host);
     return $api->user($session);
 };
 
