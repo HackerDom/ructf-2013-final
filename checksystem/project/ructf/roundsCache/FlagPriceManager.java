@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,11 +17,13 @@ public class FlagPriceManager {
 	private static PreparedStatement psDel;
 	private static PreparedStatement psIns;
 	private static PreparedStatement psSel;
+	private static PreparedStatement psUpd;
 	
 	public FlagPriceManager(Connection conn) throws SQLException {
-		psDel = conn.prepareStatement("DELETE FROM flag_price WHERE round = ?");
+		psDel = conn.prepareStatement("DELETE FROM flag_price WHERE round = ?");											// Очистить старые данные 
 		psIns = conn.prepareStatement("INSERT INTO flag_price(round,time,team,price,rank,rank_def,rank_att) VALUES (?,NOW(),?,?,?,?,?)");
-		psSel = conn.prepareStatement("SELECT team_id, privacy+availability, attack FROM rounds_cache WHERE round = ?");
+		psSel = conn.prepareStatement("SELECT team_id, privacy+availability, attack FROM rounds_cache WHERE round = ?");	// Прочитать актуальные данные о баллах
+		psUpd = conn.prepareStatement("UPDATE teams SET flag_price = ? WHERE id = ?");										// Обновить цену флага в таблице команд
 	}
 	
 	public void updatePrices(int round) throws SQLException {
@@ -62,6 +62,9 @@ public class FlagPriceManager {
 			psIns.setDouble(5, r.getRankDefense());
 			psIns.setDouble(6, r.getRankAttack());
 			psIns.executeUpdate();
+			psUpd.setInt(1, r.getFlagPrice());
+			psUpd.setInt(2, r.getTeam());
+			psUpd.executeUpdate();
 		}
 	}
 	
