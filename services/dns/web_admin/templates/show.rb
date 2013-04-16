@@ -24,7 +24,7 @@ show_template = %q{
                     <div class="nav-collapse collapse">
                         <ul class="nav">
                             <li><a href="#">SES</a></li>
-                            <li><a href="#">MapReduse</a></li>
+                            <li><a href="#">MapReduce</a></li>
                             <li><a href="#">DB</a></li>
                             <li><a href="#">MessageQueue</a></li>
                             <li class="active"><a href="http://<%= r_host %>">DNS</a></li>
