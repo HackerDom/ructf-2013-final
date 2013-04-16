@@ -34,7 +34,7 @@ public class FlagPriceManager {
 		StringBuilder sb = new StringBuilder();
 		for (TeamRank r : ranks)
 			sb.append(r.toString() + "  ");
-		System.out.println(String.format("round: %d, team->(rank,price): %s", round, sb.toString()));
+		System.out.println(String.format("FlagPriceManager: round: %d, team->(rank,price): %s", round, sb.toString()));
 	}
 
 	private void updateDbPrices(ArrayList<TeamRank> ranks, int round) throws SQLException {

@@ -38,7 +38,7 @@ public class TeamRank implements Comparable<TeamRank> {
 	
 	@Override
 	public String toString() {
-		return String.format("%d->(%.2f,%d)", team, rank, attackPrice);
+		return String.format("%d->(%f,%d)", team, rank, attackPrice);
 	}
 	
 }
