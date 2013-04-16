@@ -24,7 +24,7 @@
                             <li><a href="#">ScriptAPI</a></li>
                         </ul>
                         <div class="pull-right name-pan">
-                            <a href="#" class="name">Gamer Name</a>
+                            <a href="#" class="name">{% block name %} {{name}} {% endblock %}</a>
                             <a class="btn btn-delete" href="/logout">Logout</a>
                         </div>
                     </div>

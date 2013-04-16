@@ -597,4 +597,23 @@ option[disabled]{
     list-style-type: none;
     margin-bottom: 10px;
 }
+.mr-example > .example {
+    color: #2973b8;
+    cursor: default;
+}
+.mr-example > pre {
+    background-color:  #dbe3de;
+    width: 53%;
+    margin-left: 23%;
+    text-align: left;
+    padding-left: 20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-size: 15px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #333333;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
 /*---------------------------------------------MapReduce styles ends---------------------------------------------------*/
