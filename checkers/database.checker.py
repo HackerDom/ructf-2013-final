@@ -129,6 +129,7 @@ def Authorize(host):
             exit(110)
     return response.info()["Set-Cookie"].split("session=")[1]
 
+exit(110)
 
 if len(sys.argv) < 3:
     sys.stderr.write("Not enough parameters" + "\n")
