@@ -4,11 +4,12 @@ require 'sinatra'
 require 'net/http'
 require 'json'
 require 'digest/md5'
-require './templates/add.rb'
 
 show_template = ""
 eval File.open('./templates/show.rb').read
-#require 'connect.rb'
+
+add_template = ""
+eval File.open('./templates/add.rb').read
 
 set :environment, :production
 
@@ -19,42 +20,76 @@ end
 r_host = '172.16.16.102'
 teamN = 'team2'
 r_user_name = "qqq"
-r_dns_records = {}
+r_dns_records = []
 r_authored = false
 r_has_records = false
 
-get '/' do
+dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
+
+get %r{/(show)?)} do
   if request.cookies['session'] != nil
     r_host = request.host
     teamN = r_host[/team\d+/]
     payload = {'session' => request.cookies['session']}.to_json
-    #h = Net::HTTP.new("#{teamN}.ructf", 80)
-    #response, data = h.post("/user/", payload, initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
     response = Net::HTTP.new("#{teamN}.ructf", 80).start {|http| http.request(req) }
     r_hash = JSON.parse(response.body)
 
     if r_hash['status'] != 'OK'
-      "Status not OK!"  #redirect r_host+"/login"
+      r_authored = false
+      r_has_records = false
+      r_dns_records = []
+      r_user_name = "Cheater"
     else
       r_authored = true
+      id = dbh.escape_string(r_hash['uid'])
       r_has_records = false
-      r_dns_records = {}
+      r_dns_records = []
+      res = dbh.query("Select id, type, key, value from records where creator = #{id})")
+      if res.num_row > 0
+        r_has_records = true
+        res.each do |row|
+          r_dns_records.push([row[1] + " | " + row[2] + " -> " + row[3], row[0]])
+        end
+      end
       r_user_name = r_hash['first_name'] + " " + r_hash['last_name'] + "!"
-      message = ERB.new(show_template, 0, "%<>")
-      payload = message.result
-      "#{payload}"
     end
   else
     r_authored = false
     r_has_records = false
-    r_dns_records = {}
+    r_dns_records = []
     r_user_name = "Log in!"
-    message = ERB.new(show_template, nil, "%")
-    payload = message.result
-    "#{payload}"
   end
+  message = ERB.new(show_template, nil, "%")
+  payload = message.result
+  "#{payload}"
+end
+
+get '/add' do
+  if request.cookies['session'] != nil
+    r_host = request.host
+    teamN = r_host[/team\d+/]
+    payload = {'session' => request.cookies['session']}.to_json
+    req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
+    req.body = payload
+    response = Net::HTTP.new("#{teamN}.ructf", 80).start {|http| http.request(req) }
+    r_hash = JSON.parse(response.body)
+
+    if r_hash['status'] != 'OK'
+      r_authored = false
+      r_user_name = "Cheater"
+    else
+      r_authored = true
+      r_user_name = r_hash['first_name'] + " " + r_hash['last_name'] + "!"
+    end
+  else
+    r_authored = false
+    r_user_name = "Log in!"
+  end
+  message = ERB.new(add_template, nil, "%")
+  payload = message.result
+  "#{payload}"
 end
 
 post '/' do
