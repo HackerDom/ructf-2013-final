@@ -1,6 +1,13 @@
 extern mod std;
 
-use std::net::tcp::{listen, accept, TcpSocket, TcpErrData, TcpNewConnection};
+use core::path::Path;
+use core::comm::{stream, SharedChan};
+use core::hashmap::linear::LinearMap;
+
+use core::libc::funcs::c95::stdio::rename;
+
+use std::net::tcp::{listen, accept, connect, TcpSocket, TcpErrData,
+                    TcpNewConnection};
 use std::net::ip;
 use std::task;
 use std::uv;
@@ -9,15 +16,13 @@ use std::timer::sleep;
 use std::arc::RWARC;
 use std::serialize::{Encodable, Decodable};
 
-use core::path::Path;
-use core::comm::{stream, SharedChan};
-use core::hashmap::linear::LinearMap;
-
-use core::libc::funcs::c95::stdio::rename;
 
 static listen_addr: &'static str = "0.0.0.0";
 static listen_port: uint = 3255;
 static listen_backlog: uint = 128;
+
+static auth_server: &'static str = "172.16.16.102";  // change before deploy
+static auth_port: uint = 80;  // change before deploy
 
 static save_filename: &'static str = "db.json";
 static save_filename_tmp: &'static str = "db.json.inproccess";
@@ -52,6 +57,55 @@ enum Command {
     Unknown,
 }
 
+fn auth(login: ~str, cookie: ~str) -> bool {
+    let data = fmt!("{\"session\": \"%s\"}", cookie);
+    let request = fmt!("POST /user HTTP/1.1\n\
+                        Host: %s\n\
+                        X-Requested-With: XMLHttpRequest\n\
+                        Content-Type: application/json\n\
+                        Connection: close\n\
+                        Content-Length: %u\n\n%s",
+                        auth_server, str::len(data), data);
+    let mut ans = ~"";
+    match connect(ip::v4::parse_addr(auth_server), auth_port,
+                       &uv::global_loop::get()) {
+        Ok(sock) => {
+            sock.write(str::to_bytes(request));
+            loop {
+                match sock.read(0u) {
+                    Ok(d) => ans += str::from_bytes(d),
+                    Err(_) => break
+                }
+            }
+        }
+        Err(_) => {
+            println("Failed to connect to auth server, auth rejected");
+            return false;
+        }
+    }
+
+    match str::find_str(ans, "\r\n\r\n") {
+        Some(pos) => {
+            ans = str::slice(ans, pos, str::len(ans)).to_owned();
+        }
+        None => {
+            println("Failed to find beginning of the body in the auth \
+                     server answer");
+            return false;
+        }
+    }
+
+    if str::find_str(ans, "\"status\":\"OK\"").is_none() {
+        return false
+    }
+
+    if str::find_str(ans, fmt!("\"login\":\"%s\"", login)).is_none() {
+        return false
+    }
+
+    return true
+}
+
 impl Command {
     fn run(self,
            usercontext_arc: &RWARC<UserContext>,
@@ -64,12 +118,29 @@ impl Command {
                 }
                 return ~"OK";
             }
-            Auth{cookie: _} => {
-                sleep(&uv::global_loop::get(), 5000);
-                do usercontext_arc.write |usercontext: &mut UserContext| {
-                    usercontext.is_authorized = true;
+            Auth{cookie: cookie} => {
+                let mut is_authorized = false;
+                let mut username = ~"";
+                do usercontext_arc.read |usercontext: &UserContext| {
+                    is_authorized = usercontext.is_authorized;
+                    username = copy usercontext.name;
                 }
-                return ~"OK";
+
+                if is_authorized {
+                    return ~"OK";
+                }
+
+                is_authorized = auth(username, cookie);
+
+                do usercontext_arc.write |usercontext: &mut UserContext| {
+                    usercontext.is_authorized = is_authorized;
+                }
+
+                if is_authorized {
+                    return ~"OK";
+                } else {
+                    return ~"ERR";
+                }
             }
             List => {
                 let mut list = ~"OK: ";
