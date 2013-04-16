@@ -34,8 +34,8 @@ check_auth(Arg) ->
                                                      [{"X-Requested-With", "XMLHttpRequest"},
                                                       {"Content-Type", "application/json"}], post, Json),
         {ok, {struct, Resp}} = json2:decode_string(JsonResp),
-		["OK", Uid, FirstName, LastName, Email] = [proplists:get_value(Val, Resp)
-				|| Val <- ["status", "uid", "first_name", "last_name", "email"]],
+        ["OK", Uid, FirstName, LastName, Email] = [proplists:get_value(Val, Resp)
+                || Val <- ["status", "uid", "first_name", "last_name", "email"]],
         {ok, #user{id = Uid, first_name = FirstName, last_name = LastName, email = Email}}
     of
         Ok -> Ok
