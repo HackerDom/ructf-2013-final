@@ -14,15 +14,15 @@
 		<div class="mr-upload">
 			<input type="text" placeholder="Name" name="name">
 			<textarea placeholder="Data" rows="10" name="data"></textarea>
-			<button type="submit" class="btn btn-success">Execute</button>
+			<button type="submit" class="btn btn-success">Exec</button>
 		</div>
     </fieldset>
 </form>
 {% else %}
-<pre class="prettyprint linenums">
-{% for e in content %}
-    {{e}}
-{% endfor %}
-</pre>
+<div class="mr-example">
+    {% for e in content %}
+        {{e}}</br>
+    {% endfor %}
+</div>
 {% endif %}
 {% endblock %}
