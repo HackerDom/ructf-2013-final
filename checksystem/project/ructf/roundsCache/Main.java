@@ -125,11 +125,13 @@ public class Main {
 					teamsScores.put(team_id, team);
 				}
 				lastRounds.put(round, teamsScores);
-				flagPriceManager.updatePrices(round, teamsScores);
 			}
 			
 			AddToCache(scoresCache, lastRounds, updateFrom, updateTo);
 			UpdateCacheInDb(conn, scoresCache, roundTimes, updateFrom, updateTo);
+			
+			for (int round=updateFrom; round<=updateTo; round++)
+				flagPriceManager.updatePrices(round, lastRounds.get(round));
 			
 			scoreboardWriter.WriteFiles();		// подтянет данные из базы (из кэшей)
 						
