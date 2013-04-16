@@ -11,24 +11,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SOCKET_BUF_LEN 65536
+#define TMP_BUF_LEN 16384
+#define PROXY_BUF_LEN 65536
 #define CONNECT_TIMEOUT 3
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
 typedef struct conn_state_s {
-    char buff_s2c[SOCKET_BUF_LEN];
-    char buff_c2s[SOCKET_BUF_LEN];
-
-    int server_fd;
     int client_fd;
+    int server_fd;
 
-    size_t buff_s2c_n_read;
-    size_t buff_s2c_n_written;
+    char buff_c2s[PROXY_BUF_LEN];
+    char buff_s2c[PROXY_BUF_LEN];
 
-    size_t buff_c2s_n_read;
-    size_t buff_c2s_n_written;
+    short buff_c2s_n_read;
+    short buff_c2s_n_written;
+
+    short buff_s2c_n_read;
+    short buff_s2c_n_written;
 } conn_state;
 
 int dst_addr;
@@ -104,13 +105,19 @@ connect_with_timeout(int addr, int port, int timeout_sec){
 
 int
 process_read(int fd, char *buff, int already_read){
-    int to_read = SOCKET_BUF_LEN - already_read;
-    if (to_read <= 0)
+    char tmp[TMP_BUF_LEN];
+
+    int can_read = PROXY_BUF_LEN - already_read;
+    if (can_read <= 0)
         return 0;
 
-    int result = recv(fd, buff + already_read, to_read, 0);
+    int result = recv(fd, tmp, min(TMP_BUF_LEN, can_read), 0);
+
     if (result > 0)
+    {
+        memcpy(buff + already_read, tmp, result);
         return result;
+    }
     else if (result == 0 || result < 0 && errno != EAGAIN)
         return -1;
     
@@ -224,7 +231,7 @@ thread_func(int *fd_ptr)
             if (result >= 0){
                 state->buff_s2c_n_written += result;
 
-                if (state->buff_s2c_n_written == SOCKET_BUF_LEN){
+                if (state->buff_s2c_n_written > PROXY_BUF_LEN/4){
                     int delta = state->buff_s2c_n_read - state->buff_s2c_n_written;
                     memmove(state->buff_s2c, state->buff_s2c + state->buff_s2c_n_written, delta);
                     state->buff_s2c_n_read -= state->buff_s2c_n_written;
@@ -250,7 +257,7 @@ thread_func(int *fd_ptr)
             if (result >= 0){
                 state->buff_c2s_n_written += result;
 
-                if (state->buff_c2s_n_written == SOCKET_BUF_LEN){
+                if (state->buff_c2s_n_written > PROXY_BUF_LEN/4){
                     int delta = state->buff_c2s_n_read - state->buff_c2s_n_written;
                     memmove(state->buff_c2s, state->buff_c2s + state->buff_c2s_n_written, delta);
                     state->buff_c2s_n_read -= state->buff_c2s_n_written;
