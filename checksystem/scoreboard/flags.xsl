@@ -70,7 +70,7 @@
   </xsl:template>
   
   <xsl:template match="servicesFlagsStolen">
-    <table width="855" class="scoreboard" cellspacing="0" cellpadding="10">
+    <table width="900" class="scoreboard" cellspacing="0" cellpadding="10">
       
       <col width="50" /><!-- лого команды -->
       <col/><!-- имя команды -->     

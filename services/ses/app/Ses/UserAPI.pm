@@ -32,7 +32,9 @@ sub sendRequest {
     my $json = JSON::from_json($r->decoded_content);
     return undef, $r->decoded_content unless $json->{status} eq 'OK';
 
-    return $json, undef, $r->header("Set-Cookie");
+    my $cookie = $r->header("Set-Cookie");
+    $cookie=~/^([^;]+)/;
+    return $json, undef, $1;
 }
 
 ###############################################################################################
@@ -40,7 +42,7 @@ sub sendRequest {
 sub user {
     my ($self,$session) = @_;
     my ($r,$err) = $self->sendRequest("user", { session => $session } );
-    return defined $r ? $r->{uid} : (undef,$err);
+    return defined $r ? ($r->{uid},$r->{language}) : (undef,undef,$err);
 }
 
 sub register {

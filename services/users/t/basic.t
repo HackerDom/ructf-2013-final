@@ -53,6 +53,6 @@ $t->post_ok('/user' => {'X-Requested-With' => 'XMLHttpRequest'} => json => {sess
 $t->post_ok(
   '/user' => {'X-Requested-With' => 'XMLHttpRequest'} => json => {session => $cookie->value})
   ->status_is(200)->json_is('/status' => 'OK')->json_is('/first_name' => 'Andrey')
-  ->json_is('/last_name' => 'Khozov')->json_is('/language' => 'ru')->json_has('/uid');
+  ->json_is('/last_name' => 'Khozov')->json_is('/language' => 'ru')->json_is('/login' => 'avkhozov')->json_has('/uid');
 
 done_testing();

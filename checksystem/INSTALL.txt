@@ -1,3 +1,5 @@
+Valid for: Ubuntu 12.04
+
 1. INSTALL REQUIRED PACKETS
 ---------------------------
 
@@ -31,3 +33,4 @@ service postgresql restart
 -------------
 
 cd db && ./init-db.sh db.config && make main-db
+

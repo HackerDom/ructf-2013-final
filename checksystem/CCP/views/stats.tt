@@ -1,0 +1,16 @@
+<p>
+
+<input type="button" value="Last 10 min"  onclick="loadStats(10)"/>
+<input type="button" value="Last 1 hour"  onclick="loadStats(60)"/>
+<input type="button" value="Last 3 hours" onclick="loadStats(180)"/>
+</p>
+
+<table id="statstable" class="nicetable">
+	<tr>
+		<th width="100px"> Service </th>
+		<th width="200px"> Team    </th>
+		<th width="70px">  Result  </th>
+		<th width="50px">  Count   </th>
+	</tr>
+</table>
+

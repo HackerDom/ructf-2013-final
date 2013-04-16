@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!-- saved from url=(0030)http://localhost:8080/examples -->
+<html lang="en" slick-uniqueid="3"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title> Examples </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+<style type="text/css"></style></head>
+<body>
+<div class="page">
+    <div id="wrap">
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="examples#">RuCTF 2013</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li><a href="examples#">SES</a></li>
+                            <li class="active"><a href="examples#">MapReduce</a></li>
+                            <li><a href="examples#">DB</a></li>
+                            <li><a href="examples#">MessageQueue</a></li>
+                            <li><a href="examples#">DNS</a></li>
+                            <li><a href="examples#">Balancer</a></li>
+                            <li><a href="examples#">ScriptAPI</a></li>
+                        </ul>
+                        <div class="pull-right name-pan">
+                            <a href="examples#" class="name">Gamer Name</a>
+                            <a class="btn btn-delete" href="logout">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="content">
+            <div class="container">
+                <div class="header-main">MapReduce</div>
+                <hr>
+                <ul class="nav nav-pills">
+                    <li><a href="mapreduce-upload.html">Upload</a></li>
+                    <li><a href="mapreduse-exec.html">Execute</a></li>
+                    <li class="active"><a href="mapreduce-examples.html">Examples</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="mr-example">
+                        <label class="example">Counting values:</label>
+                        <pre>map(_Key, Value, Emit) -&gt;<br/>Emit(Value, 1).<br/>reduce(Key, Values, Emit) -&gt;<br/>S = lists:sum(Values),<br/>Emit(Key, integer_to_list(S)).
+                        </pre>
+                        <label class="example">Input data:</label>
+                        <pre>[{"1", "foo"}, {"2", "foo"}, {"3", "bar"}, {"4", "foo"}, {"5", "buzz"}, {"6", "bar"}].
+                        %% don't forget about dot at end!
+                        </pre>
+                        <label class="example">Result should look like this:</label>
+                        <pre>{"bar",["2"]}<br/>{"buzz",["1"]}<br/>{"foo",["3"]}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="footer">
+    <div class="container">
+        <div class="pull-right">
+            <a href="http://ructf.org/">RuCTF</a>
+            <a href="http://hackerdom.ru/">HackerDom</a>
+            <a href="ructf.org/2013/ru/devteam">Developers</a>
+        </div>
+    </div>
+</div>
+
+
+</body></html>

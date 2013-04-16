@@ -1,0 +1,38 @@
+# common
+package { 'app-portage/layman': ensure => present }
+package { 'dev-libs/libcgroup': ensure => present }
+package { 'dev-util/strace': ensure => present }
+package { 'sys-process/htop': ensure => present }
+package { 'app-portage/g-cpan': ensure => present }
+
+
+# user service
+user { 'user': uid => 10000, shell=>"/sbin/nologin", ensure => present}
+file { '/home/user': mode => 600, owner => user, group =>user,
+       ensure => directory, require => User['user']}
+file { '/home/user/mongodb': mode => 600, owner => user, group =>user,
+       ensure => directory, require => File['/home/user']}
+file { '/home/user/mongodb/run': mode => 600, owner => user, group =>user,
+       ensure => directory, require => File['/home/user/mongodb']}
+file { '/home/user/mongodb/db': mode => 600, owner => user, group =>user,
+       ensure => directory, require => File['/home/user/mongodb']}
+file { '/home/user/mongodb/log': mode => 600, owner => user, group =>user,
+       ensure => directory, require => File['/home/user/mongodb']}
+package { 'dev-perl/libwww-perl': ensure => present }
+package { 'dev-libs/openssl': ensure => '1.0.1c'}
+package { 'dev-db/mongodb': ensure => present, require => Package['dev-libs/openssl'] }
+package { 'dev-perl/EV': ensure => present }
+package { 'www-servers/nginx': ensure => present }
+
+# ses service
+user { 'ses': uid => 10003, shell=>"/sbin/nologin", ensure => present}
+file { '/home/ses': mode => 600, owner => ses, group =>ses,
+       ensure => directory, require => User['ses']}
+
+package { 'dev-perl/JSON': ensure => present }
+package { 'dev-perl/DBD-SQLite': ensure => present }
+package { 'dev-perl/Net-DNS': ensure => present }
+package { 'dev-perl/TimeDate': ensure => present }
+package { 'mail-mta/postfix': ensure => present }
+
+

@@ -14,6 +14,7 @@ my $CREATE_users=<<"SQL";
     CREATE TABLE users (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
         uid             VARCHAR(20) NOT NULL,
+        language        VARCHAR(8)  NOT NULL,
         production      BOOLEAN     NOT NULL  DEFAULT 0,
         mails           BIGINT      NOT NULL  DEFAULT 0,
         bytes           BIGINT      NOT NULL  DEFAULT 0,
@@ -75,9 +76,9 @@ sub createTables {
 }
 
 sub addUser {
-    my ($self,$uid) = @_;
-    my $rows = $self->{db}->do("INSERT INTO users(uid) VALUES(?)",undef,$uid);
-    printf "INSERT INTO users (uid='$uid'): %s\n", $rows>0 ? "Success" : "Failure" if DEBUG;
+    my ($self,$uid,$lang) = @_;
+    my $rows = $self->{db}->do("INSERT INTO users(uid,language) VALUES(?,?)",undef,$uid,$lang);
+    printf "INSERT INTO users (uid='$uid', lang='$lang'): %s\n", $rows>0 ? "Success" : "Failure" if DEBUG;
 }
 
 sub findUser {

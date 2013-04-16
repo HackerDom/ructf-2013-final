@@ -4,30 +4,32 @@
 #include <fcntl.h>
 
 #include <errno.h>
+#include <limits.h>
 
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SOCKET_BUF_LEN 1024
+#define TMP_BUF_LEN 16384
+#define PROXY_BUF_LEN 65536
 #define CONNECT_TIMEOUT 3
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
 typedef struct conn_state_s {
-    char buff_s2c[SOCKET_BUF_LEN];    
-    char buff_c2s[SOCKET_BUF_LEN];
-
-    int server_fd;
     int client_fd;
+    int server_fd;
 
-    size_t buff_s2c_n_read;
-    size_t buff_s2c_n_written;
+    char buff_c2s[PROXY_BUF_LEN];
+    char buff_s2c[PROXY_BUF_LEN];
 
-    size_t buff_c2s_n_read;
-    size_t buff_c2s_n_written;
+    short buff_c2s_n_read;
+    short buff_c2s_n_written;
+
+    short buff_s2c_n_read;
+    short buff_s2c_n_written;
 } conn_state;
 
 int dst_addr;
@@ -71,36 +73,25 @@ connect_with_timeout(int addr, int port, int timeout_sec){
 
     int res = connect(server_socket, (struct sockaddr*)&sin, sizeof(sin));
     if (res < 0){
-        if (errno == EINPROGRESS) {            
-            fd_set myset; 
-            struct timeval tv; 
+        if (errno == EINPROGRESS) {
+            fd_set myset;
+            struct timeval tv;
 
             do {
-                tv.tv_sec = timeout_sec; 
-                tv.tv_usec = 0; 
-                FD_ZERO(&myset); 
-                FD_SET(server_socket, &myset); 
-                res = select(server_socket+1, NULL, &myset, NULL, &tv); 
-                if (res < 0 && errno != EINTR) { 
-                    perror("select on connect");                  
+                tv.tv_sec = timeout_sec;
+                tv.tv_usec = 0;
+                FD_ZERO(&myset);
+                FD_SET(server_socket, &myset);
+                res = select(server_socket+1, NULL, &myset, NULL, &tv);
+                if (res < 0 && errno != EINTR) {
+                    perror("select on connect");
                     return -1;
                 } 
                 else if (res > 0) { 
-                    // Socket selected for write 
-//                    lon = sizeof(int); 
-//                    if (getsockopt(soc, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) { 
-//                        fprintf(stderr, "Error in getsockopt() %d - %s\n", errno, strerror(errno)); 
-//                        exit(0); 
-//                    } 
-                    // Check the value returned... 
-//                    if (valopt) { 
-//                        fprintf(stderr, "Error in delayed connection() %d - %s\n", valopt, strerror(valopt)); 
-//                       exit(0); 
-//                    } 
-                    break; 
+                    return server_socket;
                 } 
                 else { 
-                    perror("timeout on connect");                    
+                    perror("timeout on connect");
                     return -1;
                 } 
             } while (1);
@@ -114,22 +105,28 @@ connect_with_timeout(int addr, int port, int timeout_sec){
 
 int
 process_read(int fd, char *buff, int already_read){
-    int to_read = SOCKET_BUF_LEN - already_read;
-    if (to_read <= 0)
+    char tmp[TMP_BUF_LEN];
+
+    int can_read = PROXY_BUF_LEN - already_read;
+    if (can_read <= 0)
         return 0;
 
-    int result = recv(fd, buff + already_read, to_read, 0);
+    int result = recv(fd, tmp, min(TMP_BUF_LEN, can_read), 0);
+
     if (result > 0)
+    {
+        memcpy(buff + already_read, tmp, result);
         return result;
+    }
     else if (result == 0 || result < 0 && errno != EAGAIN)
         return -1;
     
-    return 0;    
+    return 0;
 }
 
 int
 process_write(int fd, char *buff, int already_read, int already_sent){
-    int to_write = already_sent - already_read;
+    int to_write = already_read - already_sent;
     if (to_write <= 0)
         return 0;
 
@@ -166,94 +163,129 @@ thread_func(int *fd_ptr)
         FD_ZERO(&writeset);
         FD_ZERO(&exset);
 
+        int max_fd = 0;
+
         if (!client_closed){
-            FD_SET(client_socket, &readset);
-            FD_SET(client_socket, &writeset);    
+            if (!server_closed){
+                FD_SET(state->client_fd, &readset);
+                max_fd = max(max_fd, state->client_fd);
+            }
+                
+
+            if (state->buff_s2c_n_written != state->buff_s2c_n_read){
+                FD_SET(state->client_fd, &writeset);
+                max_fd = max(max_fd, state->client_fd);
+            }
+                
         }
         
         if (!server_closed){
-            FD_SET(server_socket, &readset);        
-            FD_SET(server_socket, &writeset);
-        }        
+            if (!client_closed){
+                FD_SET(state->server_fd, &readset);
+                max_fd = max(max_fd, state->server_fd);
+            }
+                
 
-        if (select(max(client_socket,server_socket) + 1, &readset, &writeset, &exset, NULL) < 0) {
+            if (state->buff_c2s_n_written != state->buff_c2s_n_read){
+                FD_SET(state->server_fd, &writeset);
+                max_fd = max(max_fd, state->server_fd);
+            }                
+        }
+
+        if (max_fd == 0)
+            break;
+
+        if (select(max_fd + 1, &readset, &writeset, &exset, NULL) < 0) {
             perror("select on transfer");
             return;
         }
 
-        if (!client_closed && FD_ISSET(client_socket, &readset))
+        if (!client_closed && FD_ISSET(state->client_fd, &readset))
         {
-            int result = process_read(client_socket, state->buff_c2s, state->buff_c2s_n_read);
+            int result = process_read(state->client_fd, state->buff_c2s, state->buff_c2s_n_read);
             if (result >= 0)
-                state->buff_c2s_n_read += result;                
+                state->buff_c2s_n_read += result;
             else
             {
-                close(client_socket);
+                close(state->client_fd);
                 client_closed = 1;
             }
         }
 
-        if (!server_closed && FD_ISSET(server_socket, &readset))
+        if (!server_closed && FD_ISSET(state->server_fd, &readset))
         {
-            int result = process_read(server_socket, state->buff_s2c, state->buff_s2c_n_read);
+            int result = process_read(state->server_fd, state->buff_s2c, state->buff_s2c_n_read);
             if (result >= 0)
-                state->buff_s2c_n_read += result;                
+                state->buff_s2c_n_read += result;
             else
             {
-                close(server_socket);
+                close(state->server_fd);
                 server_closed = 1;
             }
         }
 
 
-        if(!client_socket && FD_ISSET(client_socket, &writeset))
+        if(!client_closed && FD_ISSET(state->client_fd, &writeset))
         {
-            int result = process_write(client_socket, state->buff_s2c, state->buff_s2c_n_read, state->buff_s2c_n_written);
+            int result = process_write(state->client_fd, state->buff_s2c, state->buff_s2c_n_read, state->buff_s2c_n_written);
             if (result >= 0){
                 state->buff_s2c_n_written += result;
 
-                //TODO "сокращать" указатели и сдвигать буфер
+                if (state->buff_s2c_n_written > PROXY_BUF_LEN/4){
+                    int delta = state->buff_s2c_n_read - state->buff_s2c_n_written;
+                    memmove(state->buff_s2c, state->buff_s2c + state->buff_s2c_n_written, delta);
+                    state->buff_s2c_n_read -= state->buff_s2c_n_written;
+                    state->buff_s2c_n_written -= state->buff_s2c_n_written;
+                }
 
                 if (server_closed && state->buff_s2c_n_written == state->buff_s2c_n_read){
-                    close(client_socket);
+                    close(state->client_fd);
                     client_closed = 1;
-                }                    
+                }
             }
             else
             {
-                close(client_socket);
-                server_closed = 1;
+                close(state->client_fd);
+                client_closed = 1;
             }
 
         }
 
-        if(!server_closed && FD_ISSET(server_socket, &writeset))
+        if(!server_closed && FD_ISSET(state->server_fd, &writeset))
         {
-            int result = process_write(server_socket, state->buff_c2s, state->buff_c2s_n_read, state->buff_c2s_n_written);
+            int result = process_write(state->server_fd, state->buff_c2s, state->buff_c2s_n_read, state->buff_c2s_n_written);
             if (result >= 0){
                 state->buff_c2s_n_written += result;
 
-                //TODO "сокращать" указатели и сдвигать буфер
+                if (state->buff_c2s_n_written > PROXY_BUF_LEN/4){
+                    int delta = state->buff_c2s_n_read - state->buff_c2s_n_written;
+                    memmove(state->buff_c2s, state->buff_c2s + state->buff_c2s_n_written, delta);
+                    state->buff_c2s_n_read -= state->buff_c2s_n_written;
+                    state->buff_c2s_n_written -= state->buff_c2s_n_written;
+                }
 
                 if (client_closed && state->buff_c2s_n_read == state->buff_c2s_n_written){
-                    close(server_socket);
+                    close(state->server_fd);
                     server_closed = 1;
-                }                    
+                }
             }
             else
             {
-                close(server_socket);
+                close(state->server_fd);
                 server_closed = 1;
             }
 
-        }        
-    }    
+        }
+    }
 
     free_conn_state(state);
 
-    close(client_socket);
-    close(server_socket);
- 
+    if (!client_closed)
+        close(state->client_fd);
+
+    if (!server_closed)
+        close(state->server_fd);
+
     return;
 }
 
@@ -290,11 +322,21 @@ run(int listen_port)
         if (fd < 0) {
             perror("accept");
         } else {
-            if (pthread_create(&thread, NULL, thread_func, &fd) != 0) //TODO давать мало стека
+            pthread_attr_t tattr;
+            if (pthread_attr_init(&tattr) != 0) {
+                perror("pthread_attr_init");
+                return;
+            }
+            if (pthread_attr_setstacksize(&tattr, PTHREAD_STACK_MIN) != 0) {
+                perror("pthread_attr_setstacksize");
+                return;
+            }
+            if (pthread_create(&thread, &tattr, thread_func, &fd) != 0)
             {
                 perror("pthread_create");
                 return;
             }
+            pthread_attr_destroy(&tattr);
         }
     }
 }
@@ -317,7 +359,7 @@ main(int argc, char **argv)
         return 1;
     }
 
-    dst_addr = inet_addr(argv[2]);    
+    dst_addr = inet_addr(argv[2]);
     if (dst_addr == -1){
         fprintf(stderr, "Invalid dst_addr '%s'\n", argv[2]);
         return 1;   

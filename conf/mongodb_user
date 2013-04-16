@@ -1,0 +1,40 @@
+#!/sbin/runscript
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/dev-db/mongodb/files/mongodb.initd,v 1.5 2013/01/18 11:19:27 ultrabug Exp $
+
+depend() {
+        need net
+}
+
+start() {
+        checkpath -d -m 0750 -o user:user /home/user/mongodb/run/mongodb
+
+        # Listen to MONGODB_IP if configured
+        MONGODB_OPTIONS="--bind_ip 127.0.0.1 --journal"
+
+        # Baselayout-1 user should use --chuid instead of --user
+        local USEROPT="--user"
+        if [ ! -f /etc/init.d/sysfs ]; then
+                USEROPT="--chuid"
+        fi
+
+        ebegin "Starting ${SVCNAME}"
+        start-stop-daemon --background --start --make-pidfile \
+                --pidfile /home/user/mongodb/run/mongodb/${SVCNAME}.pid \
+                ${USEROPT} user \
+                --exec /usr/bin/mongod \
+                -- \
+                --port 27017 \
+                --dbpath /home/user/mongodb/db \
+                --unixSocketPrefix /home/user/mongodb/run/mongodb \
+                --logappend --logpath /home/user/mongodb/log/${SVCNAME}.log \
+                ${MONGODB_OPTIONS}
+        eend $?
+}
+
+stop() {
+        ebegin "Stopping ${SVCNAME}"
+        start-stop-daemon --stop --pidfile /home/user/mongodb/run/mongodb//${SVCNAME}.pid
+        eend $?
+}

@@ -85,6 +85,10 @@ function logtableUpdate() {
 	);
 }
 
+function loadStats(mins) {
+    $.get('/ajax/stats/'+mins,ajaxStatsSuccess);
+}
+
 function fillServiceTable() {
         $.get('/ajax/services/detail', ajaxServSuccess);
 }
@@ -101,6 +105,11 @@ function ajaxTeamSuccess(data) {
 function ajaxServSuccess(data) {
 	$('#servtable tr').not(':first').remove();
 	$('#servtable tr').first().after(data);
+}
+
+function ajaxStatsSuccess(data) {
+	$('#statstable tr').not(':first').remove();
+	$('#statstable tr').first().after(data);
 }
 
 function ajaxLogSuccess(data) {

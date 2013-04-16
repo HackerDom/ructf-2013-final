@@ -100,7 +100,7 @@ sub login {
     }
     if ($user->{hash} eq sha1_sum $password . $user->{salt}) {
       my $response = {uid => $user->{_id}->to_string};
-      my @fields = qw/first_name last_name language/;
+      my @fields = qw/first_name last_name language login/;
       @{$response}{@fields} = @{$user}{@fields};
       my $json    = Mojo::JSON->new;
       my $data    = b64_encode($json->encode($response), '');
