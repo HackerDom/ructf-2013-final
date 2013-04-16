@@ -4,6 +4,7 @@
 # teamN
 # r_dns_records
 # r_has_records
+# r_authored
 
 show_template = %q{
 	<!DOCTYPE html>
@@ -53,10 +54,10 @@ show_template = %q{
                 	<% if r_has_records %>
                     <table class="table table-striped table-hover">
                         <tbody>
-                        	<% r_dns_records.each do |r_record| %>
+                        	<% r_dns_records.each do |r_record, r_id| %>
 		                        <tr>
 		                            <td><%= r_record %></td>
-		                            <td class="btn-td"><button type="submit" class="btn btn-delete">Delete</button></td>
+		                            <td class="btn-td"><button type="submit" class="btn btn-delete" id="<%= r_id %>">Delete</button></td>
 		                        </tr>
                         	<% end %>
                         </tbody>
