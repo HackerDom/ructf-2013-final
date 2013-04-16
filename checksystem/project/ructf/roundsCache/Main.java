@@ -75,6 +75,7 @@ public class Main {
 		int updateTo = updateFrom;
 		Hashtable<Integer, Timestamp> roundTimes = new Hashtable<Integer, Timestamp>();	
 		ScoreboardWriter scoreboardWriter = new ScoreboardWriter(conn);
+		FlagPriceManager flagPriceManager = new FlagPriceManager(conn);
 		
 		while (true)
 		{			
@@ -123,8 +124,9 @@ public class Main {
 					TeamScores team = new TeamScores(privacy, availability, attack, advisories, tasks);	// За один раунд (round)
 					teamsScores.put(team_id, team);
 				}
-				lastRounds.put(round, teamsScores);			
-			}	
+				lastRounds.put(round, teamsScores);
+				flagPriceManager.updatePrices(round, teamsScores);
+			}
 			
 			AddToCache(scoresCache, lastRounds, updateFrom, updateTo);
 			UpdateCacheInDb(conn, scoresCache, roundTimes, updateFrom, updateTo);
