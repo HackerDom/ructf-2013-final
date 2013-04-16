@@ -1,0 +1,26 @@
+0) CONFIG_CFQ_GROUP_IOSCHED=y
+CONFIG_BLK_DEV_THROTTLING=y
+0.1) Latest kernel
+1) квоты
+2) cgroups для каждого сервиса
+3) init-скрипты
+4) права в /home
+5) pam_cgroups в system-auth и start-stop-daemon
+
+6.0) emerge ruby mongodb erlang
+     package { 'app-portage/layman': ensure => present }
+     package { 'dev-util/strace': ensure => present }
+     package { 'sys-process/htop': ensure => present }
+6.1) g-cpan -i Mojolicious
+6.2) cpan install mojolicious
+6.3) export SYBASE="/usr"
+6.3) cpan install mango
+6.4) g-cpan -i MongoDB
+6.5)
+su user -s /bin/bash
+cd
+mkdir mongodb mongodb/run mongodb/db mongodb/log
+rc-update add mongodb_user
+6.6) quota user 2gb
+
+7.1) use ithreads

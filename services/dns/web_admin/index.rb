@@ -5,7 +5,7 @@ require 'net/http'
 require 'json'
 require 'digest/md5'
 require './templates/add.rb'
-#require './templates/show.rb'
+
 show_template = ""
 eval File.open('./templates/show.rb').read
 #require 'connect.rb'
@@ -21,20 +21,19 @@ teamN = 'team2'
 r_user_name = "qqq"
 r_dns_records = {}
 r_authored = false
-#template = %q{
-
-#message = ERB.new(show_template, nil, "%")
-#puts message.result
+r_has_records = false
 
 get '/' do
   if request.cookies['session'] != nil
     r_host = request.host
     teamN = r_host[/team\d+/]
-    req = Net::HTTP::Post.new("http://#{teamN}.ructf/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     payload = {'session' => request.cookies['session']}.to_json
+    #h = Net::HTTP.new("#{teamN}.ructf", 80)
+    #response, data = h.post("/user/", payload, initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
+    req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
-    response = Net::HTTP.new("http://#{teamN}.ructf/user/", 80).start {|http| http.request(req) }
-    r_hash = JSON.parse(response)
+    response = Net::HTTP.new("#{teamN}.ructf", 80).start {|http| http.request(req) }
+    r_hash = JSON.parse(response.body)
 
     if r_hash['status'] != 'OK'
       "Status not OK!"  #redirect r_host+"/login"

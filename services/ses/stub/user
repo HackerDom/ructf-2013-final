@@ -17,7 +17,7 @@ print $json->encode( {
         uid         => "012345678901234567890123",
         first_name  => "Foo",
         last_name   => $session,
-        "language"  => "ru",
+        "language"  => "en",
 } );
 
 exit 0;

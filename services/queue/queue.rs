@@ -1,25 +1,37 @@
 extern mod std;
-// extern mod net_tcp;
-// extern mod core;
 
 use std::net::tcp::{listen, accept, TcpSocket, TcpErrData, TcpNewConnection};
 use std::net::ip;
 use std::task;
 use std::uv;
 use std::deque::Deque;
+use std::timer::sleep;
+use std::arc::RWARC;
+use std::serialize::{Encodable, Decodable};
 
+use core::path::Path;
 use core::comm::{stream, SharedChan};
 use core::hashmap::linear::LinearMap;
-// use std::timer::sleep;
-use std::arc::RWARC;
 
-static maxqueuesize: uint = 100;
+use core::libc::funcs::c95::stdio::rename;
+
+static listen_addr: &'static str = "0.0.0.0";
+static listen_port: uint = 3255;
+static listen_backlog: uint = 128;
+
+static save_filename: &'static str = "db.json";
+static save_filename_tmp: &'static str = "db.json.inproccess";
+static save_period: uint = 1000;  // in msec
+
+static maxqueuesize: uint = 100;   // max number of elements in queue
 
 struct UserContext {
     name:~str,
     is_authorized:bool
 }
 
+#[auto_encode]
+#[auto_decode]
 struct OwnedQueue {
     owner:~str,
     queue: Deque<~str>
@@ -30,10 +42,12 @@ type QueuesMap = LinearMap<~str,OwnedQueue>;
 enum Command {
     User{username:~str},
     Auth{cookie:~str},
+    List,
     Create{qname:~str},
     Delete{qname:~str},
     Enqueue{qname:~str, val:~str},
     Dequeue{qname:~str},
+    Help,
     Wrong,
     Unknown,
 }
@@ -51,10 +65,23 @@ impl Command {
                 return ~"OK";
             }
             Auth{cookie: _} => {
+                sleep(&uv::global_loop::get(), 5000);
                 do usercontext_arc.write |usercontext: &mut UserContext| {
                     usercontext.is_authorized = true;
                 }
                 return ~"OK";
+            }
+            List => {
+                let mut list = ~"OK: ";
+                do queues_arc.read |queues: &QueuesMap| {
+                    for queues.each_key() |&key|{
+                        match queues.find(&key) {
+                            Some(val) => {list += val.owner + ":" + key + " "}
+                            None => {}
+                        }
+                    }
+                }
+                return copy list;
             }
             Create{qname: qname} => {
                 let mut is_authorized = false;
@@ -209,7 +236,7 @@ impl Command {
 
                     user_ok = match target_queue {
                         Some(found_queue) => {
-                            username == found_queue.owner
+                            str::starts_with(username, found_queue.owner)
                         },
                         None => false
                     };
@@ -248,6 +275,12 @@ impl Command {
                 };
                 return text;
             }
+            Help => {
+                return ~"OK: Valid commands are: user <user>, \
+                         auth <usercookie>, create <queuename>, \
+                         delete <queuename>, enqueue <queuename> <val>, \
+                         dequeue <queuename>";
+            }
             Wrong => {
                 return ~"ERR: Wrong args";
             }
@@ -277,34 +310,36 @@ fn parse_command(cmd: &str) -> Command{
     return match (words[0].to_lower(), arglen) {
         (~"user", 2) => User{username:copy words[1]},
         (~"auth", 2) => Auth{cookie:copy words[1]},
+        (~"list", 1) => List,
         (~"create", 2) => Create{qname:copy words[1]},
         (~"delete", 2) => Delete{qname:copy words[1]},
         (~"enqueue", 3) => Enqueue{qname:copy words[1], val:copy words[2]},
         (~"dequeue", 2) => Dequeue{qname:copy words[1]},
+        (~"help", 1) => Help,
         (~"user", _) => Wrong,
         (~"auth", _) => Wrong,
+        (~"list", _) => Wrong,
         (~"create", _) => Wrong,
         (~"delete", _) => Wrong,
         (~"enqueue", _) => Wrong,
         (~"dequeue", _) => Wrong,
+        (~"help", _) => Wrong,
         _ => Unknown
     }
 }
 
 fn handle_client(sock: TcpSocket, queues_arc: &RWARC<QueuesMap>) {
-    sock.write(str::to_bytes("Queue server is ready\n"));
-
-
     let mut buf = ~"";
     let mut cur_user_ctx = UserContext{name: ~"none", is_authorized: false};
     let cur_user_ctx_arc = RWARC(cur_user_ctx);
 
+    sock.write(str::to_bytes("Queue server is ready\n"));
+
     loop {
-        println("Reading");
         let result = sock.read(0u);
-        println("Readed");
+
         if result.is_err() {
-            println("Read error");
+            println("Client disconnected");
             break;
         }
 
@@ -313,9 +348,6 @@ fn handle_client(sock: TcpSocket, queues_arc: &RWARC<QueuesMap>) {
             println("Bad data encoding");
             break;
         }
-        // println("Readed3");
-        // println(fmt!("%?\n",vec::len(new_data)));
-        // println(fmt!("%?\n",new_data));
 
         buf += str::from_bytes(new_data);
 
@@ -345,7 +377,6 @@ fn handle_client(sock: TcpSocket, queues_arc: &RWARC<QueuesMap>) {
             sock.write(str::to_bytes(port.recv() + "\n"));
         }
 
-
         match str::rfind_char(buf, '\n') {
             Some(pos) => {
                 buf = str::slice(buf, pos + 1, str::len(buf)).to_owned();
@@ -355,20 +386,12 @@ fn handle_client(sock: TcpSocket, queues_arc: &RWARC<QueuesMap>) {
     }
 }
 
-fn on_start_listen(_: SharedChan<Option<TcpErrData>>) {
-    // pass the kill_ch to your main loop or wherever you want
-    // to be able to externally kill the server from
-    println("LISTEN");
-}
-
 fn on_connect(new_conn: TcpNewConnection,
               kill_ch: SharedChan<Option<TcpErrData>>,
               queues_arc: RWARC<QueuesMap>) {
     let (cont_po, cont_ch) = stream::<Option<TcpErrData>>();
-    // queues_arc.clone();
-    // let x = ~RWARC(1);
-    do task::spawn_unlinked {
 
+    do task::spawn_unlinked {
         let accept_result = accept(new_conn);
         match accept_result {
             Err(accept_error) => {
@@ -378,8 +401,6 @@ fn on_connect(new_conn: TcpNewConnection,
             Ok(sock) => {
                 cont_ch.send(None);
                 handle_client(sock, &queues_arc);
-                // sleep(&uv::global_loop::get(), 5000);
-                // do work here
             }
         }
     };
@@ -389,23 +410,77 @@ fn on_connect(new_conn: TcpNewConnection,
     }
 }
 
+fn periodic_db_saver(queues_arc: &RWARC<QueuesMap>) {
+    loop {
+        match io::buffered_file_writer(&Path(save_filename_tmp)) {
+            Ok(wr) => {
+                let enc = ~std::json::Encoder(wr);
+                do queues_arc.read |queues: &QueuesMap| {
+                    queues.encode(enc);
+                }
+            }
+            Err(e) => {
+                println(e);
+            }
+        }
+
+        do str::as_c_str(save_filename_tmp) |old_name| {
+            do str::as_c_str(save_filename) |new_name| {
+                unsafe {
+                    let ret = rename(old_name, new_name);
+                    if ret != 0 {
+                        println("Failed to atomicaly move tmp saving file \
+                                  into the new one");
+                    }
+                }
+            }
+        }
+        sleep(&uv::global_loop::get(), save_period);
+    }
+}
+
+fn load_db() -> QueuesMap {
+    match io::file_reader(&Path(save_filename)) {
+        Ok(rd) => {
+            match std::json::from_reader(rd) {
+                Ok(json) => {
+                    let dec = ~std::json::Decoder(json);
+                    return Decodable::decode(dec);
+                },
+                Err(_) => {
+                    println("Db file is bad, using emtpy db");
+                    return LinearMap::new();
+                }
+            }
+        }
+        Err(e) => {
+            println(e);
+            return LinearMap::new();
+        }
+    }
+}
 
 fn main() {
-    let mut queues: QueuesMap;
-    queues = LinearMap::new();
+    let mut queues = load_db();
 
-    queues.insert(~"bay", OwnedQueue{owner: ~"test", queue: Deque::new()});
-    // println(fmt!("%?\n", queues));
+    // bypass the internal rust's bug(feature?) when segfaults while adding
+    // element to json's "{}"
+    if queues.is_empty() {
+        queues = LinearMap::new();
+    }
 
     let queues_arc = RWARC(queues);
-    // do queues_arc.write |queues_wr: &mut QueuesMap| {
-        // queues_wr.insert(~"bay2", OwnedQueue{owner: ~"test", queue: Deque::new()});
-    // }
 
-    listen(ip::v4::parse_addr("0.0.0.0"), 3255, 5, &uv::global_loop::get(),
-        on_start_listen,
-        |conn, kill_ch| {
-            println("CONNECT");
-            on_connect(conn, kill_ch, queues_arc.clone());
-        });
+    let queues_arc_clone = queues_arc.clone();
+    do task::spawn {
+        periodic_db_saver(&queues_arc_clone);
+    }
+
+    listen(ip::v4::parse_addr(listen_addr), listen_port, listen_backlog,
+           &uv::global_loop::get(),
+           |_| { println(fmt!("Listen on %s:%u", listen_addr, listen_port));},
+           |conn, kill_ch| {
+                println("Client connected");
+                on_connect(conn, kill_ch, queues_arc.clone());
+            });
 }
