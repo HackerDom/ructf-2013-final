@@ -3958,8 +3958,8 @@ input[type="submit"].btn.btn-mini {
 }
 
 .nav > .pull-right {
-  float: right;
-}
+     float: right;
+ }
 
 .nav-header {
   display: block;
@@ -4541,7 +4541,7 @@ input[type="submit"].btn.btn-mini {
 
 .navbar-fixed-top .navbar-inner,
 .navbar-static-top .navbar-inner {
-  border-width: 0 0 1px;
+    border-width: 0 0 1px;
 }
 
 .navbar-fixed-bottom .navbar-inner {
@@ -4617,7 +4617,7 @@ input[type="submit"].btn.btn-mini {
 .navbar .nav > li > a:hover {
   color: #333333;
   text-decoration: none;
-  background-color: transparent;
+    background-color: transparent;
 }
 
 .navbar .nav > .active > a,
@@ -4669,7 +4669,7 @@ input[type="submit"].btn.btn-mini {
 
 .navbar .btn-navbar:active,
 .navbar .btn-navbar.active {
-  background-color: #cccccc \9;
+  background-color: #cccccc;
 }
 
 .navbar .btn-navbar .icon-bar {

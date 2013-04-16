@@ -1,49 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <title>{% block title %} Index {% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <link href="/style.css" rel="stylesheet">
-  </head>
-  <body>
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="page">
     <div id="wrap">
-      <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
-          <div class="container">
-            <a class="brand" href="#">RuCTF</a>
-            <div class="nav-collapse collapse">
-              <ul class="nav">
-                <li><a href="#">dsaf</a></li>
-                <li><a href="#">wert</a></li>
-                <li><a href="#">wert</a></li>
-                <li><a href="#">wert</a></li>
-                <li><a href="#">wert</a></li>
-                <li><a href="#">wert</a></li>
-              </ul>
-              <div class="pull-right">
-                {% block links %}
-                <a class="btn" href="/upload">Upload</a>
-                <a class="btn" href="/exec">Execute</a>
-                <a class="btn" href="/examples">Examples</a>
-                {% endblock %}
-              </div>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="#">RuCTF 2013</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li><a href="#">SES</a></li>
+                            <li class="active"><a href="#">MapReduce</a></li>
+                            <li><a href="#">DB</a></li>
+                            <li><a href="#">MessageQueue</a></li>
+                            <li><a href="#">DNS</a></li>
+                            <li><a href="#">Balancer</a></li>
+                            <li><a href="#">ScriptAPI</a></li>
+                        </ul>
+                        <div class="pull-right name-pan">
+                            <a href="#" class="name">Gamer Name</a>
+                            <a class="btn btn-delete" href="/logout">Logout</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div class="container">
-        {% block content %}
-        {% endblock %}
-      </div>
+        <div id="content">
+            <div class="container">
+                <div class="header-main">MapReduce</div>
+                <hr>
+                <ul class="nav nav-pills">
+                {% block links %}
+                    <li><a href="/upload">Upload</a></li>
+					<li><a href="/exec">Execute</a></li>
+					<li><a href="/examples">Examples</a></li>
+                {% endblock %}
+                </ul>
+                <div class="tab-content">
+					{% block content %}
+                    <div class="mr-upload">
+                        <input type="text" placeholder="Name">
+                        <textarea placeholder="Code" rows="10"></textarea>
+                        <a class="btn btn-success" href="/register">Submit</a>
+                    </div>
+					{% endblock %}
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="footer">
-      <div class="container">
+</div>
+<div id="footer">
+    <div class="container">
         <div class="pull-right">
-          <a href="http://ructf.org">RuCTF</a>
-          <a href="http://hackerdom.ru">HackerDom</a>
+            <a href="http://ructf.org">RuCTF</a>
+            <a href="http://hackerdom.ru">HackerDom</a>
+            <a href="ructf.org/2013/ru/devteam">Developers</a>
         </div>
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>
