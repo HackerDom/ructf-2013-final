@@ -4,11 +4,15 @@ public class TeamRank implements Comparable<TeamRank> {
 	
 	private int team;
 	private Double rank;
+	private Double rank_def;
+	private Double rank_att;
 	private int attackPrice;
 	
-	public TeamRank(int team, Double rank) {
+	public TeamRank(int team, Double rank_def, Double rank_att) {
 		this.team = team;
-		this.rank = rank;
+		this.rank_def = rank_def;
+		this.rank_att = rank_att;
+		rank = rank_def + rank_att;
 	}
 
 	public int getTeam() {
@@ -17,6 +21,14 @@ public class TeamRank implements Comparable<TeamRank> {
 	
 	public Double getRank() {
 		return rank;
+	}
+
+	public Double getRankDefense() {
+		return rank_def;
+	}
+
+	public Double getRankAttack() {
+		return rank_att;
 	}
 	
 	public int getFlagPrice() {
@@ -38,7 +50,7 @@ public class TeamRank implements Comparable<TeamRank> {
 	
 	@Override
 	public String toString() {
-		return String.format("%d->(%f,%d)", team, rank, attackPrice);
+		return String.format("%d->(%.2f|%d)", team, rank, attackPrice);
 	}
 	
 }
