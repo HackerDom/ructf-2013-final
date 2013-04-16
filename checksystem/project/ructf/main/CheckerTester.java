@@ -17,7 +17,7 @@ public class CheckerTester
 				executor.Execute("");
 			}
 			catch (Exception ex) {
-				System.err.println("Problem with: " + s);
+				System.err.println("Problem with checker for service: " + s);
 				System.err.println("  failed pre-run test: " + ex.getMessage());
 				System.exit(1);
 			}

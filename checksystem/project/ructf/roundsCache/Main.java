@@ -1,6 +1,5 @@
 package ructf.roundsCache;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,26 +21,21 @@ public class Main {
 	private static String sGetStartedRounds = "SELECT n, time FROM rounds WHERE n >= ? ORDER BY n ASC";
 		
 	private static String sGetScore = "SELECT teams.id, " +
-	"(SELECT sum(score_secret) FROM secret_flags WHERE team_id=teams.id AND time >= ? AND time < ?)," +
+	"(SELECT sum(score_secret) FROM secret_flags  WHERE team_id=teams.id AND time >= ? AND time < ?)," +
 	"(SELECT sum(score_access) FROM access_checks WHERE team_id=teams.id AND time >= ? AND time < ?)," +	
-	"(SELECT sum(score_attack) FROM stolen_flags WHERE team_id=teams.id AND time >= ? AND time < ?)," +
-	"(SELECT sum(score_advisory) FROM advisories WHERE team_id=teams.id AND score_advisory > 0 AND check_time >= ? AND check_time < ?)," +
+	"(SELECT sum(score_attack) FROM stolen_flags  WHERE team_id=teams.id AND time >= ? AND time < ?)," +
+	"(SELECT sum(score_advisory) FROM advisories  WHERE team_id=teams.id AND score_advisory > 0 AND check_time >= ? AND check_time < ?)," +
 	"(SELECT sum(tasks.score) FROM solved_tasks INNER JOIN tasks ON solved_tasks.task_id=tasks.id WHERE solved_tasks.team_id=teams.id AND solved_tasks.status=true AND solved_tasks.check_time >= ? AND solved_tasks.check_time < ?)" +
 	"FROM teams WHERE enabled=true";
 		
-		
 	private static String sUpdateCache = "UPDATE rounds_cache SET privacy = ?, availability = ?, attack = ?, advisories = ?, tasks = ? WHERE round = ? AND team_id = ?";
 	private static String sInsertCache = "INSERT INTO rounds_cache (round, time, team_id, privacy, availability, attack, advisories, tasks) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-	
 	private static String sDeleteCache = "DELETE FROM rounds_cache";
 	
-	public static PreparedStatement stDeleteCache;
 	public static PreparedStatement stUpdateCache;
 	public static PreparedStatement stInsertCache;
 	public static PreparedStatement stGetStartedRounds;
 	public static PreparedStatement stGetScore;
-	
-	
 	
 	public static void main(String[] args) {
 		PropertyConfigurator.configure(Constants.log4jConfigFile);
@@ -54,64 +48,68 @@ public class Main {
 			DatabaseManager.Initialize();
 			Connection conn = DatabaseManager.CreateConnection();
 			
-			stDeleteCache = conn.prepareStatement(sDeleteCache);
 			stUpdateCache = conn.prepareStatement(sUpdateCache);
 			stInsertCache = conn.prepareStatement(sInsertCache);
 			stGetStartedRounds = conn.prepareStatement(sGetStartedRounds);			
 			stGetScore = conn.prepareStatement(sGetScore);
 			
-			
 			Hashtable<Integer, Hashtable<Integer, TeamScores>> scoresCache = new Hashtable<Integer, Hashtable<Integer, TeamScores>>();
-			
-			stDeleteCache.executeUpdate();
-			logger.info("Cleared cache in database");
-			
+		
+			ClearRoundsCache(conn);			
 			UpdateCacheLoop(conn, 0, scoresCache);			
 		} catch (Exception e) {
 			logger.fatal("General error", e);
 			e.printStackTrace();
 		}
 	}
-
-
-	private static void UpdateCacheLoop(Connection conn, int lastCachedRound, Hashtable<Integer, Hashtable<Integer, TeamScores>> scoresCache) throws SQLException, InterruptedException, IOException
+	
+	private static void ClearRoundsCache(Connection conn) throws SQLException
+	{
+		PreparedStatement stDeleteCache = conn.prepareStatement(sDeleteCache);
+		stDeleteCache.executeUpdate();
+		logger.info("Cleared cache in database (rounds_cache)");
+	}
+	
+	private static void UpdateCacheLoop(Connection conn, int updateFrom, Hashtable<Integer, Hashtable<Integer, TeamScores>> scoresCache) throws SQLException, InterruptedException, IOException
 	{	
-		int lastStartedRound = lastCachedRound;
+		int updateTo = updateFrom;
 		Hashtable<Integer, Timestamp> roundTimes = new Hashtable<Integer, Timestamp>();	
 		ScoreboardWriter scoreboardWriter = new ScoreboardWriter(conn);
 		
 		while (true)
 		{			
-			stGetStartedRounds.setInt(1, lastCachedRound);
-			ResultSet res = stGetStartedRounds.executeQuery();		
-
+			stGetStartedRounds.setInt(1, updateFrom);
+			ResultSet res = stGetStartedRounds.executeQuery();
 			while (res.next())
 			{
-				lastStartedRound = res.getInt(1);					
-				roundTimes.put(lastStartedRound, res.getTimestamp(2));
+				updateTo = res.getInt(1);					
+				roundTimes.put(updateTo, res.getTimestamp(2));
 			}			
 			
-			logger.info(String.format("Trying to get new data, lastCachedRound = %s, lastStartedRound = %s", lastCachedRound, lastStartedRound));
+			String msg = String.format("Updating data in cache, for rounds: [%d - %d]", updateFrom, updateTo);
+			logger.info(msg);
+			System.out.println(msg);
+			
 			Hashtable<Integer, Hashtable<Integer, TeamScores>> lastRounds = new Hashtable<Integer, Hashtable<Integer, TeamScores>>();
 			
-			for (int round = lastCachedRound; round <= lastStartedRound; round++)
+			for (int round = updateFrom; round <= updateTo; round++)
 			{
-				Timestamp startTime =  roundTimes.get(round);
-				Timestamp endTime = round != lastStartedRound ? roundTimes.get(round + 1) : new Timestamp(((1l << 31) - 1)* 1000l);
-								
-				Hashtable<Integer, TeamScores>  teamsScores = new Hashtable<Integer, TeamScores>();
+				Timestamp start = roundTimes.get(round);
+				Timestamp end = round != updateTo ? roundTimes.get(round + 1) : new Timestamp(((1l << 31) - 1)* 1000l);
 				
-				//TODO костыль жоский - убрать дублирование
-				stGetScore.setTimestamp(1, startTime);
-				stGetScore.setTimestamp(2, endTime);
-				stGetScore.setTimestamp(3, startTime);
-				stGetScore.setTimestamp(4, endTime);
-				stGetScore.setTimestamp(5, startTime);
-				stGetScore.setTimestamp(6, endTime);
-				stGetScore.setTimestamp(7, startTime);
-				stGetScore.setTimestamp(8, endTime);
-				stGetScore.setTimestamp(9, startTime);
-				stGetScore.setTimestamp(10, endTime);
+				Hashtable<Integer, TeamScores>  teamsScores = new Hashtable<Integer, TeamScores>();	// team -> TeamScores за один раунд (round) для всех команд
+				
+				// TODO костыль жоский - убрать дублирование
+				stGetScore.setTimestamp(1, start);
+				stGetScore.setTimestamp(2, end);
+				stGetScore.setTimestamp(3, start);
+				stGetScore.setTimestamp(4, end);
+				stGetScore.setTimestamp(5, start);
+				stGetScore.setTimestamp(6, end);
+				stGetScore.setTimestamp(7, start);
+				stGetScore.setTimestamp(8, end);
+				stGetScore.setTimestamp(9, start);
+				stGetScore.setTimestamp(10, end);
 							
 				res = stGetScore.executeQuery();
 				while (res.next())
@@ -122,18 +120,18 @@ public class Main {
 					int attack = res.getInt(4);
 					int advisories = res.getInt(5);
 					int tasks = res.getInt(6);
-					TeamScores teamScores = new TeamScores(privacy, availability, attack, advisories, tasks);
-					teamsScores.put(team_id, teamScores);						
+					TeamScores team = new TeamScores(privacy, availability, attack, advisories, tasks);	// За один раунд (round)
+					teamsScores.put(team_id, team);
 				}
 				lastRounds.put(round, teamsScores);			
 			}	
 			
-			AddToCache(scoresCache, lastRounds, lastCachedRound, lastStartedRound);
-			UpdateCacheInDb(conn, scoresCache, roundTimes, lastCachedRound, lastStartedRound);
+			AddToCache(scoresCache, lastRounds, updateFrom, updateTo);
+			UpdateCacheInDb(conn, scoresCache, roundTimes, updateFrom, updateTo);
 			
-			scoreboardWriter.WriteFiles();		//подтянет данные из базы
+			scoreboardWriter.WriteFiles();		// подтянет данные из базы (из кэшей)
 						
-			lastCachedRound = lastStartedRound;
+			updateFrom = updateTo;
 			logger.info("Sleeping for " + Constants.cacheUpdateInterval + " sec ...");
 			Thread.sleep(Constants.cacheUpdateInterval * 1000);
 		}
@@ -144,7 +142,7 @@ public class Main {
 		try{			
 			conn.setAutoCommit(false);
 
-			//UPDATE
+			// UPDATE
 			int rowsCount = 0;
 			Hashtable<Integer, TeamScores> teamsScores = scoresCache.get(lastCachedRound);
 			for (Integer team_id : teamsScores.keySet()) {
