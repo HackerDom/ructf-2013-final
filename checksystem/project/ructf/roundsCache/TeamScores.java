@@ -8,7 +8,6 @@ public class TeamScores {
 	int advisories;
 	int tasks;
 	
-	
 	public TeamScores(int privacy, int availability, int attack, int advisories, int tasks)
 	{		
 		this.privacy = privacy;
@@ -17,7 +16,10 @@ public class TeamScores {
 		this.advisories = advisories;
 		this.tasks = tasks;
 	}
-
+	
+	public int calculateDefense() {
+		return availability + privacy;
+	}
 	
 	/**
 	 * @return the privacy
@@ -58,13 +60,12 @@ public class TeamScores {
 		return new TeamScores(privacy, availability, attack, advisories, tasks);
 	}
 
-
 	public void Add(TeamScores teamScores) {
 		privacy += teamScores.getPrivacy();
 		availability += teamScores.getAvailability();
 		attack += teamScores.getAttack();
 		advisories += teamScores.getAdvisories();
-		tasks += teamScores.getTasks();		
+		tasks += teamScores.getTasks();
 	}
 	
 }

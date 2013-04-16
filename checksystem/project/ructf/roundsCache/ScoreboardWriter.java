@@ -13,7 +13,7 @@ public class ScoreboardWriter {
 	private PreparedStatement stXmlFlags;
 	private PreparedStatement stXmlScoreboard;
 	
-	private static String sqlXmlFlags = "SELECT * FROM xmlFlags";
+	private static String sqlXmlFlags      = "SELECT * FROM xmlFlags";
 	private static String sqlXmlScoreboard = "SELECT * FROM xmlCachedScoreboard";
 	
 	public ScoreboardWriter(Connection dbConnection) throws SQLException {

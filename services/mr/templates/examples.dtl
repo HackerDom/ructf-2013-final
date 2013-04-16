@@ -8,23 +8,15 @@
 {% endblock %}
 
 {% block content %}
-Counting values:
-<pre class="prettyprint linenums">
-map(_Key, Value, Emit) ->
-    Emit(Value, 1).
-reduce(Key, Values, Emit) ->
-    S = lists:sum(Values),
-    Emit(Key, integer_to_list(S)).
-</pre>
-Input data:
-<pre class="prettyprint linenums">
-[{"1", "foo"}, {"2", "foo"}, {"3", "bar"}, {"4", "foo"}, {"5", "buzz"}, {"6", "bar"}].
-%% don't forget about dot at end!
-</pre>
-Result should look like this:
-<pre class="prettyprint linenums">
-    {"bar",["2"]}
-    {"buzz",["1"]}
-    {"foo",["3"]}
-</pre>
+    <div class="mr-example">
+        <label class="example">Counting values:</label>
+        <pre>map(_Key, Value, Emit) -&gt;<br/>Emit(Value, 1).<br/>reduce(Key, Values, Emit) -&gt;<br/>S = lists:sum(Values),<br/>Emit(Key, integer_to_list(S)).
+        </pre>
+        <label class="example">Input data:</label>
+        <pre>[{"1", "foo"}, {"2", "foo"}, {"3", "bar"}, {"4", "foo"}, {"5", "buzz"}, {"6", "bar"}].
+        %% don't forget about dot at end!
+        </pre>
+        <label class="example">Result should look like this:</label>
+        <pre>{"bar",["2"]}<br/>{"buzz",["1"]}<br/>{"foo",["3"]}</pre>
+    </div>
 {% endblock %}
