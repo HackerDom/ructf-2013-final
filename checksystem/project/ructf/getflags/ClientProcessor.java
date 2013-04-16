@@ -20,7 +20,7 @@ public class ClientProcessor extends Thread
 	public static Logger		logger;
 	public static Logger		loggerDump;
 	
-	private static String		clientBanner = "  ..:: RuCTFE Get-Flags service ::..";
+	private static String		clientBanner = "  ..:: RuCTF Get-Flags service ::..";
 	
 	private static Map<InetAddress, Long> lastAccess = new HashMap<InetAddress, Long>();
 	
