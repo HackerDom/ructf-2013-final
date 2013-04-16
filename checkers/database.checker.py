@@ -94,7 +94,7 @@ def PlantFlag(host, session, tableName, flagID, flag):
     return True
 
 def CheckPlantedFlag(host, session, tableName, flagID, flag):
-    response = SendRequest(host, session, "select * from flags." + tableName)
+    response = SendRequest(host, session, "select * from flags." + tableName + " where id == '" + flagID + "'")
     #sys.stderr.write("select * from flags." + tableName + "\n")
     #sys.stderr.write(response + "\n")
     if response["status"] == "FAIL" or len(response["data"]["rows"]) < 1: return False
@@ -129,7 +129,6 @@ def Authorize(host):
             exit(110)
     return response.info()["Set-Cookie"].split("session=")[1]
 
-exit(110)
 
 if len(sys.argv) < 3:
     sys.stderr.write("Not enough parameters" + "\n")

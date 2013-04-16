@@ -18,7 +18,6 @@ public class Checksystem
 			DatabaseManager.startNextRound();
 			List<Service> services = DatabaseManager.getServices();
 			CheckerTester.CheckAllOrDie(services);
-			
 			List<Thread> threadsList = new LinkedList<Thread>();
 			List<Connection> connectionList = new LinkedList<Connection>();
 			
