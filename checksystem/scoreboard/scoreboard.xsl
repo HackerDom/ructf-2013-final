@@ -32,7 +32,7 @@
 
                   <div style="text-align:right">
                     <h5>
-                      Раунд #<xsl:value-of select="/scoreboard/@round"/> (начался в <xsl:value-of select="/scoreboard/@roundStartTimeUTC"/> UTC)
+                      Раунд #<xsl:value-of select="/scoreboard/@round"/> (начался в <xsl:value-of select="/scoreboard/@roundStartTimeYEKT"/> YEKT)
                     </h5>
                   </div>
                   
@@ -54,7 +54,7 @@
                   </xsl:apply-templates>
                   <div style="text-align:center">
                     <h5>
-                      Cгенерировано <xsl:value-of select="/scoreboard/@genTimeUTC"/> UTC
+                      Cгенерировано <xsl:value-of select="/scoreboard/@genTimeYEKT"/> YEKT
                     </h5>
                   </div>
                 </td>

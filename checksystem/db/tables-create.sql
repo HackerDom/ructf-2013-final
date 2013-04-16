@@ -339,7 +339,7 @@ CREATE VIEW xmlCachedScoreboard AS
         (SELECT
             xmlelement(
                 name scoreboard,
-                xmlattributes((SELECT to_char(NOW() AT TIME ZONE 'UTC', 'YYYY.MM.DD HH24:MI:SS')) as "genTimeUTC", (SELECT max(n) FROM rounds) as "round", (SELECT to_char(time AT TIME ZONE 'UTC', 'HH24:MI:SS') FROM rounds WHERE n = (SELECT max(n) from rounds)) as "roundStartTimeUTC"),
+                xmlattributes((SELECT to_char(NOW() AT TIME ZONE 'YEKT', 'YYYY.MM.DD HH24:MI:SS')) as "genTimeYEKT", (SELECT max(n) FROM rounds) as "round", (SELECT to_char(time AT TIME ZONE 'YEKT', 'HH24:MI:SS') FROM rounds WHERE n = (SELECT max(n) from rounds)) as "roundStartTimeYEKT"),
                 (SELECT
                     xmlagg(team)
                 FROM
@@ -392,7 +392,7 @@ CREATE VIEW xmlScoreboard AS
         (SELECT
             xmlelement(
                 name scoreboard,
-                xmlattributes((SELECT to_char(NOW() AT TIME ZONE 'UTC', 'YYYY.MM.DD HH24:MI:SS')) as "genTimeUTC", (SELECT max(n) FROM rounds) as "round", (SELECT to_char(time AT TIME ZONE 'UTC', 'HH24:MI:SS') FROM rounds WHERE n = (SELECT max(n) from rounds)) as "roundStartTimeUTC"),
+                xmlattributes((SELECT to_char(NOW() AT TIME ZONE 'YEKT', 'YYYY.MM.DD HH24:MI:SS')) as "genTimeYEKT", (SELECT max(n) FROM rounds) as "round", (SELECT to_char(time AT TIME ZONE 'YEKT', 'HH24:MI:SS') FROM rounds WHERE n = (SELECT max(n) from rounds)) as "roundStartTimeYEKT"),
                 (SELECT
                     xmlagg(team)
                 FROM
@@ -474,7 +474,7 @@ CREATE VIEW xmlFlags AS
         (SELECT
             xmlelement(
                 name "servicesFlagsStolen",
-                xmlattributes((SELECT to_char(NOW() AT TIME ZONE 'UTC', 'YYYY.MM.DD HH24:MI:SS')) as "genTimeUTC", (SELECT max(n) FROM rounds) as "round", (SELECT to_char(time AT TIME ZONE 'UTC', 'HH24:MI:SS') FROM rounds WHERE n = (SELECT max(n) from rounds)) as "roundStartTimeUTC"),
+                xmlattributes((SELECT to_char(NOW() AT TIME ZONE 'YEKT', 'YYYY.MM.DD HH24:MI:SS')) as "genTimeYEKT", (SELECT max(n) FROM rounds) as "round", (SELECT to_char(time AT TIME ZONE 'YEKT', 'HH24:MI:SS') FROM rounds WHERE n = (SELECT max(n) from rounds)) as "roundStartTimeYEKT"),
                 xmlelement(
                     name services,
                     (SELECT
