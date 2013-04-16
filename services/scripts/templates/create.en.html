@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ScriptAPI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="static/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="page">
+    <div id="wrap">
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="#">RuCTF 2013</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li><a href="#">SES</a></li>
+                            <li><a href="#">MapReduce</a></li>
+                            <li><a href="#">DB</a></li>
+                            <li><a href="#">MessageQueue</a></li>
+                            <li><a href="#">DNS</a></li>
+                            <li><a href="#">Balancer</a></li>
+                            <li class="active"><a href="#">ScriptAPI</a></li>
+                        </ul>
+                        <div class="pull-right name-pan">
+                            <a href="#" class="name">Gamer Name</a>
+                            <a class="btn btn-delete" href="/login">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="content">
+            <div class="container">
+                <div class="header-main">ScriptAPI</div>
+                <hr>
+                <ul class="nav nav-pills">
+                    <li class="active">
+                        <a href="/create.php">New code</a>
+                    </li>
+                    <li>
+                        <a href="/codes.php">Saved codes</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                  <div class="row">
+                    <div class="span6 controls">
+                      <input type="text" name="name" class="span6" placeholder="Name">
+                    </div>
+                  </div>  
+                  <div class="row">
+                    <div class="span6 controls">
+                      <textarea rows=8 class="span6" name="code" placeholder="Your code here.."></textarea>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="span6 controls">
+                        <button class="btn btn-large btn-block" type="button" name="save">Save code</button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="footer">
+    <div class="container">
+        <div class="pull-right">
+            <a href="http://ructf.org">RuCTF</a>
+            <a href="http://hackerdom.ru">HackerDom</a>
+            <a href="http://ructf.org/2013/ru/devteam">Developers</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
