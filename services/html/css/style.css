@@ -575,12 +575,26 @@ option[disabled]{
     line-height: 50px;
 }
 .mr-upload > input{
-    margin-left: 200px;
+    margin-left: 28.5%;
     margin-right: 200px;
 }
 .mr-upload > textarea {
+    width: 80%;
+    margin-left: 10%;
+    resize: none;
+}
+.mr-upload > .btn {
     margin-left: 200px;
-    margin-right: 200px;
-
+}
+.mr-list > ul {
+    max-width: 85%;
+    width: 0;
+}
+.mr-list > ul > li > a {
+    text-decoration: none;
+}
+.mr-list > ul > li{
+    list-style-type: none;
+    margin-bottom: 10px;
 }
 /*---------------------------------------------MapReduce styles ends---------------------------------------------------*/

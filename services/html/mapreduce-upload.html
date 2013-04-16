@@ -1,15 +1,7 @@
-# need to set up:
-# r_user_name
-# r_host
-# teamN
-# r_dns_records
-# r_has_records
-
-show_template = %q{
-	<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>DNS records</title>
+    <title>MapReduce</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -24,15 +16,16 @@ show_template = %q{
                     <div class="nav-collapse collapse">
                         <ul class="nav">
                             <li><a href="#">SES</a></li>
-                            <li><a href="#">MapReduce</a></li>
+                            <li class="active"><a href="#">MapReduce</a></li>
                             <li><a href="#">DB</a></li>
                             <li><a href="#">MessageQueue</a></li>
-                            <li class="active"><a href="http://<%= r_host %>">DNS</a></li>
-                            <li><a href="#">Balanser</a></li>
+                            <li><a href="#">DNS</a></li>
+                            <li><a href="#">Balancer</a></li>
                             <li><a href="#">ScriptAPI</a></li>
                         </ul>
                         <div class="pull-right name-pan">
-                            <a href="#" class="name"><%= r_user_name %></a>
+                            <a href="#" class="name">Gamer Name</a>
+                            <a class="btn btn-delete" href="/logout">Logout</a>
                         </div>
                     </div>
                 </div>
@@ -40,33 +33,18 @@ show_template = %q{
         </div>
         <div id="content">
             <div class="container">
-                <div class="header-main">
-                    RuCTF
-                </div>
+                <div class="header-main">MapReduce</div>
                 <hr>
                 <ul class="nav nav-pills">
-                    <li><a href="http://<%= r_host %>/add">Add record</a></li>
-                    <li class="active"><a href="http://<%= r_host %>/show">View all records</a></li>
+                    <li class="active"><a href="mapreduce-upload.html">Upload</a></li>
+                    <li><a href="mapreduse-exec.html">Execute</a></li>
                 </ul>
                 <div class="tab-content">
-                <% if r_authored %>
-                	<% if r_has_records %>
-                    <table class="table table-striped table-hover">
-                        <tbody>
-                        	<% r_dns_records.each do |r_record| %>
-		                        <tr>
-		                            <td><%= r_record %></td>
-		                            <td class="btn-td"><button type="submit" class="btn btn-delete">Delete</button></td>
-		                        </tr>
-                        	<% end %>
-                        </tbody>
-                    </table>
-                    <% else %>
-                        <p> You have no records</p>
-                    <% end %>
-                <% else %>
-                    <p> Log in, please</p>
-                <% end %>
+                    <div class="mr-upload">
+                        <input type="text" placeholder="Name">
+                        <textarea placeholder="Code" rows="10"></textarea>
+                        <a class="btn btn-success" href="/register">Submit</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -83,4 +61,3 @@ show_template = %q{
 </div>
 </body>
 </html>
-}

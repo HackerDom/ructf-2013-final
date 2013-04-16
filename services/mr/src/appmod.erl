@@ -30,15 +30,12 @@ check_auth(Arg) ->
     try
         Session = yaws_api:find_cookie_val("session", Arg),
         Json = json2:encode({struct, [{"session", Session}]}),
-        {ok, "200", _, JsonResp} =  ibrowse:send_req("http://192.168.1.111/user",
+        {ok, "200", _, JsonResp} =  ibrowse:send_req("http://localhost/user",
                                                      [{"X-Requested-With", "XMLHttpRequest"},
                                                       {"Content-Type", "application/json"}], post, Json),
         {ok, {struct, Resp}} = json2:decode_string(JsonResp),
-        "OK" = proplists:get_value("status", Resp),
-        {struct,[{"$oid",Uid}]} = proplists:get_value("uid", Resp), %% workaround
-        FirstName = proplists:get_value("first_name", Resp),
-        LastName = proplists:get_value("last_name", Resp),
-        Email = proplists:get_value("email", Resp),
+        ["OK", Uid, FirstName, LastName, Email] = [proplists:get_value(Val, Resp)
+                || Val <- ["status", "uid", "first_name", "last_name", "email"]],
         {ok, #user{id = Uid, first_name = FirstName, last_name = LastName, email = Email}}
     of
         Ok -> Ok
