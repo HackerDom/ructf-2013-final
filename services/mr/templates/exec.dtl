@@ -2,20 +2,20 @@
 {% block title %} Exec {% endblock %}
 
 {% block links %}
-<a class="btn" href="/upload">Upload</a>
-<a class="btn" href="/examples">Examples</a>
+	<li><a href="/upload">Upload</a></li>
+	<li class="active"><a href="/exec">Execute</a></li>
+	<li><a href="/examples">Examples</a></li>
 {% endblock %}
 
 {% block content %}
 {% if method == 'get' %}
 <form method="POST" action="/exec">
     <fieldset>
-        <label>Program name</label>
-        <input type="text" name="name">
-        <label>Data</label>
-        <input type="text" name="data">
-        <label><label>
-        <button type="submit" class="btn">Upload</button>
+		<div class="mr-upload">
+			<input type="text" placeholder="Name" name="name">
+			<textarea placeholder="Data" rows="10" name="data"></textarea>
+			<button type="submit" class="btn btn-success">Execute</button>
+		</div>
     </fieldset>
 </form>
 {% else %}

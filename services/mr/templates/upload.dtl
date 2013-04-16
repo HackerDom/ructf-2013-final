@@ -2,20 +2,20 @@
 {% block title %} Upload {% endblock %}
 
 {% block links %}
-<a class="btn" href="/exec">Execute</a>
-<a class="btn" href="/examples">Examples</a>
+	<li class="active"><a href="/upload">Upload</a></li>
+	<li ><a href="/exec">Execute</a></li>
+	<li><a href="/examples">Examples</a></li>
 {% endblock %}
 
 {% block content %}
 {% if method == 'get' %}
 <form method="POST" action="/upload">
     <fieldset>
-        <label>Program name</label>
-        <input type="text" name="name">
-        <label>Erlang Code</label>
-        <input type="text" name="code">
-        <label><label>
-        <button type="submit" class="btn">Upload</button>
+		<div class="mr-upload">
+			<input type="text" placeholder="Name" name="name">
+			<textarea placeholder="Code" rows="10" name="code"></textarea>
+			<button type="submit" class="btn btn-success">Upload</button>
+		</div>
     </fieldset>
 </form>
 {% else %}
