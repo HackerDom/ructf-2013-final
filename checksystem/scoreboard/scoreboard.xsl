@@ -32,7 +32,7 @@
 
                   <div style="text-align:right">
                     <h5>
-                      Раунд #<xsl:value-of select="/scoreboard/@round"/> (начался в <xsl:value-of select="/scoreboard/@roundStartTimeUTC"/> UTC)
+                      Раунд #<xsl:value-of select="/scoreboard/@round"/> (начался в <xsl:value-of select="/scoreboard/@roundStartTimeYEKT"/> YEKT)
                     </h5>
                   </div>
                   
@@ -54,7 +54,7 @@
                   </xsl:apply-templates>
                   <div style="text-align:center">
                     <h5>
-                      Cгенерировано <xsl:value-of select="/scoreboard/@genTimeUTC"/> UTC
+                      Cгенерировано <xsl:value-of select="/scoreboard/@genTimeYEKT"/> YEKT
                     </h5>
                   </div>
                 </td>
@@ -88,9 +88,9 @@
         <th width="20">#</th>
         <th width="50">Лого</th>
         <th>Команда</th>
-        <th width="40">Рейтинг</th>
-        <th width="40">Защита</th>
-        <th width="40">Атака</th>
+        <th width="60">Рейтинг</th>
+        <th width="60">Защита</th>
+        <th width="60">Атака</th>
 <!--    <th>Адвайзори</th> -->
 <!--    <th>Таски</th> -->
         <xsl:for-each select="team[1]/services/service">
@@ -98,7 +98,7 @@
             <xsl:value-of select="@name"/>
           </th>
         </xsl:for-each>
-<!--    <th width="20">#</th> -->
+        <th width="20">$/f</th>
       </tr>
 
 
@@ -178,7 +178,7 @@
           <td>
             <xsl:value-of select="position()"/>
           </td>
-          
+
           <!-- Лого -->
           <td>
             <xsl:element name="img">
@@ -188,7 +188,7 @@
 			        <xsl:attribute name="height">50</xsl:attribute>
             </xsl:element>
           </td>
-          
+
           <td>
             <a href="#" class="info">
               <xsl:value-of select="@name"/>
@@ -299,7 +299,6 @@
                   </xsl:otherwise>
                 </xsl:choose>
               </xsl:attribute>
-              
 
               <a href="#" class="info">
                 <xsl:choose>
@@ -335,6 +334,7 @@
 
           </xsl:for-each>
 <!--      <td><input type="checkbox" id="{$class}_chk{@vulnBox}" onclick="checkBox_OnClick('{@vulnBox}', this)"/></td> -->
+          <td><xsl:value-of select="@flag_price"/></td>
         </tr>
       </xsl:for-each>
       <tr>
@@ -351,7 +351,7 @@
             <xsl:value-of select="@name"/>
           </th>
         </xsl:for-each>
-<!--    <th>#</th> -->
+        <th>$/f</th>
       </tr>
     </table>    
   </xsl:template>
