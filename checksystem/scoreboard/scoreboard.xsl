@@ -98,7 +98,7 @@
             <xsl:value-of select="@name"/>
           </th>
         </xsl:for-each>
-        <th width="20">$</th>
+        <th width="20">$/f</th>
       </tr>
 
 
@@ -351,7 +351,7 @@
             <xsl:value-of select="@name"/>
           </th>
         </xsl:for-each>
-        <th>$</th>
+        <th>$/f</th>
       </tr>
     </table>    
   </xsl:template>
