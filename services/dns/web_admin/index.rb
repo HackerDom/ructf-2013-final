@@ -66,6 +66,23 @@ get %r{/(show)?)} do
   "#{payload}"
 end
 
+get "/show:id" do
+  id = dbh.escape_string(params[:id])
+  r_has_records = false
+  r_dns_records = []
+  res = dbh.query("Select id, type, key, value from records where creator = #{id})")
+  if res.num_row > 0
+    r_has_records = true
+    res.each do |row|
+      r_dns_records.push([row[1] + " | " + row[2] + " -> " + row[3], row[0]])
+    end
+  end
+  r_authored = r_has_records
+  message = ERB.new(show_template, nil, "%")
+  payload = message.result
+  "#{payload}"
+end
+
 get '/add' do
   if request.cookies['session'] != nil
     r_host = request.host
