@@ -55,7 +55,7 @@ def register_or_die(host, login, password):
     ans = requests.post("http://{0}/register".format(host),
                         data={"login": login, "first_name": login,
                               "last_name": "", "password": password,
-                              "language": "en"})
+                              "language": "en"}, allow_redirects=True)
     if ans.status_code != 200:
         print("Failed to register the user in the user service: %s, %s, %s" % (login, host, ans.status_code))
         sys.exit(DOWN)
