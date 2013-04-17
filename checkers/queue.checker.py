@@ -57,7 +57,7 @@ def register_or_die(host, login, password):
                               "last_name": "", "password": password,
                               "language": "en"})
     if ans.status_code != 200:
-        print("Failed to register the user in the user service: %s, %s, %s, %s" % (login, host, ans.status_code, ans.text))
+        print("Failed to register the user in the user service: %s, %s, %s" % (login, host, ans.status_code))
         sys.exit(DOWN)
 
 
