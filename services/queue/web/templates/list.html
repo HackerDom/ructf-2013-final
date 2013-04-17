@@ -1,0 +1,39 @@
+<html>
+<head>
+<title>Queue</title>
+
+{% if login %}
+    <h1>{{ login }}</h1>
+{% else %}
+    <h1>You are not logged in, please log in</h1>
+{% endif %}
+
+{% for owner, queuename in queues %}
+    <div>
+        <span> {{queuename}} </span>
+        <form style="display: inline" method="POST" action="../enqueue/">
+            <input type="hidden" name="queuename" value="{{queuename}}">
+            <input name="val">
+            <input type="submit" value="enqueue">
+        </form>
+        <form style="display: inline" method="POST" action="../dequeue/">
+            <input type="hidden" name="queuename" value="{{queuename}}">
+            <input type="submit" value="dequeue">
+        </form>
+        <form style="display: inline" method="POST" action="../delete/">
+            <input type="hidden" name="queuename" value="{{queuename}}">
+            <input type="submit" value="delete">
+        </form>
+    </div>
+{% endfor %}
+
+<hr>
+
+<div>
+    <form method="POST" action="../create/">
+        <input name="queuename">
+        <input type="submit" value="create queue">
+    </form>
+</div>
+
+</html>
