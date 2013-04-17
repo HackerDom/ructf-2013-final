@@ -83,7 +83,7 @@ def check(host):
         s = socket.create_connection((host, PORT), 10)
     except Exception as E:
         print('Connect: {}'.format(E))
-        sys.exit(OK)
+        sys.exit(DOWN)
 
     readline(s)
 
