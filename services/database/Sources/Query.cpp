@@ -6,13 +6,19 @@ int SelectQuery::Execute(JSONNode *& result)
 	Database * db = Storage::FindDatabase(dbname);
 	if (db == NULL)
 		return Errors::ERR_NO_DB;
-	cout << "God mode: " << (godMode ? "on" : "off") << endl;
+	//cout << "God mode: " << (godMode ? "on" : "off") << endl;
 	if (!godMode && db->GetId() != userID)
 		return Errors::ERR_PERMISSION;
 	JSONNode * table = db->FindTable(tablename);
 	if (table == NULL)
 		return Errors::ERR_NO_TABLE;
 	JSONNode tableColumns = table->find("columns")->as_array();
+	for (auto j = conditions.begin(); j != conditions.end(); ++j)
+	{
+		int errcode = j->Compile(tableColumns);
+		if (errcode != Errors::ERR_OK)
+			return errcode;
+	}
 	vector<string> columns;
 	for (auto j = fields.begin(); j != fields.end(); ++j)
 	{
@@ -38,6 +44,11 @@ int SelectQuery::Execute(JSONNode *& result)
 	JSONNode tableRows = table->find("rows")->as_array();
 	for (auto j = tableRows.begin(); j != tableRows.end(); ++j)
 	{
+		bool testsResult = true;
+		for (auto k = conditions.begin(); k != conditions.end(); ++k)
+			testsResult = k->Test(*j, testsResult);
+		if (!testsResult)
+			continue;
 		JSONNode node;
 		for (auto k = columns.begin(); k != columns.end(); ++k)
 			node.push_back(JSONNode(*k, j->find(*k)->as_string()));
@@ -99,7 +110,7 @@ int InsertQuery::Execute(JSONNode *& result)
 	table->find("rows")->push_back(newRow);
 	//cout << table->write_formatted() << endl;
 	//cout << db->FindTable(tablename)->write_formatted() << endl;
-	cout << "Releasing" << endl;
+	//cout << "Releasing" << endl;
 
 	Storage::ReleaseDatabase(dbname);
 	return Errors::ERR_OK;
@@ -175,6 +186,37 @@ int DropTableQuery::Execute(JSONNode *& result)
 	return errcode;
 }
 
+int DeleteFromQuery::Execute(JSONNode *& result)
+{
+	result = new JSONNode();
+	Database * db = Storage::FindDatabase(dbname, true);
+	if (db == NULL)
+		Errors::ERR_NO_DB;
+	else if (db->GetId() != userID)
+		Errors::ERR_PERMISSION;
+	auto table = db->FindTable(tablename);
+	if (table == NULL)
+		Errors::ERR_NO_TABLE;
+	auto columns = table->find("columns")->as_array();
+	for (auto j = conditions.begin(); j != conditions.end(); ++j)
+	{
+		int errcode = j->Compile(columns);
+		if (errcode != Errors::ERR_OK)
+			return errcode;
+	}
+	auto rows = table->find("rows");
+	for (auto j = rows->begin(); j != rows->end(); ++j)
+	{
+		bool testsResult = true;
+		for (auto k = conditions.begin(); k != conditions.end(); ++k)
+			testsResult = k->Test(*j, testsResult);
+		if (testsResult)
+			rows->erase(j);
+	}
+	Storage::ReleaseDatabase(dbname);
+	return ERR_OK;
+}
+
 void Query::AddCharToField(char charToAdd)
 {
 	if (fields.size() == 0)
@@ -195,4 +237,16 @@ void Query::AddCharToDbname(char charToAdd)
 void Query::AddCharToTablename(char charToAdd)
 {
 	tablename.push_back(charToAdd);
+}
+
+Condition * Query::GetLastCondition()
+{
+	if (conditions.size() == 0)
+		conditions.push_back(Condition());
+	return &conditions.back();
+}
+
+void Query::AddNewCondition()
+{
+	conditions.push_back(Condition());
 }

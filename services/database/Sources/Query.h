@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include "Storage.h"
 #include "Errors.h"
+#include "Condition.h"
 
 class Query
 {
@@ -12,6 +13,8 @@ protected:
 	string dbname;
 	string tablename;
 	vector<string> fields;
+	vector<Condition> conditions;
+	bool completed;
 public:
 	virtual int Execute(JSONNode *&) = 0;
 
@@ -24,6 +27,14 @@ public:
 	void AddCharToField(char);
 
 	void AddNewField(void);
+
+	void SetCompleted(bool _completed) { completed = _completed; }
+
+	bool IsComplete() { return completed; }
+
+	Condition * GetLastCondition();
+
+	void AddNewCondition();
 };
 
 class SelectQuery : public Query
@@ -84,6 +95,16 @@ public:
 	DropTableQuery(const string & _userID) { SetID(_userID); }
 
 	DropTableQuery() { }
+
+	int Execute(JSONNode *&);
+};
+
+class DeleteFromQuery : public Query
+{
+public:
+	DeleteFromQuery(const string & _userID) { SetID(_userID); }
+
+	DeleteFromQuery() { }
 
 	int Execute(JSONNode *&);
 };

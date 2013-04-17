@@ -38,9 +38,11 @@ void HttpServer::Listen(const string &port)
 	callbacks.begin_request = RequestHandler;
 	const char *options[] = {
 		"listening_ports", port.c_str(), NULL };
-	mg_context *ctx = mg_start(&callbacks, this, options);
-	cin.get();
-	mg_stop(ctx);
+	context = mg_start(&callbacks, this, options);
+}
+void HttpServer::Stop()
+{
+	mg_stop(context);
 }
 void HttpServer::SetHandler(HandlerType handler)
 {
@@ -101,7 +103,7 @@ void HttpServer::SetAuthUrl(const string &url)
 
 string HttpServer::GetId(const string &cookie)
 {
-	cout << "getting id" << endl;
+	//cout << "Retrieving user id" << endl;
 	CURL *curl;
 	CURLcode res;
  

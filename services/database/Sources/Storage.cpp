@@ -26,6 +26,7 @@ void Storage::SafeAddDb(const string &name, Database *db)
 	bases[name] = new DbInfo(db, ++step);
 	if (bases.size() < MAX_BASES)
 		return;
+	cout << "Garbage collection started (have " << bases.size() << " bases, " << MAX_BASES << " max)" << endl;
 	unordered_map<string, DbInfo *>::iterator victim = bases.end();
 	for (auto i = bases.begin(); i != bases.end(); i++)
 	{
@@ -37,10 +38,10 @@ void Storage::SafeAddDb(const string &name, Database *db)
 	}
 	if (victim == bases.end())
 	{
-		cout << "Nothing to garbage, everyting is in use" << endl;
+		cout << "Nothing to collect, everyting is in use" << endl;
 		return;
 	}
-	cout << "Garbaging " << victim->first << endl;
+	cout << "Collecting '" << victim->first << "'" << endl;
 	SaveDatabase(victim->first);
 	delete victim->second;
 	bases.erase(victim);
@@ -64,6 +65,9 @@ Database *Storage::CreateDatabase(const string &name, const string &id)
 		pthread_mutex_unlock(&mutex);
 		return NULL;
 	}
+	
+	cout << "Creating database '" << name << "'" << endl;
+
 	JSONNode tables;
 	tables.set_name("tables");
 	JSONNode json;
@@ -79,15 +83,15 @@ Database *Storage::CreateDatabase(const string &name, const string &id)
 Database *Storage::FindDatabase(const string &name, bool capture)
 {
 	pthread_mutex_lock(&mutex);
-	cout << "Storage locked" << endl;
-	cout << "db count: " << bases.size() << endl;
+	//cout << "Storage locked" << endl;
+	//cout << "db count: " << bases.size() << endl;
 
 	if (bases.find(name) == bases.end())
 	{
 		auto db = LoadDatabase(name);
 		if (db == NULL)
 		{
-			cout << "Storage unlocked NULL" << endl;
+			//cout << "Storage unlocked NULL" << endl;
 			pthread_mutex_unlock(&mutex);
 			return NULL;
 		}
@@ -98,12 +102,14 @@ Database *Storage::FindDatabase(const string &name, bool capture)
 
 	if (capture)
 	{
-		cout << "Locked " << name << endl;
+		//cout << "Locked " << name << endl;
 		pthread_mutex_unlock(&mutex);
 		pthread_mutex_lock(&bases[name]->mutex);
 		pthread_mutex_lock(&mutex);
+		if (bases[name]->lastAccess - bases[name]->lastSave > 10)
+			SaveDatabase(name);
 	}
-	cout << "Storage unlocked" << endl;
+	//cout << "Storage unlocked" << endl;
 	pthread_mutex_unlock(&mutex);
 	return bases[name]->value;
 }
@@ -111,16 +117,16 @@ Database *Storage::FindDatabase(const string &name, bool capture)
 void Storage::ReleaseDatabase(const string &name)
 {
 	pthread_mutex_lock(&mutex);
-	cout << "Storage locked" << endl;
+	//cout << "Storage locked" << endl;
 	
 	if (bases.find(name) != bases.end())
 	{
-		cout << "Unlocked " << name << endl;
+		//cout << "Unlocked " << name << endl;
 		pthread_mutex_unlock(&bases[name]->mutex);
 	}
 
 
-	cout << "Storage unlocked" << endl;
+	//cout << "Storage unlocked" << endl;
 	pthread_mutex_unlock(&mutex);
 }
 
@@ -128,6 +134,7 @@ bool Storage::DropDatabase(const string &name)
 {
 	pthread_mutex_lock(&mutex);
 
+	cout << "Dropping database '" << name << "'" << endl;
 	if (bases.find(name) != bases.end())
 	{
 		delete bases[name];
@@ -181,6 +188,9 @@ void Storage::SaveDatabase(const string &name)
 	out.write((char *)ciphertext, zipped.length());
 	out.close();
 	delete [] ciphertext;
+
+	bases[name]->lastSave = step;
+	cout << "Saved database '" << name << "'" << endl;
 }
 
 Database *Storage::LoadDatabase(const string &name)
@@ -229,14 +239,15 @@ Database *Storage::LoadDatabase(const string &name)
 	string plaintext;
     StringSource(zipped, true, new Gunzip(new StringSink(plaintext)));
     //cout << plaintext << endl;
-
+	cout << "Loaded database '" << name << "'" << endl;
 	return new Database(id, libjson::parse(plaintext));
 }
 
-void Storage::UnloadAll() //TODO: test if destructor works
+void Storage::UnloadAll()
 {
 	pthread_mutex_lock(&mutex);
 
+	cout << "Unloading all databases" << endl;
 	for (auto i = bases.begin(); i != bases.end(); i++)
 		delete i->second;
 	bases.clear();
@@ -248,6 +259,7 @@ void Storage::Flush()
 {
 	pthread_mutex_lock(&mutex);
 
+	cout << "Saving all databases" << endl;
 	for (auto i = bases.begin(); i != bases.end(); i++)
 		SaveDatabase(i->first);
 	
