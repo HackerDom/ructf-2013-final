@@ -12,11 +12,13 @@ class HttpServer
 {
 public:
 	void Listen(const string &port);
+	void Stop();
 	void SetHandler(HandlerType handler);
 	void SetAuthUrl(const string &url);
 private:
 	HandlerType handler;
 	string authurl;
+	mg_context *context;
 	int ConnectionHandler(mg_connection *conn);
 	void SendJson(mg_connection *conn, const string &json);
 	static int RequestHandler(mg_connection *conn);
