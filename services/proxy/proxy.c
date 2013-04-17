@@ -21,6 +21,8 @@
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
 typedef struct conn_state_s {
+    char safe_buff[PROXY_BUF_LEN];
+
     unsigned int client_fd;
     char buff_c2s[PROXY_BUF_LEN];
 

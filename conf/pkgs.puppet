@@ -2,7 +2,10 @@
 package { 'app-portage/layman': ensure => present }
 package { 'dev-libs/libcgroup': ensure => present }
 package { 'dev-util/strace': ensure => present }
+package { 'sys-devel/gdb': ensure => present }
+package { 'app-arch/unzip': ensure => present }
 package { 'sys-process/htop': ensure => present }
+package { 'net-analyzer/tcpdump': ensure => present }
 package { 'app-portage/g-cpan': ensure => present }
 
 
@@ -24,6 +27,12 @@ package { 'dev-db/mongodb': ensure => present, require => Package['dev-libs/open
 package { 'dev-perl/EV': ensure => present }
 package { 'www-servers/nginx': ensure => present }
 
+# mr service
+user { 'mr': uid => 10002, shell=>"/sbin/nologin", ensure => present}
+file { '/home/mr': mode => 600, owner => mr, group =>mr,
+       ensure => directory, require => User['mr']}
+
+
 # ses service
 user { 'ses': uid => 10003, shell=>"/sbin/nologin", ensure => present}
 file { '/home/ses': mode => 600, owner => ses, group =>ses,
@@ -35,4 +44,8 @@ package { 'dev-perl/Net-DNS': ensure => present }
 package { 'dev-perl/TimeDate': ensure => present }
 package { 'mail-mta/postfix': ensure => present }
 
+# queue service
+user { 'queue': uid => 10006, shell=>"/sbin/nologin", ensure => present}
+file { '/home/queue': mode => 600, owner => queue, group =>queue,
+       ensure => directory, require => User['queue']}
 

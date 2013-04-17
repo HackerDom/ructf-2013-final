@@ -31,7 +31,7 @@
 
                   <div style="text-align:right">
                     <h5>
-                      Раунд #<xsl:value-of select="/servicesFlagsStolen/@round"/> (начался в <xsl:value-of select="/servicesFlagsStolen/@roundStartTimeUTC"/> UTC)
+                      Раунд #<xsl:value-of select="/servicesFlagsStolen/@round"/> (начался в <xsl:value-of select="/servicesFlagsStolen/@roundStartTimeYEKT"/> YEKT)
                     </h5>
                   </div>
 
@@ -42,7 +42,7 @@
                   
                   <div style="text-align:center">
                     <h5>
-                      Cгенерировано <xsl:value-of select="/servicesFlagsStolen/@genTimeUTC"/> UTC
+                      Cгенерировано <xsl:value-of select="/servicesFlagsStolen/@genTimeYEKT"/> YEKT
                     </h5>
                   </div>
                 </td>
