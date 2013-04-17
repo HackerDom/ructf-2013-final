@@ -68,4 +68,5 @@ file { '/home/queue': mode => 600, owner => queue, group =>queue,
        ensure => directory, require => User['queue']}
 package { 'dev-python/flask': ensure => present }
 package { 'dev-python/requests': ensure => present }
+package { 'www-servers/gunicorn': ensure => present }
 

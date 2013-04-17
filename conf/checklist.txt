@@ -33,3 +33,4 @@ dns(10004) Cache DNS (lena, ruby)
 proxy(10005) TCP Balancer (kost, C)
 Script API (andgein, PHP)
 database(10001) Database API ? (umineko & krait, C++)
+9) python2 by default
