@@ -11,7 +11,7 @@ dev-libs/boost ~x86
 dev-util/boost-build ~x86
 
 # required by dev-perl/EV
-=dev-perl/EV-4.110.0 ~x86
+dev-perl/EV ~x86
 
 dev-perl/Mojolicious ~x86
 
@@ -21,6 +21,12 @@ dev-perl/Class-Method-Modifiers ~x86
 dev-perl/boolean ~x86
 dev-perl/Module-Install ~x86
 dev-perl/DateTime-Tiny ~x86
+
+# required for dev-python/flask
+dev-python/blinker ~x86
+dev-python/werkzeug  ~x86
+dev-python/flask ~x86
+
 ", }
 
 

@@ -24,3 +24,12 @@ rc-update add mongodb_user
 6.6) quota user 2gb
 
 7.1) use ithreads
+8) services:
+user(10000) Users API (and)
+ses(10003) Simple Email Service (dimmo, perl)
+mr(10002) MapReduce (Егор, erlang)
+queue(10006) Message Queue (bay, rust)
+dns(10004) Cache DNS (lena, ruby)
+proxy(10005) TCP Balancer (kost, C)
+Script API (andgein, PHP)
+database(10001) Database API ? (umineko & krait, C++)
