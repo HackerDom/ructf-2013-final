@@ -1,3 +1,5 @@
+SET client_min_messages TO WARNING;
+
 -- Configuration
 
 CREATE TABLE rounds (
@@ -57,19 +59,19 @@ CREATE TABLE delayed_flags (
 );
 
 CREATE TABLE secret_flags (
-    time        TIMESTAMP       NOT NULL,
-    team_id     INTEGER,
-    flag_fata   CHAR(32),
+    time            TIMESTAMP       NOT NULL,
+    team_id         INTEGER,
+    flag_fata       CHAR(32),
     score_secret    INTEGER
 );
 
 CREATE TABLE stolen_flags (
-    time        TIMESTAMP       NOT NULL,
-    team_id     INTEGER,
-    flag_data   CHAR(32),
-    victim_team_id  INTEGER,
+    time                TIMESTAMP       NOT NULL,
+    team_id             INTEGER,
+    flag_data           CHAR(32),
+    victim_team_id      INTEGER,
     victim_service_id   INTEGER,
-    score_attack    INTEGER     CHECK (score_attack BETWEEN 1 AND 2)
+    score_attack        INTEGER     CHECK (score_attack>0)
 );
 
 CREATE SEQUENCE adv_seq INCREMENT 1 START 1;
@@ -217,13 +219,10 @@ CREATE FUNCTION set_score_attack()
 RETURNS "trigger" AS
 '
 declare
-    already_stolen INTEGER;
+    score INTEGER;
 begin
-    SELECT INTO already_stolen COUNT(*) FROM stolen_flags WHERE flag_data=NEW.flag_data;
-    IF (already_stolen=0)
-        THEN NEW.score_attack = 2;
-        ELSE NEW.score_attack = 1;
-    END IF;
+    SELECT INTO score flag_price FROM teams WHERE teams.id=NEW.victim_team_id;
+    NEW.score_attack = score;
     RETURN NEW;
 end
 '
