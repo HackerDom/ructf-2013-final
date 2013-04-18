@@ -13,24 +13,27 @@
                     RuCTF
                 </div>
                 <hr>
-                <div class="central">
-                    <ul class="nav nav-pills">
-                        <li><a href="/identity.html">Identity</a></li>
-                        <li><a href="/credentials.html">Credentials</a></li>
-                        <li class="active"><a href="#">Mail</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="stats">
-                        </div>
-                        <form>
-                            <select class="mails" name="from">
-                            </select>
-                            <input type="text" name="to">
-                            <input type="text" name="subject">
-                            <textarea rows="6" name="body"></textarea>
-                            <button class="btn" id="mail_send">Send</button>
-                        </form>
+                <ul class="nav nav-pills">
+                    <li><a href="/identity.html">Identity</a></li>
+                    <li><a href="/credentials.html">Credentials</a></li>
+                    <li class="active"><a href="#">Mail</a></li>
+                    <li><a href="/index.html">About</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="stats">
                     </div>
+                    <form class="mail-form">
+                        <select class="mails" name="from">
+                        </select>
+                        <br>
+                        <input type="text" name="to">
+                        <br>
+                        <input type="text" name="subject">
+                        <br>
+                        <textarea rows="6" name="body"></textarea>
+                        <br>
+                        <button id="mail-send" class="btn" id="mail_send">Send</button>
+                    </form>
                 </div>
             </div>
         </div>
