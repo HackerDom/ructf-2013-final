@@ -59,14 +59,13 @@ sub read_data {
 }
 
 sub check {
-    EXIT_OK;
     my ($host) = @_;
     my $s = IO::Socket::INET->new(
         PeerAddr => $host,
         PeerPort => 2525,
         Proto    => 'tcp',
         Timeout  => $TIMEOUT
-    ) or EXIT_DOWN "check/smtp/down: $@";
+    ) or EXIT_DOWN "SMTP at 2525 is down: $@";
     $s->close();
     EXIT_OK;
 }
