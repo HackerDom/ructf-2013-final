@@ -1,6 +1,6 @@
 # DNS
 # 
-# Caching
+# Caching possible
 # 
 # Athoritative
 
@@ -31,8 +31,6 @@ module YourZone
 					EventMachine.start_server(spec[1], spec[2], TCPHandler, server)
 				end
 			end
-			
-			syscall(23, 1000)
 			
 			server.fire(:start)
 		end

@@ -7,6 +7,7 @@ package { 'app-arch/unzip': ensure => present }
 package { 'sys-process/htop': ensure => present }
 package { 'net-analyzer/tcpdump': ensure => present }
 package { 'app-portage/g-cpan': ensure => present }
+package { 'sys-apps/iproute2': ensure => present }
 
 
 # user service
@@ -38,12 +39,17 @@ user { 'mr': uid => 10002, shell=>"/sbin/nologin", ensure => present}
 file { '/home/mr': mode => 600, owner => mr, group =>mr,
        ensure => directory, require => User['mr']}
 package { 'dev-lang/erlang': ensure => present }
+package { 'dev-vcs/git': ensure => present }
 
 
 # ses service
 user { 'ses': uid => 10003, shell=>"/sbin/nologin", ensure => present}
 file { '/home/ses': mode => 600, owner => ses, group =>ses,
        ensure => directory, require => User['ses']}
+file { '/home/ses/queue': mode => 600, owner => ses, group =>ses,
+       ensure => directory, require => File['/home/ses']}
+file { '/home/ses/db': mode => 600, owner => ses, group =>ses,
+       ensure => directory, require => File['/home/ses']}
 
 package { 'dev-perl/JSON': ensure => present }
 package { 'dev-perl/DBD-SQLite': ensure => present }

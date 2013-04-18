@@ -22,12 +22,11 @@ static listen_port: uint = 3255;
 static listen_backlog: uint = 128;
 
 static auth_server: &'static str = "127.0.0.1";
-// static auth_server: &'static str = "172.16.16.102";  // comment  before deploy
 static auth_port: uint = 80;
 
 static save_filename: &'static str = "db.json";
 static save_filename_tmp: &'static str = "db.json.inproccess";
-static save_period: uint = 1000;  // in msec
+static save_period: uint = 10000;  // in msec
 
 static maxqueuesize: uint = 100;   // max number of elements in queue
 
