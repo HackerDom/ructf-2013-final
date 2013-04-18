@@ -1,7 +1,6 @@
 function base_domain() {
     var r = /(team\d+\.ructf)$/.exec(location.host);
-    var domain = r[1];
-    return domain;
+    return r[1];
 }
 
 function url_for(page) {
@@ -21,12 +20,24 @@ function url_for(page) {
             url += 'logout';
             break;
     }
+    url += '/?n=' + document.URL;
     return url;
 }
 
+function link_to(service) {
+    var domain = base_domain();
+    return 'http://' + service + '.' + domain + '/';
+}
+
 function replace_urls() {
-    $('#signup').attr('href', url_for('signup'));
-    $('#signin').attr('href', url_for('signin'));
+    $('a.brand').attr('href', 'http://' + base_domain());
+    $('.navbar ul.nav li:nth-child(1) a').attr('href', link_to('ses'));
+    $('.navbar ul.nav li:nth-child(2) a').attr('href', link_to('mp'));
+    $('.navbar ul.nav li:nth-child(3) a').attr('href', link_to('db'));
+    $('.navbar ul.nav li:nth-child(4) a').attr('href', link_to('queue'));
+    $('.navbar ul.nav li:nth-child(5) a').attr('href', link_to('dns'));
+    $('.navbar ul.nav li:nth-child(6) a').attr('href', link_to('ips'));
+    $('.navbar ul.nav li:nth-child(7) a').attr('href', link_to('scripts'));
 }
 
 function user() {
