@@ -25,7 +25,8 @@ r_dns_records = []
 r_authored = false
 r_has_records = false
 
-dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
+#dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
+dbh = Mysql.real_connect(nil, "root", nil, "dns", nil, "/home/dns/mysql/mysql.sock")
 
 get '/add' do
   if request.cookies['session'] != nil
