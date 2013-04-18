@@ -24,13 +24,13 @@ rc-update add mongodb_user
 7.1) use ithreads
 8) services:
 user(10000) Users API (and)
-ses(10003) Simple Email Service (dimmo, perl)
+database(10001) Database API ? (umineko & krait, C++)
 mr(10002) MapReduce (Егор, erlang)
-queue(10006) Message Queue (bay, rust)
+ses(10003) Simple Email Service (dimmo, perl)
 dns(10004) Cache DNS (lena, ruby)
 proxy(10005) TCP Balancer (kost, C)
+queue(10006) Message Queue (bay, rust)
 Script API (andgein, PHP)
-database(10001) Database API ? (umineko & krait, C++)
 9) python2 by default
 9.1) layman -a yac
 
@@ -40,8 +40,8 @@ PORTDIR_OVERLAY="/var/lib/overlays/cpan/"
 
 ------------------------ SERVICE DEPLOYMENT ------------------------
 
-= user service =
-chown -R user:user /home/user/
+=== user service ===
+chown -R user:user /home/user
 chmod +x /etc/init.d/user /etc/init.d/mongodb_user
 
 g-cpan -i Mojolicious
@@ -50,9 +50,31 @@ g-cpan -i MongoDB
 rc-update add user
 rc-update add mongodb_user
 
-= queue service =
-chown -R queue:queue /home/queue/
+
+=== database service ===
+chown -R database:database /home/database
+chmod +x /etc/init.d/database
+
+rc-update add database
+
+
+=== mr service ===
+chown -R mr:mr /home/mr
+chmod +x /etc/init.d/mr
+
+rc-update add mr
+
+
+=== ses service ===
+chown -R ses:ses /home/ses
+chmod +x /etc/init.d/ses_http /etc/init.d/ses_smtp
+
+rc-update add ses
+
+=== queue service ===
+chown -R queue:queue /home/queue
 chmod +x /etc/init.d/queue /etc/init.d/queue_web
 
 rc-update add queue
 rc-update add queue_web
+
