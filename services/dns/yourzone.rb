@@ -1,6 +1,6 @@
 # DNS
 # 
-# Caching
+# Caching possible
 # 
 # Athoritative
 
@@ -32,7 +32,7 @@ module YourZone
 				end
 			end
 			
-			syscall(23, 1000)
+			#syscall(23, 1000)
 			
 			server.fire(:start)
 		end

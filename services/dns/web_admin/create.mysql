@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS records
+CREATE TABLE records (
+	id		varchar(32),
+	type	varchar(10),
+	key		varchar(40)
+)

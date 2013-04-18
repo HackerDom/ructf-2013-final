@@ -521,15 +521,20 @@ option[disabled]{
     line-height: 50px;
 }
 
-.db-input > input{
-    margin: 10px 200px 10px 40%;
-    width: 70%;
-    resize: none
+.db-controls {
+	margin: 10px 200px 10px 40%;
+    width: 100%;
+	text-align: left;
+	margin-bottom: 0;
 }
 
-.db-input > .btn {
-    margin-left: 98%;
+.db-controls > input{
+	width: 70%;
+    margin-bottom: 0;
 }
+
+
+
 .db-input > table {
     margin: 10px 200px 10px 40%;
 }

@@ -2,7 +2,10 @@
 package { 'app-portage/layman': ensure => present }
 package { 'dev-libs/libcgroup': ensure => present }
 package { 'dev-util/strace': ensure => present }
+package { 'sys-devel/gdb': ensure => present }
+package { 'app-arch/unzip': ensure => present }
 package { 'sys-process/htop': ensure => present }
+package { 'net-analyzer/tcpdump': ensure => present }
 package { 'app-portage/g-cpan': ensure => present }
 
 
@@ -24,6 +27,19 @@ package { 'dev-db/mongodb': ensure => present, require => Package['dev-libs/open
 package { 'dev-perl/EV': ensure => present }
 package { 'www-servers/nginx': ensure => present }
 
+# database service
+user { 'database': uid => 10001, shell=>"/sbin/nologin", ensure => present}
+file { '/home/database': mode => 600, owner => database, group =>database,
+       ensure => directory, require => User['database']}
+package { 'net-misc/curl': ensure => present }
+
+# mr service
+user { 'mr': uid => 10002, shell=>"/sbin/nologin", ensure => present}
+file { '/home/mr': mode => 600, owner => mr, group =>mr,
+       ensure => directory, require => User['mr']}
+package { 'dev-lang/erlang': ensure => present }
+
+
 # ses service
 user { 'ses': uid => 10003, shell=>"/sbin/nologin", ensure => present}
 file { '/home/ses': mode => 600, owner => ses, group =>ses,
@@ -35,4 +51,22 @@ package { 'dev-perl/Net-DNS': ensure => present }
 package { 'dev-perl/TimeDate': ensure => present }
 package { 'mail-mta/postfix': ensure => present }
 
+# dns service
+user { 'dns': uid => 10004, shell=>"/sbin/nologin", ensure => present}
+file { '/home/dns': mode => 600, owner => dns, group =>dns,
+       ensure => directory, require => User['dns']}
+
+# proxy service
+user { 'proxy': uid => 10005, shell=>"/sbin/nologin", ensure => present}
+file { '/home/proxy': mode => 600, owner => proxy, group =>proxy,
+       ensure => directory, require => User['proxy']}
+
+
+# queue service
+user { 'queue': uid => 10006, shell=>"/sbin/nologin", ensure => present}
+file { '/home/queue': mode => 600, owner => queue, group =>queue,
+       ensure => directory, require => User['queue']}
+package { 'dev-python/flask': ensure => present }
+package { 'dev-python/requests': ensure => present }
+package { 'www-servers/gunicorn': ensure => present }
 
