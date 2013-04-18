@@ -1,6 +1,8 @@
 DROP TABLE IF EXISTS records
 CREATE TABLE records (
-	id		varchar(32),
-	type	varchar(10),
-	key		varchar(40)
+	did		varchar(32),
+	dtype	varchar(10),
+	dkey		varchar(40),
+	dvalue	varchar(40),
+	dcreator varchar(25)
 )
