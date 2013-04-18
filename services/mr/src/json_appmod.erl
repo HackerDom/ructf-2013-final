@@ -7,13 +7,13 @@ out(Path, Method, User, Arg = #arg{})  ->
     {ok, Json} = json2:decode_string(binary_to_list(Arg#arg.clidata)),
     out(Path, Method, User, Json);
 out(["upload"], 'POST', User, {struct, Json}) ->
-	Name = proplists:get_value("name", Json),
-	ErlangCode = proplists:get_value("code", Json),
+    Name = proplists:get_value("name", Json),
+    ErlangCode = proplists:get_value("code", Json),
     ok = appmod:upload(User, Name, ErlangCode),
     ok;
 out(["exec"], 'POST', User, {struct, Json}) ->
-	Name = proplists:get_value("name", Json),
-	{struct, Data} = proplists:get_value("data", Json),
+    Name = proplists:get_value("name", Json),
+    {struct, Data} = proplists:get_value("data", Json),
     Result = appmod:exec(User, Name, Data),
     {ok, Result};
 out(_Path, _Method, _User, _Json) ->
