@@ -19,6 +19,8 @@
     </fieldset>
 </form>
 {% else %}
-{{content}}
+<div class="alert alert-success">
+    {{content}}
+</div>
 {% endif %}
 {% endblock %}

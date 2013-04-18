@@ -11,25 +11,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define TMP_BUF_LEN 16384
+#define TMP_BUF_LEN 4096
 #define PROXY_BUF_LEN 65536
+
 #define CONNECT_TIMEOUT 3
+#define INACTIVITY_TIMEOUT 15
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
 typedef struct conn_state_s {
-    int client_fd;
-    int server_fd;
+    char safe_buff[PROXY_BUF_LEN];
 
+    unsigned int client_fd;
     char buff_c2s[PROXY_BUF_LEN];
+
+    unsigned int server_fd;
     char buff_s2c[PROXY_BUF_LEN];
 
     short buff_c2s_n_read;
     short buff_c2s_n_written;
 
     short buff_s2c_n_read;
-    short buff_s2c_n_written;
+    short buff_s2c_n_written;    
 } conn_state;
 
 int dst_addr;
@@ -62,17 +66,23 @@ make_nonblocking(int fd)
 }
 
 int
-connect_with_timeout(int addr, int port, int timeout_sec){
+connect_with_timeout(int addr, int port, int timeout_sec) {
     struct sockaddr_in sin;
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = addr;
     sin.sin_port = htons(port);
 
-    int server_socket = socket(AF_INET, SOCK_STREAM, 0);
-    make_nonblocking(server_socket);
+    int s = socket(AF_INET, SOCK_STREAM, 0);
+    if (s > FD_SETSIZE) {
+        fprintf(stderr, "connec socket > FD_SETSIZE\n");
+        close(s);
+        return -1;
+    }
 
-    int res = connect(server_socket, (struct sockaddr*)&sin, sizeof(sin));
-    if (res < 0){
+    make_nonblocking(s);
+
+    int res = connect(s, (struct sockaddr*)&sin, sizeof(sin));
+    if (res < 0) {
         if (errno == EINPROGRESS) {
             fd_set myset;
             struct timeval tv;
@@ -81,17 +91,21 @@ connect_with_timeout(int addr, int port, int timeout_sec){
                 tv.tv_sec = timeout_sec;
                 tv.tv_usec = 0;
                 FD_ZERO(&myset);
-                FD_SET(server_socket, &myset);
-                res = select(server_socket+1, NULL, &myset, NULL, &tv);
-                if (res < 0 && errno != EINTR) {
-                    perror("select on connect");
-                    return -1;
+                FD_SET(s, &myset);
+                res = select(s+1, NULL, &myset, NULL, &tv);
+                if (res < 0) {
+                    if (errno == EINTR)
+                        continue;
+                    else {
+                        perror("select on connect");
+                        return -1;
+                    }                    
                 } 
                 else if (res > 0) { 
-                    return server_socket;
+                    return s;
                 } 
                 else { 
-                    perror("timeout on connect");
+                    fprintf(stderr, "timeout on connect\n");
                     return -1;
                 } 
             } while (1);
@@ -104,7 +118,7 @@ connect_with_timeout(int addr, int port, int timeout_sec){
 }
 
 int
-process_read(int fd, char *buff, int already_read){
+process_read(int fd, char *buff, int already_read) {
     char tmp[TMP_BUF_LEN];
 
     int can_read = PROXY_BUF_LEN - already_read;
@@ -125,7 +139,7 @@ process_read(int fd, char *buff, int already_read){
 }
 
 int
-process_write(int fd, char *buff, int already_read, int already_sent){
+process_write(int fd, char *buff, int already_read, int already_sent) {
     int to_write = already_read - already_sent;
     if (to_write <= 0)
         return 0;
@@ -146,7 +160,7 @@ thread_func(int *fd_ptr)
     make_nonblocking(client_socket);
 
     int server_socket = connect_with_timeout(dst_addr, dst_port, CONNECT_TIMEOUT);
-    if (server_socket < 0){
+    if (server_socket < 0) {
         close(client_socket);
         close(server_socket);
         return;
@@ -157,36 +171,40 @@ thread_func(int *fd_ptr)
     int client_closed = 0;
     int server_closed = 0;
 
-    fd_set readset, writeset, exset;
+    fd_set readset, writeset;
     while (!client_closed || !server_closed) {
         FD_ZERO(&readset);
-        FD_ZERO(&writeset);
-        FD_ZERO(&exset);
+        FD_ZERO(&writeset);        
 
         int max_fd = 0;
 
-        if (!client_closed){
-            if (!server_closed){
+        if (state->client_fd > FD_SETSIZE || state->server_fd > FD_SETSIZE) {
+            fprintf(stderr, "transfer socket > FD_SETSIZE\n");
+            break;
+        }
+
+        if (!client_closed) {
+            if (!server_closed) {
                 FD_SET(state->client_fd, &readset);
                 max_fd = max(max_fd, state->client_fd);
             }
                 
 
-            if (state->buff_s2c_n_written != state->buff_s2c_n_read){
+            if (state->buff_s2c_n_written != state->buff_s2c_n_read) {
                 FD_SET(state->client_fd, &writeset);
                 max_fd = max(max_fd, state->client_fd);
             }
                 
         }
         
-        if (!server_closed){
-            if (!client_closed){
+        if (!server_closed) {
+            if (!client_closed) {
                 FD_SET(state->server_fd, &readset);
                 max_fd = max(max_fd, state->server_fd);
             }
                 
 
-            if (state->buff_c2s_n_written != state->buff_c2s_n_read){
+            if (state->buff_c2s_n_written != state->buff_c2s_n_read) {
                 FD_SET(state->server_fd, &writeset);
                 max_fd = max(max_fd, state->server_fd);
             }                
@@ -195,10 +213,70 @@ thread_func(int *fd_ptr)
         if (max_fd == 0)
             break;
 
-        if (select(max_fd + 1, &readset, &writeset, &exset, NULL) < 0) {
+        struct timeval tv;
+        tv.tv_sec = INACTIVITY_TIMEOUT;
+        tv.tv_usec = 0;
+
+        int result = select(max_fd + 1, &readset, &writeset, NULL, &tv);
+        if (result < 0) {
             perror("select on transfer");
             return;
         }
+        else if (result == 0) {
+            perror("timeout on transfer");
+            break;
+        }
+
+        if(!client_closed && FD_ISSET(state->client_fd, &writeset))
+        {
+            result = process_write(state->client_fd, state->buff_s2c, state->buff_s2c_n_read, state->buff_s2c_n_written);
+            if (result >= 0) {
+                state->buff_s2c_n_written += result;
+
+                if (state->buff_s2c_n_written > 0) {
+                    int delta = state->buff_s2c_n_read - state->buff_s2c_n_written;
+                    memmove(state->buff_s2c, state->buff_s2c + state->buff_s2c_n_written, delta);
+                    state->buff_s2c_n_read -= state->buff_s2c_n_written;
+                    state->buff_s2c_n_written -= state->buff_s2c_n_written;
+                }
+
+                if (server_closed && state->buff_s2c_n_written == state->buff_s2c_n_read) {
+                    close(state->client_fd);
+                    client_closed = 1;
+                }
+            }
+            else
+            {
+                close(state->client_fd);
+                client_closed = 1;
+            }
+        }
+
+        if(!server_closed && FD_ISSET(state->server_fd, &writeset))
+        {
+            int result = process_write(state->server_fd, state->buff_c2s, state->buff_c2s_n_read, state->buff_c2s_n_written);
+            if (result >= 0) {
+                state->buff_c2s_n_written += result;
+
+                if (state->buff_c2s_n_written > 0) {
+                    int delta = state->buff_c2s_n_read - state->buff_c2s_n_written;
+                    memmove(state->buff_c2s, state->buff_c2s + state->buff_c2s_n_written, delta);
+                    state->buff_c2s_n_read -= state->buff_c2s_n_written;
+                    state->buff_c2s_n_written -= state->buff_c2s_n_written;
+                }
+
+                if (client_closed && state->buff_c2s_n_read == state->buff_c2s_n_written) {
+                    close(state->server_fd);
+                    server_closed = 1;
+                }
+            }
+            else
+            {
+                close(state->server_fd);
+                server_closed = 1;
+            }
+        }
+
 
         if (!client_closed && FD_ISSET(state->client_fd, &readset))
         {
@@ -222,60 +300,7 @@ thread_func(int *fd_ptr)
                 close(state->server_fd);
                 server_closed = 1;
             }
-        }
-
-
-        if(!client_closed && FD_ISSET(state->client_fd, &writeset))
-        {
-            int result = process_write(state->client_fd, state->buff_s2c, state->buff_s2c_n_read, state->buff_s2c_n_written);
-            if (result >= 0){
-                state->buff_s2c_n_written += result;
-
-                if (state->buff_s2c_n_written > PROXY_BUF_LEN/4){
-                    int delta = state->buff_s2c_n_read - state->buff_s2c_n_written;
-                    memmove(state->buff_s2c, state->buff_s2c + state->buff_s2c_n_written, delta);
-                    state->buff_s2c_n_read -= state->buff_s2c_n_written;
-                    state->buff_s2c_n_written -= state->buff_s2c_n_written;
-                }
-
-                if (server_closed && state->buff_s2c_n_written == state->buff_s2c_n_read){
-                    close(state->client_fd);
-                    client_closed = 1;
-                }
-            }
-            else
-            {
-                close(state->client_fd);
-                client_closed = 1;
-            }
-
-        }
-
-        if(!server_closed && FD_ISSET(state->server_fd, &writeset))
-        {
-            int result = process_write(state->server_fd, state->buff_c2s, state->buff_c2s_n_read, state->buff_c2s_n_written);
-            if (result >= 0){
-                state->buff_c2s_n_written += result;
-
-                if (state->buff_c2s_n_written > PROXY_BUF_LEN/4){
-                    int delta = state->buff_c2s_n_read - state->buff_c2s_n_written;
-                    memmove(state->buff_c2s, state->buff_c2s + state->buff_c2s_n_written, delta);
-                    state->buff_c2s_n_read -= state->buff_c2s_n_written;
-                    state->buff_c2s_n_written -= state->buff_c2s_n_written;
-                }
-
-                if (client_closed && state->buff_c2s_n_read == state->buff_c2s_n_written){
-                    close(state->server_fd);
-                    server_closed = 1;
-                }
-            }
-            else
-            {
-                close(state->server_fd);
-                server_closed = 1;
-            }
-
-        }
+        }        
     }
 
     free_conn_state(state);
@@ -327,7 +352,7 @@ run(int listen_port)
                 perror("pthread_attr_init");
                 return;
             }
-            if (pthread_attr_setstacksize(&tattr, PTHREAD_STACK_MIN) != 0) {
+            if (pthread_attr_setstacksize(&tattr, PTHREAD_STACK_MIN + 0x4000) != 0) {
                 perror("pthread_attr_setstacksize");
                 return;
             }
@@ -343,30 +368,28 @@ run(int listen_port)
 
 
 int
-main(int argc, char **argv)
-{
+main(int argc, char **argv) {
     setvbuf(stdout, NULL, _IONBF, 0);
 
-    if (argc != 4)
-    {
+    if (argc != 4) {
         fprintf(stdout, "Usage: %s <listen_port> <dst_addr> <dst_port>\n", argv[0]);
         return 1;
     }
 
     int listen_port = atoi(argv[1]);//TODO может просто в short парсить? :)
-    if (listen_port <=0 || listen_port > 65535){
+    if (listen_port <=0 || listen_port > 65535) {
         fprintf(stderr, "Invalid listen_port '%s'\n", argv[1]);
         return 1;
     }
 
     dst_addr = inet_addr(argv[2]);
-    if (dst_addr == -1){
+    if (dst_addr == -1) {
         fprintf(stderr, "Invalid dst_addr '%s'\n", argv[2]);
         return 1;   
     }
 
     dst_port = atoi(argv[3]);//TODO может просто в short парсить? :)
-    if (dst_port <=0 || dst_port > 65535){
+    if (dst_port <=0 || dst_port > 65535) {
         fprintf(stderr, "Invalid dst_port '%s'\n", argv[3]);
         return 1;
     }
