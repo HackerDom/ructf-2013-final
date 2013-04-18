@@ -370,7 +370,24 @@ html, body {
     width: 25%;
     display: inline-block;
 }
-
+.about {
+    margin-left: 30px;
+    margin-top: 10%;
+    width: 25%;
+    display: inline-block;
+}
+.about-img {
+    width: 600px;
+    height: 400px;
+    margin-right: 30px;
+    float: right;
+    display: inline-block;
+}
+.about-bg {
+    z-index: -10;
+    position: relative;
+    margin-left: -100px;
+}
 
 /**
 * Tabs
@@ -622,3 +639,21 @@ option[disabled]{
     border-radius: 3px;
 }
 /*---------------------------------------------MapReduce styles ends---------------------------------------------------*/
+/*---------------------------------------------SES styles starts-------------------------------------------------*/
+.add-mail {
+    display: inline-block;
+    margin-top: -12px;
+}
+.example {
+    color: #2973b8;
+}
+.mail-form {
+    margin: 3px;
+}
+#mail-send {
+    margin-left: 17.5%;
+}
+.stats {
+    margin-bottom: 10px;
+}
+/*---------------------------------------------SES styles ends---------------------------------------------------*/
