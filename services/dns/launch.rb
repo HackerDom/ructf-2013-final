@@ -1,4 +1,4 @@
-# not all code done
+#!/usr/bin/ruby
 
 require 'yourzone'
 require 'yourzone/server'
@@ -16,7 +16,6 @@ dbh = Mysql.real_connect(nil, "root", nil, "dns", nil, "/home/dns/mysql/mysql.so
 TTL = 10000
 IN = Resolv::DNS::Resource::IN
 
-# not finished
 YourZone::run_server do
 	on(:start) do
 		syscall(23, 10004)
