@@ -1,12 +1,14 @@
 # need to set up:
 # r_user_name
 # r_host
+# r_authored
+# teamN
 
-$add_template = %q{
+add_template = %q{
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Template</title>
+    <title>Add record</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -41,19 +43,20 @@ $add_template = %q{
             </div>
             <hr>
             <ul class="nav nav-pills">
-                <li class="active"><a href="dns-add.html">Add record</a></li>
-                <li><a href="dns-all.html">View all records</a></li>
+                <li class="active"><a href="http://<%= r_host %>/add">Add record</a></li>
+                <li><a href="http://<%= r_host %>/show">View all records</a></li>
             </ul>
             <div class="tab-content">
-                    <form method="POST" action="#" class="add-record">
+                    <form method="POST" action="http://<%= r_host %>/" class="add-record">
                         <fieldset>
-                            <select  placeholder="Type">
+                            <select name="type" placeholder="Type">
                                 <option disabled selected="selected" class="choose">Choose type</option>
-                                <option value="">type #1</option>
-                                <option value="">type #2</option>
+                                <option value="A">A</option>
+                                <option value="TXT">TXT</option>
                             </select>
                             <input type="text" name="name" placeholder="Name">
                             <input type="text" name="value" placeholder="Value">
+                            <input type="hidden" name="action" value="ADD">
                             <label></label>
                             <button type="submit" class="btn btn-add">Add</button>
                         </fieldset>

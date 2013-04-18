@@ -1,0 +1,31 @@
+#!/sbin/runscript
+# Copyright 1999-2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+#extra_commands=""
+#extra_started_commands=""
+
+depend() {
+        use logger
+        need net
+}
+
+PIDFILE="/var/run/${SVCNAME}.pid"
+DIR="/home/ses"
+BINARY="$DIR/SesSMTP.pl"
+USER="ses:ses"
+
+start() {
+        ebegin "Starting ${SVCNAME}"
+        start-stop-daemon --start --exec "${BINARY}" \
+            --interpreted --make-pidfile --pidfile "${PIDFILE}" --user "${USER}" \
+            --chdir "${DIR}" --background
+        eend $?
+}
+
+stop() {
+        ebegin "Stopping ${SVCNAME}"
+        start-stop-daemon --stop --exec "${BINARY}" \
+            --interpreted --pidfile "${PIDFILE}" --user "${USER}" --quiet
+        eend $?
+}

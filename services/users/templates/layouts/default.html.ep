@@ -4,9 +4,10 @@
     <title><%= title %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <link href="/style.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
   </head>
   <body>
+    <div class="page">
     <div id="wrap">
       <div class="navbar navbar-fixed-top">
         <div class="navbar-inner">
@@ -14,12 +15,13 @@
             <a class="brand" href="#">RuCTF</a>
             <div class="nav-collapse collapse">
               <ul class="nav">
+                <li><a href="<%= "http://ses.$domain" %>">SES</a></li>
+                <li><a href="<%= "http://mp.$domain" %>">MapReduce</a></li>
+                <li><a href="<%= "http://db.$domain" %>">DB</a></li>
+                <li><a href="<%= "http://queue.$domain" %>">MessageQueue</a></li>
                 <li><a href="<%= "http://dns.$domain" %>">DNS</a></li>
-                <li><a href="#">wert</a></li>
-                <li><a href="#">wert</a></li>
-                <li><a href="#">wert</a></li>
-                <li><a href="#">wert</a></li>
-                <li><a href="#">wert</a></li>
+                <li><a href="<%= "http://ips.$domain" %>">IPS</a></li>
+                <li><a href="<%= "http://scripts.$domain" %>">ScriptAPI</a></li>
               </ul>
               <div class="pull-right">
                 <%= content_for 'sign_up' %>
@@ -33,11 +35,13 @@
         <%= content %>
       </div>
     </div>
+    </div>
     <div id="footer">
       <div class="container">
         <div class="pull-right">
           <a href="http://ructf.org">RuCTF</a>
           <a href="http://hackerdom.ru">HackerDom</a>
+          <a href="http://ructf.org/2013/ru/devteam">Developers</a>
         </div>
       </div>
     </div>

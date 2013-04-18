@@ -2,7 +2,7 @@ extern mod std;
 
 use core::path::Path;
 use core::comm::{stream, SharedChan};
-use core::hashmap::linear::LinearMap;
+use core::hashmap::HashMap;
 
 use core::libc::funcs::c95::stdio::rename;
 
@@ -21,12 +21,12 @@ static listen_addr: &'static str = "0.0.0.0";
 static listen_port: uint = 3255;
 static listen_backlog: uint = 128;
 
-static auth_server: &'static str = "172.16.16.102";  // change before deploy
-static auth_port: uint = 80;  // change before deploy
+static auth_server: &'static str = "127.0.0.1";
+static auth_port: uint = 80;
 
 static save_filename: &'static str = "db.json";
 static save_filename_tmp: &'static str = "db.json.inproccess";
-static save_period: uint = 1000;  // in msec
+static save_period: uint = 10000;  // in msec
 
 static maxqueuesize: uint = 100;   // max number of elements in queue
 
@@ -42,7 +42,7 @@ struct OwnedQueue {
     queue: Deque<~str>
 }
 
-type QueuesMap = LinearMap<~str,OwnedQueue>;
+type QueuesMap = HashMap<~str,OwnedQueue>;
 
 enum Command {
     User{username:~str},
@@ -520,13 +520,13 @@ fn load_db() -> QueuesMap {
                 },
                 Err(_) => {
                     println("Db file is bad, using emtpy db");
-                    return LinearMap::new();
+                    return HashMap::new();
                 }
             }
         }
         Err(e) => {
             println(e);
-            return LinearMap::new();
+            return HashMap::new();
         }
     }
 }
@@ -537,7 +537,7 @@ fn main() {
     // bypass the internal rust's bug(feature?) when segfaults while adding
     // element to json's "{}"
     if queues.is_empty() {
-        queues = LinearMap::new();
+        queues = HashMap::new();
     }
 
     let queues_arc = RWARC(queues);

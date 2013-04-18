@@ -1,0 +1,1295 @@
+{
+	"nodes" : [
+		{
+			"id" : 0,
+			"modifiers" : [],
+			"transitions" : {
+				"s" : 1,
+				"c" : 52,
+				" " : 0,
+				"i" : 87,
+				"d" : 116
+			}
+		},
+		{
+			"id" : 1,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 2
+			}
+		},
+		{
+			"id" : 2,
+			"modifiers" : [],
+			"transitions" : {
+				"s" : 7,
+				"l" : 3
+			}
+		},
+		{
+			"id" : 3,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 4
+			}
+		},
+		{
+			"id" : 4,
+			"modifiers" : [],
+			"transitions" : {
+				"l" : 9,
+				"c" : 5
+			}
+		},
+		{
+			"id" : 5,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 10,
+				"t" : 6
+			}
+		},
+		{
+			"id" : 6,
+			"modifiers" : [
+				8
+			],
+			"transitions" : {
+				" " : 13
+			}
+		},
+		{
+			"id" : 7,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 8
+			}
+		},
+		{
+			"id" : 8,
+			"modifiers" : [],
+			"transitions" : {
+				"s" : 7,
+				"l" : 9
+			}
+		},
+		{
+			"id" : 9,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 10
+			}
+		},
+		{
+			"id" : 10,
+			"modifiers" : [],
+			"transitions" : {
+				"l" : 9,
+				"c" : 11
+			}
+		},
+		{
+			"id" : 11,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 10,
+				"t" : 12
+			}
+		},
+		{
+			"id" : 12,
+			"modifiers" : [
+				20
+			],
+			"transitions" : {
+				" " : 13
+			}
+		},
+		{
+			"id" : 13,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 13,
+				"alpha" : 14,
+				"*" : 14
+			}
+		},
+		{
+			"id" : 14,
+			"modifiers" : [
+				2
+			],
+			"transitions" : {
+				"alpha" : 14,
+				"," : 16,
+				" " : 15
+			}
+		},
+		{
+			"id" : 15,
+			"modifiers" : [],
+			"transitions" : {
+				"," : 16,
+				"f" : 17
+			}
+		},
+		{
+			"id" : 16,
+			"modifiers" : [
+				3
+			],
+			"transitions" : {
+				"alpha" : 14,
+				" " : 13
+			}
+		},
+		{
+			"id" : 17,
+			"modifiers" : [],
+			"transitions" : {
+				"r" : 18
+			}
+		},
+		{
+			"id" : 18,
+			"modifiers" : [],
+			"transitions" : {
+				"o" : 19
+			}
+		},
+		{
+			"id" : 19,
+			"modifiers" : [],
+			"transitions" : {
+				"m" : 20
+			}
+		},
+		{
+			"id" : 20,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 21
+			}
+		},
+		{
+			"id" : 21,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 21,
+				"alpha" : 22
+			}
+		},
+		{
+			"id" : 22,
+			"modifiers" : [
+				0
+			],
+			"transitions" : {
+				"alpha" : 22,
+				"." : 23
+			}
+		},
+		{
+			"id" : 23,
+			"modifiers" : [],
+			"transitions" : {
+				"alpha" : 24
+			}
+		},
+		{
+			"id" : 24,
+			"modifiers" : [
+				1,
+				12
+			],
+			"transitions" : {
+				"alpha" : 24,
+				" " : 25
+			}
+		},
+		{
+			"id" : 25,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 25,
+				"w" : 26
+			}
+		},
+		{
+			"id" : 26,
+			"modifiers" : [
+				11
+			],
+			"transitions" : {
+				"h" : 27
+			}
+		},
+		{
+			"id" : 27,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 28
+			}
+		},
+		{
+			"id" : 28,
+			"modifiers" : [],
+			"transitions" : {
+				"r" : 29
+			}
+		},
+		{
+			"id" : 29,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 30
+			}
+		},
+		{
+			"id" : 30,
+			"modifiers" : [
+				15
+			],
+			"transitions" : {
+				" " : 31
+			}
+		},
+		{
+			"id" : 31,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 31,
+				"'" : 32,
+				"alpha" : 51
+			}
+		},
+		{
+			"id" : 32,
+			"modifiers" : [
+				13
+			],
+			"transitions" : {
+				"any" : 33
+			}
+		},
+		{
+			"id" : 33,
+			"modifiers" : [
+				13
+			],
+			"transitions" : {
+				"any" : 33,
+				"'" : 34
+			}
+		},
+		{
+			"id" : 34,
+			"modifiers" : [
+				13
+			],
+			"transitions" : {
+				"!" : 36,
+				"=" : 42,
+				" " : 35
+			}
+		},
+		{
+			"id" : 35,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 35,
+				"!" : 36,
+				"=" : 42
+			}
+		},
+		{
+			"id" : 36,
+			"modifiers" : [],
+			"transitions" : {
+				"=" : 37
+			}
+		},
+		{
+			"id" : 37,
+			"modifiers" : [
+				18
+			],
+			"transitions" : {
+				" " : 38,
+				"'" : 39,
+				"alpha" : 44
+			}
+		},
+		{
+			"id" : 38,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 38,
+				"'" : 39,
+				"alpha" : 44
+			}
+		},
+		{
+			"id" : 39,
+			"modifiers" : [
+				14
+			],
+			"transitions" : {
+				"any" : 40
+			}
+		},
+		{
+			"id" : 40,
+			"modifiers" : [
+				14
+			],
+			"transitions" : {
+				"any" : 40,
+				"'" : 41
+			}
+		},
+		{
+			"id" : 41,
+			"modifiers" : [
+				12,
+				14
+			],
+			"transitions" : {
+				" " : 45
+			}
+		},
+		{
+			"id" : 42,
+			"modifiers" : [],
+			"transitions" : {
+				"=" : 43
+			}
+		},
+		{
+			"id" : 43,
+			"modifiers" : [
+				17
+			],
+			"transitions" : {
+				"alpha" : 44,
+				" " : 38,
+				"'" : 39
+			}
+		},
+		{
+			"id" : 44,
+			"modifiers" : [
+				12,
+				14
+			],
+			"transitions" : {
+				"alpha" : 44,
+				" " : 45
+			}
+		},
+		{
+			"id" : 45,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 45,
+				"a" : 46,
+				"o" : 49
+			}
+		},
+		{
+			"id" : 46,
+			"modifiers" : [
+				11,
+				19
+			],
+			"transitions" : {
+				"n" : 47
+			}
+		},
+		{
+			"id" : 47,
+			"modifiers" : [],
+			"transitions" : {
+				"d" : 48
+			}
+		},
+		{
+			"id" : 48,
+			"modifiers" : [
+				15
+			],
+			"transitions" : {
+				" " : 31
+			}
+		},
+		{
+			"id" : 49,
+			"modifiers" : [
+				11,
+				19
+			],
+			"transitions" : {
+				"r" : 50
+			}
+		},
+		{
+			"id" : 50,
+			"modifiers" : [
+				16
+			],
+			"transitions" : {
+				" " : 31
+			}
+		},
+		{
+			"id" : 51,
+			"modifiers" : [
+				13
+			],
+			"transitions" : {
+				"alpha" : 51,
+				"!" : 36,
+				"=" : 42,
+				" " : 35
+			}
+		},
+		{
+			"id" : 52,
+			"modifiers" : [],
+			"transitions" : {
+				"r" : 53
+			}
+		},
+		{
+			"id" : 53,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 54
+			}
+		},
+		{
+			"id" : 54,
+			"modifiers" : [],
+			"transitions" : {
+				"a" : 55
+			}
+		},
+		{
+			"id" : 55,
+			"modifiers" : [],
+			"transitions" : {
+				"t" : 56
+			}
+		},
+		{
+			"id" : 56,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 57
+			}
+		},
+		{
+			"id" : 57,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 58
+			}
+		},
+		{
+			"id" : 58,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 58,
+				"t" : 59,
+				"d" : 76
+			}
+		},
+		{
+			"id" : 59,
+			"modifiers" : [],
+			"transitions" : {
+				"a" : 60
+			}
+		},
+		{
+			"id" : 60,
+			"modifiers" : [],
+			"transitions" : {
+				"b" : 61
+			}
+		},
+		{
+			"id" : 61,
+			"modifiers" : [],
+			"transitions" : {
+				"l" : 62
+			}
+		},
+		{
+			"id" : 62,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 63
+			}
+		},
+		{
+			"id" : 63,
+			"modifiers" : [
+				6
+			],
+			"transitions" : {
+				" " : 64
+			}
+		},
+		{
+			"id" : 64,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 64,
+				"alpha" : 65
+			}
+		},
+		{
+			"id" : 65,
+			"modifiers" : [
+				0
+			],
+			"transitions" : {
+				"alpha" : 65,
+				"." : 66
+			}
+		},
+		{
+			"id" : 66,
+			"modifiers" : [],
+			"transitions" : {
+				"alpha" : 67
+			}
+		},
+		{
+			"id" : 67,
+			"modifiers" : [
+				1
+			],
+			"transitions" : {
+				"alpha" : 67,
+				" " : 68,
+				"(" : 69
+			}
+		},
+		{
+			"id" : 68,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 68,
+				"(" : 69
+			}
+		},
+		{
+			"id" : 69,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 70,
+				"alpha" : 71
+			}
+		},
+		{
+			"id" : 70,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 70,
+				"alpha" : 71
+			}
+		},
+		{
+			"id" : 71,
+			"modifiers" : [
+				2
+			],
+			"transitions" : {
+				"," : 73,
+				" " : 72,
+				")" : 74,
+				"alpha" : 71
+			}
+		},
+		{
+			"id" : 72,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 72,
+				"," : 73,
+				")" : 74
+			}
+		},
+		{
+			"id" : 73,
+			"modifiers" : [
+				3
+			],
+			"transitions" : {
+				"alpha" : 71,
+				" " : 70
+			}
+		},
+		{
+			"id" : 74,
+			"modifiers" : [
+				12
+			],
+			"transitions" : {
+				" " : 75
+			}
+		},
+		{
+			"id" : 75,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 75
+			}
+		},
+		{
+			"id" : 76,
+			"modifiers" : [],
+			"transitions" : {
+				"a" : 77
+			}
+		},
+		{
+			"id" : 77,
+			"modifiers" : [],
+			"transitions" : {
+				"t" : 78
+			}
+		},
+		{
+			"id" : 78,
+			"modifiers" : [],
+			"transitions" : {
+				"a" : 79
+			}
+		},
+		{
+			"id" : 79,
+			"modifiers" : [],
+			"transitions" : {
+				"b" : 80
+			}
+		},
+		{
+			"id" : 80,
+			"modifiers" : [],
+			"transitions" : {
+				"a" : 81
+			}
+		},
+		{
+			"id" : 81,
+			"modifiers" : [],
+			"transitions" : {
+				"s" : 82
+			}
+		},
+		{
+			"id" : 82,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 83
+			}
+		},
+		{
+			"id" : 83,
+			"modifiers" : [
+				4
+			],
+			"transitions" : {
+				" " : 84
+			}
+		},
+		{
+			"id" : 84,
+			"modifiers" : [],
+			"transitions" : {
+				"alpha" : 85,
+				" " : 84
+			}
+		},
+		{
+			"id" : 85,
+			"modifiers" : [
+				0,
+				12
+			],
+			"transitions" : {
+				"alpha" : 85,
+				" " : 86
+			}
+		},
+		{
+			"id" : 86,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 86
+			}
+		},
+		{
+			"id" : 87,
+			"modifiers" : [],
+			"transitions" : {
+				"n" : 88
+			}
+		},
+		{
+			"id" : 88,
+			"modifiers" : [],
+			"transitions" : {
+				"s" : 89
+			}
+		},
+		{
+			"id" : 89,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 90
+			}
+		},
+		{
+			"id" : 90,
+			"modifiers" : [],
+			"transitions" : {
+				"r" : 91
+			}
+		},
+		{
+			"id" : 91,
+			"modifiers" : [],
+			"transitions" : {
+				"t" : 92
+			}
+		},
+		{
+			"id" : 92,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 93
+			}
+		},
+		{
+			"id" : 93,
+			"modifiers" : [],
+			"transitions" : {
+				"i" : 94,
+				" " : 93
+			}
+		},
+		{
+			"id" : 94,
+			"modifiers" : [],
+			"transitions" : {
+				"n" : 95
+			}
+		},
+		{
+			"id" : 95,
+			"modifiers" : [],
+			"transitions" : {
+				"t" : 96
+			}
+		},
+		{
+			"id" : 96,
+			"modifiers" : [],
+			"transitions" : {
+				"o" : 97
+			}
+		},
+		{
+			"id" : 97,
+			"modifiers" : [
+				9
+			],
+			"transitions" : {
+				" " : 98
+			}
+		},
+		{
+			"id" : 98,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 98,
+				"alpha" : 99
+			}
+		},
+		{
+			"id" : 99,
+			"modifiers" : [
+				0
+			],
+			"transitions" : {
+				"alpha" : 99,
+				"." : 100
+			}
+		},
+		{
+			"id" : 100,
+			"modifiers" : [],
+			"transitions" : {
+				"alpha" : 101
+			}
+		},
+		{
+			"id" : 101,
+			"modifiers" : [
+				1
+			],
+			"transitions" : {
+				" " : 102,
+				"alpha" : 101
+			}
+		},
+		{
+			"id" : 102,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 102,
+				"v" : 103
+			}
+		},
+		{
+			"id" : 103,
+			"modifiers" : [],
+			"transitions" : {
+				"a" : 104
+			}
+		},
+		{
+			"id" : 104,
+			"modifiers" : [],
+			"transitions" : {
+				"l" : 105
+			}
+		},
+		{
+			"id" : 105,
+			"modifiers" : [],
+			"transitions" : {
+				"u" : 106
+			}
+		},
+		{
+			"id" : 106,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 107
+			}
+		},
+		{
+			"id" : 107,
+			"modifiers" : [],
+			"transitions" : {
+				"s" : 158
+			}
+		},
+		{
+			"id" : 108,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 108,
+				"(" : 109
+			}
+		},
+		{
+			"id" : 109,
+			"modifiers" : [],
+			"transitions" : {
+				"'" : 110,
+				" " : 109
+			}
+		},
+		{
+			"id" : 110,
+			"modifiers" : [],
+			"transitions" : {
+				"any" : 111,
+				"'" : 112
+			}
+		},
+		{
+			"id" : 111,
+			"modifiers" : [
+				2
+			],
+			"transitions" : {
+				"any" : 111,
+				"'" : 112
+			}
+		},
+		{
+			"id" : 112,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 113,
+				"," : 114,
+				")" : 115
+			}
+		},
+		{
+			"id" : 113,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 113,
+				"," : 114
+			}
+		},
+		{
+			"id" : 114,
+			"modifiers" : [
+				3
+			],
+			"transitions" : {
+				" " : 109,
+				"'" : 110
+			}
+		},
+		{
+			"id" : 115,
+			"modifiers" : [
+				12
+			],
+			"transitions" : {
+				" " : 115
+			}
+		},
+		{
+			"id" : 116,
+			"modifiers" : [],
+			"transitions" : {
+				"r" : 117
+			}
+		},
+		{
+			"id" : 117,
+			"modifiers" : [],
+			"transitions" : {
+				"o" : 118
+			}
+		},
+		{
+			"id" : 118,
+			"modifiers" : [],
+			"transitions" : {
+				"p" : 119
+			}
+		},
+		{
+			"id" : 119,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 120
+			}
+		},
+		{
+			"id" : 120,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 120,
+				"d" : 131,
+				"t" : 121
+			}
+		},
+		{
+			"id" : 121,
+			"modifiers" : [],
+			"transitions" : {
+				"a" : 122
+			}
+		},
+		{
+			"id" : 122,
+			"modifiers" : [],
+			"transitions" : {
+				"b" : 123
+			}
+		},
+		{
+			"id" : 123,
+			"modifiers" : [],
+			"transitions" : {
+				"l" : 124
+			}
+		},
+		{
+			"id" : 124,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 125
+			}
+		},
+		{
+			"id" : 125,
+			"modifiers" : [
+				7
+			],
+			"transitions" : {
+				" " : 126
+			}
+		},
+		{
+			"id" : 126,
+			"modifiers" : [],
+			"transitions" : {
+				"alpha" : 127,
+				" " : 126
+			}
+		},
+		{
+			"id" : 127,
+			"modifiers" : [
+				0
+			],
+			"transitions" : {
+				"alpha" : 127,
+				"." : 128
+			}
+		},
+		{
+			"id" : 128,
+			"modifiers" : [],
+			"transitions" : {
+				"alpha" : 129
+			}
+		},
+		{
+			"id" : 129,
+			"modifiers" : [
+				1,
+				12
+			],
+			"transitions" : {
+				"alpha" : 129,
+				" " : 130
+			}
+		},
+		{
+			"id" : 130,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 130
+			}
+		},
+		{
+			"id" : 131,
+			"modifiers" : [],
+			"transitions" : {
+				"a" : 132
+			}
+		},
+		{
+			"id" : 132,
+			"modifiers" : [],
+			"transitions" : {
+				"t" : 133
+			}
+		},
+		{
+			"id" : 133,
+			"modifiers" : [],
+			"transitions" : {
+				"a" : 134
+			}
+		},
+		{
+			"id" : 134,
+			"modifiers" : [],
+			"transitions" : {
+				"b" : 135
+			}
+		},
+		{
+			"id" : 135,
+			"modifiers" : [],
+			"transitions" : {
+				"a" : 136
+			}
+		},
+		{
+			"id" : 136,
+			"modifiers" : [],
+			"transitions" : {
+				"s" : 137
+			}
+		},
+		{
+			"id" : 137,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 138
+			}
+		},
+		{
+			"id" : 138,
+			"modifiers" : [
+				5
+			],
+			"transitions" : {
+				" " : 139
+			}
+		},
+		{
+			"id" : 139,
+			"modifiers" : [],
+			"transitions" : {
+				"alpha" : 140
+			}
+		},
+		{
+			"id" : 140,
+			"modifiers" : [
+				0,
+				12
+			],
+			"transitions" : {
+				"alpha" : 140,
+				" " : 141
+			}
+		},
+		{
+			"id" : 141,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 141
+			}
+		},
+		{
+			"id" : 142,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 143
+			}
+		},
+		{
+			"id" : 143,
+			"modifiers" : [],
+			"transitions" : {
+				"l" : 144
+			}
+		},
+		{
+			"id" : 144,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 145
+			}
+		},
+		{
+			"id" : 145,
+			"modifiers" : [],
+			"transitions" : {
+				"t" : 146
+			}
+		},
+		{
+			"id" : 146,
+			"modifiers" : [],
+			"transitions" : {
+				"e" : 147
+			}
+		},
+		{
+			"id" : 147,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 148
+			}
+		},
+		{
+			"id" : 148,
+			"modifiers" : [],
+			"transitions" : {
+				"f" : 149,
+				" " : 148
+			}
+		},
+		{
+			"id" : 149,
+			"modifiers" : [],
+			"transitions" : {
+				"r" : 150
+			}
+		},
+		{
+			"id" : 150,
+			"modifiers" : [],
+			"transitions" : {
+				"0" : 151
+			}
+		},
+		{
+			"id" : 151,
+			"modifiers" : [],
+			"transitions" : {
+				"m" : 152
+			}
+		},
+		{
+			"id" : 152,
+			"modifiers" : [
+				10
+			],
+			"transitions" : {
+				" " : 153
+			}
+		},
+		{
+			"id" : 153,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 153,
+				"alpha" : 154
+			}
+		},
+		{
+			"id" : 154,
+			"modifiers" : [
+				0
+			],
+			"transitions" : {
+				"alpha" : 154,
+				"." : 155
+			}
+		},
+		{
+			"id" : 155,
+			"modifiers" : [],
+			"transitions" : {
+				"alpha" : 156
+			}
+		},
+		{
+			"id" : 156,
+			"modifiers" : [
+				1,
+				2
+			],
+			"transitions" : {
+				"alpha" : 156,
+				" " : 156
+			}
+		},
+		{
+			"id" : 157,
+			"modifiers" : [],
+			"transitions" : {
+				"w" : 26,
+				" " : 157
+			}
+		},
+		{
+			"id" : 158,
+			"modifiers" : [],
+			"transitions" : {
+				" " : 108
+			}
+		}
+	]
+}

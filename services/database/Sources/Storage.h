@@ -29,13 +29,13 @@ private:
 	struct DbInfo
 	{
 		pthread_mutex_t mutex;
-		int lastAccess;
+		int lastAccess, lastSave;
 		Database *value;
-		DbInfo() : value(NULL), lastAccess(0), mutex(PTHREAD_MUTEX_INITIALIZER) { }
+		DbInfo() : value(NULL), lastAccess(0), lastSave(0), mutex(PTHREAD_MUTEX_INITIALIZER) { }
 		DbInfo(Database *db, int step) : value(db), lastAccess(step), mutex(PTHREAD_MUTEX_INITIALIZER) { }
 		~DbInfo()
 		{
-			cout << "NOOO" << endl;
+			//cout << "NOOO" << endl;
 			if (value)
 				delete value;
 		}

@@ -2,5 +2,7 @@
 {% block title %} Error {% endblock %}
 
 {% block content %}
+<div class="alert alert-sucess">
 Error: {{msg}}, code: {{code}}
+</div>
 {% endblock %}

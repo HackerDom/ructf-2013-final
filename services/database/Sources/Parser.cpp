@@ -42,6 +42,46 @@ function<int(Query*&, char)> Parser::modifierHandlers[] = {
 		return 0;
 	},
 	[] (Query *& query, char parameter) {
+		query = new DeleteFromQuery();
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
+		query->SetCompleted(false);
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
+		query->SetCompleted(true);
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
+		query->GetLastCondition()->AddCharToFirstOperand(parameter);
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
+		query->GetLastCondition()->AddCharToSecondOperand(parameter);
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
+		query->GetLastCondition()->SetMode(0);
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
+		query->GetLastCondition()->SetMode(1);
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
+		query->GetLastCondition()->SetOperation(0);
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
+		query->GetLastCondition()->SetOperation(1);
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
+		query->AddNewCondition();
+		return 0;
+	},
+	[] (Query *& query, char parameter) {
 		query = new SelectQuery(true);
 		return 0;
 	}
@@ -149,7 +189,8 @@ Query * Parser::Parse(const string & queryString, const string & userID)
 		//cout << "Making transition with char \'" << queryString[i] << "\'" << endl;
 		if (!iter.MoveNextState(queryString[i]))
 		{
-			//cout << "FUCK, SYNTAX ERROR";
+			delete query;
+			//cout << "FUCK, SYNTAX ERROR" << endl;
 			return NULL;
 		}
 		auto modifiers = iter.GetModifiers();
@@ -160,6 +201,12 @@ Query * Parser::Parse(const string & queryString, const string & userID)
 			modifierHandlers[*j](query, queryString[i]);
 		}
 		//cout << endl;
+	}
+	if (!query->IsComplete())
+	{
+		//cout << "Query is incomplete, you fucker!" << endl;
+		delete query;
+		return NULL;
 	}
 	if (query != NULL)
 		query->SetID(userID);

@@ -15,10 +15,7 @@ out(Arg) ->
     end,
     try
         {ok, User} = appmod:check_auth(Arg),
-        case ContentType of
-            "application/json" -> Appmod:out(Path, Method, User, Arg);
-            _                  -> Appmod:out(Path, Method, User, Arg)
-        end
+        Appmod:out(Path, Method, User, Arg)
     of
         Response -> Appmod:return_ok(Response)
     catch
@@ -32,6 +29,6 @@ out(Arg) ->
                 Appmod:return_error(3, "Security check fail");
         _ : nopage ->
                 Appmod:return_error(4, "No such page: 404");
-        _ : E ->
-                Appmod:return_error(5, "Something go wrong :(")
+        _ : _ ->
+                Appmod:return_error(5, "Something gone wrong :(")
     end.

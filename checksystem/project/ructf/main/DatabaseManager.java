@@ -2,6 +2,7 @@ package ructf.main;
 
 import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 import ructf.dbObjects.*;
 
@@ -49,12 +50,13 @@ public class DatabaseManager
 		if (!r.next())
 			throw new SQLException("no rows");
 		int round = r.getInt(1);
-		System.out.println("Round: " + round);
+		Date now = new Date();
+		System.out.println(String.format("Starting round %d at %s ...", round, now));
 		return round;
 	}
 	
 	public static void ShowDbException(Statement st, Exception ex) {
-		System.err.println("Statement: " + st );
+		System.err.println("SQL Statement: " + st);
 		System.err.println("  failed: " + ex.getMessage());
 	}
 	
