@@ -44,7 +44,11 @@ function store($address, $value)
   }
   if (sizeof($address) > 1)
     $current .= '['.$address[sizeof($address) - 1].']';
-/*  echo $current.' = '.$value.';'."\n";*/
+  if (substr($value, 0, 2) == '0x')
+    $value = hexToStr(substr($value, 2));
+  if (! is_numeric($value))
+    $value = '"'.$value.'"';
+    
   eval($current.' = '.$value.';');
 }
 
@@ -66,7 +70,7 @@ function execute_command($opcode, $args)
 {
   global $ip, $memory, $opcodes, $functions;
   $opcode = $opcodes[$opcode];
-  echo $opcode.' '.join(', ', $args)."\n";
+#  echo $opcode.' '.join(', ', $args)."\n";
   switch ($opcode)
   {
     case 'store':
@@ -133,6 +137,6 @@ function execute_program($program)
   }
 }
 
-execute_program(compile('a <- 1; print(a); if a < 1 then print(a + 1) end'));
+execute_program(compile('a <- "qwer"; print(a); print(a);'));
 
 ?>

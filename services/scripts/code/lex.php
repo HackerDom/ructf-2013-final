@@ -53,6 +53,23 @@ init_lexems();
 init_const_lexems();
 init_keywords();
 
+function hexToStr($hex)
+{
+  $string = '';
+  for ($i = 0; $i < strlen($hex) - 1; $i += 2)
+    $string .= chr(hexdec($hex[$i].$hex[$i + 1]));
+  return $string;
+}
+
+function strToHex($string)
+{
+  $hex = '';
+  $len = strlen($string);
+  for ($i = 0; $i < $len; $i++)
+    $hex .= dechex(ord($string[$i]));
+  return $hex;
+}
+
 function is_variable_symbol($ch)
 {
   if (ctype_alnum($ch))
@@ -121,6 +138,29 @@ function next_lexem(&$string)
     return L_VARIABLE;
   }
 
+  if ($string[0] == '"')
+  {
+    global $lexem_value;
+    $idx = 1;
+    $len = strlen($string);
+    while ($idx < $len)
+    {
+      if ($string[$idx] == '\\')
+      {
+        $idx += 1;
+        continue;
+      }
+      if ($string[$idx] == '"')
+        break;
+      ++$idx;
+    }
+    if ($idx >= $len)
+      throw new Exception('Error: unclosed string constant');
+    $lexem_value = substr($string, 1, $idx - 1);
+    $string = substr($string, $idx + 1);
+    return L_STRING;
+  }
+
   throw new Exception('Error: can\'t parse near '.substr($string, 0, 10));
 }
 
@@ -146,6 +186,11 @@ function opcode($name)
   $args = array_slice(func_get_args(), 1);
   if (! in_array($name, $opcodes))
     throw new Exception('Internal error: invalid opcode: '.$name);
+  foreach ($args as &$arg)
+  {
+    if (! is_numeric($arg))
+      $arg = '0x'.strToHex($arg);
+  }
   return array_search($name, $opcodes).' '.join(' ', $args)."\n";
 }
 
@@ -199,12 +244,16 @@ function read_factor(&$string)
         throw new Exception('Error: not-closed bracket near '.substr($string, 0, 10));
       $current_lexem = next_lexem($string);
       return $result;
+    case L_STRING:
+      $new = new_memory();
+      $result = array('code' => opcode('store', $lexem_value, $new), 'result' => $new);
+      $current_lexem = next_lexem($string);
+      return $result;      
     default:
       throw new Exception('Error: can\'t understand near '.substr($string, 0, 10));
   }
 }
 
-/* TODO copy-paste from read_expression */
 function read_summand(&$string)
 {
   global $current_lexem;
