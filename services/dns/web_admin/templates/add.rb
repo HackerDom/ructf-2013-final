@@ -47,15 +47,16 @@ add_template = %q{
                 <li><a href="http://<%= r_host %>/show">View all records</a></li>
             </ul>
             <div class="tab-content">
-                    <form method="POST" action="#" class="add-record">
+                    <form method="POST" action="http://<%= r_host %>/" class="add-record">
                         <fieldset>
-                            <select  placeholder="Type">
+                            <select name="type" placeholder="Type">
                                 <option disabled selected="selected" class="choose">Choose type</option>
                                 <option value="A">A</option>
                                 <option value="TXT">TXT</option>
                             </select>
                             <input type="text" name="name" placeholder="Name">
                             <input type="text" name="value" placeholder="Value">
+                            <input type="hidden" name="action" value="ADD">
                             <label></label>
                             <button type="submit" class="btn btn-add">Add</button>
                         </fieldset>
