@@ -6,6 +6,7 @@ package { 'sys-devel/gdb': ensure => present }
 package { 'app-arch/unzip': ensure => present }
 package { 'sys-process/htop': ensure => present }
 package { 'net-analyzer/tcpdump': ensure => present }
+package { 'net-analyzer/netcat': ensure => present }
 package { 'app-portage/g-cpan': ensure => present }
 package { 'sys-apps/iproute2': ensure => present }
 
@@ -56,11 +57,19 @@ package { 'dev-perl/DBD-SQLite': ensure => present }
 package { 'dev-perl/Net-DNS': ensure => present }
 package { 'dev-perl/TimeDate': ensure => present }
 package { 'mail-mta/postfix': ensure => present }
+package { 'mail-client/mutt': ensure => present }
 
 # dns service
 user { 'dns': uid => 10004, shell=>"/sbin/nologin", ensure => present}
 file { '/home/dns': mode => 600, owner => dns, group =>dns,
        ensure => directory, require => User['dns']}
+file { '/home/dns/mysql': mode => 600, owner => dns, group =>dns,
+       ensure => directory, require => File['/home/dns']}
+file { '/home/dns/mysql/db': mode => 600, owner => dns, group =>dns,
+       ensure => directory, require => File['/home/dns/mysql']}
+package { 'dev-ruby/mysql-ruby': ensure => present }
+package { 'dev-ruby/sinatra': ensure => present }
+package { 'dev-ruby/eventmachine': ensure => present }
 
 # proxy service
 user { 'proxy': uid => 10005, shell=>"/sbin/nologin", ensure => present}

@@ -27,6 +27,12 @@ dev-python/blinker ~x86
 dev-python/werkzeug  ~x86
 dev-python/flask ~x86
 
+# gems
+dev-ruby/mysql-ruby ~x86
+dev-ruby/rack-protection ~x86
+dev-ruby/tilt ~x86
+dev-ruby/sinatra ~x86
+dev-ruby/eventmachine ~x86
 ", }
 
 
