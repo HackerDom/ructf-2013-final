@@ -5,5 +5,5 @@ COUNT=20
 
 [ -d $DIR ] || mkdir $DIR
 rm $DIR/*
-bin/named-conf-test.pl $COUNT $DIR > $DIR/named.conf.local
+bin/named-conf-game.pl $COUNT $DIR > $DIR/named.conf.local
 
