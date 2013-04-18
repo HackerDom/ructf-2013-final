@@ -69,7 +69,21 @@ rc-update add mr
 chown -R ses:ses /home/ses
 chmod +x /etc/init.d/ses_http /etc/init.d/ses_smtp
 
+# В /etc/postfix/main.cf раскомментировать строку mynetworks_style = host
+# В /etc/postfix/main.cf раскомментировать строку home_mailbox = Maildir/
+
+
 rc-update add ses
+
+=== dns service ===
+chown -R dns:dns /home/dns
+chmod +x /etc/init.d/dns
+
+mysql_install_db --user=dns --datadir=/home/dns/mysql/db/ --skip-name-resolve --defaults-file=/home/dns/mysql/my.cnf
+
+rc-update add dns
+rc-update add dns_web
+rc-update add mysql_dns
 
 === queue service ===
 chown -R queue:queue /home/queue

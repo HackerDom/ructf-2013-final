@@ -25,7 +25,8 @@ r_dns_records = []
 r_authored = false
 r_has_records = false
 
-dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
+#dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
+dbh = Mysql.real_connect(nil, "root", nil, "dns", nil, "/home/dns/mysql/mysql.sock")
 
 get '/add' do
   if request.cookies['session'] != nil
@@ -34,7 +35,7 @@ get '/add' do
     payload = {'session' => request.cookies['session']}.to_json
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
-    response = Net::HTTP.new("#{teamN}.ructf", 80).start {|http| http.request(req) }
+    response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
     r_hash = JSON.parse(response.body)
 
     if r_hash['status'] != 'OK'

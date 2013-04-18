@@ -6,20 +6,20 @@
 #extra_started_commands=""
 
 depend() {
-        use logger mongodb_user
+        use logger
         need net
 }
 
 PIDFILE="/var/run/${SVCNAME}.pid"
-DIR="/home/${SVCNAME}/users/"
-BINARY="/usr/bin/hypnotoad"
-USER="${SVCNAME}:${SVCNAME}"
+DIR="/home/dns/web_admin"
+BINARY="$DIR/index.rb"
+USER="dns:dns"
 
 start() {
         ebegin "Starting ${SVCNAME}"
         start-stop-daemon --start --exec "${BINARY}" \
-            --background --interpreted --make-pidfile --pidfile "${PIDFILE}" --user "${USER}" \
-            --chdir "${DIR}" -- -f script/users
+            --interpreted --make-pidfile --pidfile "${PIDFILE}" --user "${USER}" \
+            --chdir "${DIR}" --background
         eend $?
 }
 
