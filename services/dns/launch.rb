@@ -25,7 +25,7 @@ YourZone::run_server do
 		if N != team_n
 			transaction.failure!(:NXDomain)
 		else
-			res = dbh.query("Select value from records where type = 'TXT' and key = '#{sub_domain}')")
+			res = dbh.query("Select dvalue from records where dtype = 'TXT' and dkey = '#{sub_domain}')")
 			
 			if res.num_rows > 0
 				res.each do |row|
@@ -63,7 +63,7 @@ YourZone::run_server do
 				transaction.respond!(record[1])
 			end
 		else
-			res = dbh.query("Select value from records where type = 'A' and key = '#{sub_domain}')")
+			res = dbh.query("Select dvalue from records where dtype = 'A' and dkey = '#{sub_domain}')")
 			if res.num_rows > 0
 				res.each do |row|
 					cache[sub_domain] = [row[0], TTL]

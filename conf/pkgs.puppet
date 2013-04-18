@@ -7,6 +7,7 @@ package { 'app-arch/unzip': ensure => present }
 package { 'sys-process/htop': ensure => present }
 package { 'net-analyzer/tcpdump': ensure => present }
 package { 'app-portage/g-cpan': ensure => present }
+package { 'sys-apps/iproute2': ensure => present }
 
 
 # user service
