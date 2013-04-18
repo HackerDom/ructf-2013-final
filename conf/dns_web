@@ -10,23 +10,22 @@ depend() {
         need net
 }
 
-SVCNAME=mr
 PIDFILE="/var/run/${SVCNAME}.pid"
-DIR="/home/${SVCNAME}"
-BINARY="${DIR}/start.sh"
-USER="${SVCNAME}:${SVCNAME}"
+DIR="/home/dns/web_admin"
+BINARY="$DIR/index.rb"
+USER="dns:dns"
 
 start() {
         ebegin "Starting ${SVCNAME}"
-        start-stop-daemon --start \
+        start-stop-daemon --start --exec "${BINARY}" \
             --interpreted --make-pidfile --pidfile "${PIDFILE}" --user "${USER}" \
-            --chdir "${DIR}" --background --exec "${BINARY}" < /dev/null
+            --chdir "${DIR}" --background
         eend $?
 }
 
 stop() {
         ebegin "Stopping ${SVCNAME}"
-        start-stop-daemon --stop \
-            --interpreted --pidfile "${PIDFILE}" --user "${USER}" --quiet  --exec "${BINARY}"
+        start-stop-daemon --stop --exec "${BINARY}" \
+            --interpreted --pidfile "${PIDFILE}" --user "${USER}" --quiet
         eend $?
 }
