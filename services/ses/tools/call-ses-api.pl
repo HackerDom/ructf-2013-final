@@ -22,11 +22,11 @@ if (DEBUG) {
 }
 
 my $api = new Ses::SesAPI($endpoint,"session=$session");
-my ($reply,$status) = $api->sendRequest($method,$params);
+my ($ok,$data,$status) = $api->sendRequest($method,$params);
 
 printf "# Status: %s\n", $status;
-print  defined $reply ? JSON::to_json($reply) : '{}';
-print $/;
+$data = JSON::to_json( JSON::from_json($data), { pretty => 1 } ) if length $data > 0;
+print  $data.$/;
 
 #exit defined $reply ? 0 : 1;
 
