@@ -26,7 +26,7 @@ r_has_records = false
 
 dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
 
-get %r{/(show)?)} do
+get %r{/(show)?/} do
   if request.cookies['session'] != nil
     r_host = request.host
     teamN = r_host[/team\d+/]
@@ -46,7 +46,7 @@ get %r{/(show)?)} do
       id = dbh.escape_string(r_hash['uid'])
       r_has_records = false
       r_dns_records = []
-      res = dbh.query("Select id, type, key, value from records where creator = #{id})")
+      res = dbh.query("Select did, dtype, dkey, dvalue from records where dcreator = #{id})")
       if res.num_rows > 0
         r_has_records = true
         res.each do |row|
@@ -70,7 +70,7 @@ get "/show:id" do
   id = dbh.escape_string(params[:id])
   r_has_records = false
   r_dns_records = []
-  res = dbh.query("Select id, type, key, value from records where creator = '#{id}')")
+  res = dbh.query("Select did, dtype, dkey, dvalue from records where dcreator = '#{id}')")
   if res.num_rows > 0
     r_has_records = true
     res.each do |row|
@@ -134,12 +134,13 @@ post '/' do
             if data['type'] != nil and data['name'] != nil and data['value'] != nil
               type = dbh.escape_string(data['type'])
               name = dbh.escape_string(data['name'])
+              name.sub!(/team\d+\.ructf$/, '')
               value = dbh.escape_string(data['value'])
-              res = dbh.query("Select * from records where type = '#{type}' and key = '#{name}' and value = '#{value}')")
+              res = dbh.query("Select * from records where dtype = '#{type}' and dkey = '#{name}' and dvalue = '#{value}')")
               
               if res.num_rows == 0
                 id = md5(md5(Process.pid.to_s)+md5(Time.new.to_s))
-                dbh.query("insert into records (id, type, key, value, creator) values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}')")
+                dbh.query("insert into records (did, dtype, dkey, dvalue, dcreator) values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}')")
                 h = {'code' => 'OK', 'id' => id}.to_json
               else
                 h = {'code' => 'ERROR', 'why' => 'already_exists'}.to_json
@@ -152,10 +153,10 @@ post '/' do
 
             if data['id'] != nil
               id = dbh.escape_string(data['id'])
-              res = dbh.query("Select * from records where id = '#{id}'"
+              res = dbh.query("Select * from records where did = '#{id}'")
               
               if res.num_rows > 0
-                dbh.query("Delete from records where id = '#{id}'")
+                dbh.query("Delete from records where did = '#{id}'")
                 h = {'code' => 'OK'}.to_json
               else
                 h = {'code' => 'ERROR', 'why' => 'id_not_found'}.to_json
