@@ -17,7 +17,7 @@ sub index {
 
 sub logout {
   my $self = shift;
-  $self->cookie(session => '', {expires => 1});
+  $self->cookie(session => '', {expires => 1, domain => '.' . $self->stash('domain')});
   $self->redirect_to('index');
 }
 
@@ -105,8 +105,7 @@ sub login {
       my $json    = Mojo::JSON->new;
       my $data    = b64_encode($json->encode($response), '');
       my $session = $data . '!' . hmac_sha1_sum $data, $self->app->secret;
-      my ($domain) = $self->req->headers->host =~ /(team\d+\.ructf)$/;
-      $self->cookie(session => $session, {domain => ".$domain"});
+      $self->cookie(session => $session, {domain => '.' . $self->stash('domain')});
       return $self->req->is_xhr
         ? $self->render_json({status => 'OK'})
         : $self->redirect_to('index');

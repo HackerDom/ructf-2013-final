@@ -47,7 +47,7 @@ get %r{/(show)?)} do
       r_has_records = false
       r_dns_records = []
       res = dbh.query("Select id, type, key, value from records where creator = #{id})")
-      if res.num_row > 0
+      if res.num_rows > 0
         r_has_records = true
         res.each do |row|
           r_dns_records.push([row[1] + " | " + row[2] + " -> " + row[3], row[0]])

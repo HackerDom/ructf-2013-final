@@ -8,13 +8,30 @@
   <a class="btn" href="<%= url_for('sign_in') %>">Sign In</a>
 % end
 
-<form method="POST" action="<%= url_for('login') %>">
-  <fieldset>
-    <label>Login</label>
-    <input type="text" name="login">
-    <label>Password<label>
-    <input type="password" name="password">
-    <label><label>
-    <button type="submit" class="btn">Submit</button>
-  </fieldset>
+% my $input = begin
+    % my ($type, $name, $placeholder) = @_;
+    <input type="<%= $type %>" name="<%= $name %>" placeholder="<%= $placeholder %>">
+% end
+
+% my $input_with_error = begin
+    % my ($type, $name, $placeholder, $error) = @_;
+    <div class="control-group error">
+        <div class="controls">
+            <input type="<%= $type %>" name="<%= $name %>" placeholder="<%= $placeholder %>">
+            <span class="help-inline"><%= $error %></span>
+        </div>
+    </div>
+% end
+
+<div class="header-main">Sign in</div>
+<hr>
+<div class="content" id="login">
+<form method="POST" action="<%= url_for('login') %>" class="login">
+    <fieldset>
+        %= $input->('text', 'login', 'Login');
+        %= $input->('password', 'password', 'Password');
+        <label></label>
+        <button type="submit" class="btn">Submit</button>
+    </fieldset>
 </form>
+</div>

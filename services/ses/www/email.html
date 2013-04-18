@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--# include file="head.html" -->
+</head>
+<body>
+<div class="page">
+    <div id="wrap">
+        <!--# include file="header.html" -->
+        <div id="content">
+            <div class="container">
+                <div class="header-main">
+                    RuCTF
+                </div>
+                <hr>
+                <div class="central">
+                    <ul class="nav nav-pills">
+                        <li><a href="/identity.html">Identity</a></li>
+                        <li><a href="/credentials.html">Credentials</a></li>
+                        <li class="active"><a href="#">Mail</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="stats">
+                        </div>
+                        <form>
+                            <select class="mails" name="from">
+                            </select>
+                            <input type="text" name="to">
+                            <input type="text" name="subject">
+                            <textarea rows="6" name="body"></textarea>
+                            <button class="btn" id="mail_send">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <script type="text/x-jsrender" id="mails_row_template">
+        <option>{{>email}}</option>
+    </script>
+    <!--# include file="footer.html" -->
+    <script src="/ructf.js"></script>
+    <script src="/ses.js"></script>
+    <script>
+        $(document).ready(function() {
+            replace_urls();
+            user();
+            ses_identity_get();
+            $('#mail_send').click(ses_mail_send);
+            ses_stats();
+        });
+    </script>
+</body>
+</html>
