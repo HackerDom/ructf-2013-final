@@ -1,3 +1,4 @@
+grant all on dns.* to 'dns'@'localhost' identified by 'default_password';
 DROP TABLE IF EXISTS records
 CREATE TABLE records (
 	did		varchar(32),
@@ -5,4 +6,4 @@ CREATE TABLE records (
 	dkey		varchar(40),
 	dvalue	varchar(40),
 	dcreator varchar(25)
-)
+);
