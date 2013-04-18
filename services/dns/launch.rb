@@ -1,31 +1,92 @@
 # not all code done
 
 require 'yourzone'
+require 'yourzone/server'
+require 'yourzone/system'
+require 'mysql'
 
 cache = {}
-R = YourZone::Resolver.new(YourZone::System::nameservers)
+R = YourZone::Resolver.new([[:udp, "8.8.8.8", 53], [:tcp, "8.8.8.8", 53]]); #YourZone::System::nameservers)
+a = `ifconfig eth0`
+a = a[/inet addr:\d+\.\d+\.(\d+)/]
+a = a[/\d+$/]
+team_n = a.to_i
+dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
+TTL = 10000
+IN = Resolv::DNS::Resource::IN
 
 # not finished
 YourZone::run_server do
-	match(/(\w+)\.team\d+\.ructf/, [IN::TXT, IN::A]) do |transaction|
-		sub_domain = match[1]
+	on(:start) do
+		syscall(23, 10004)
+	end
+	
+	match(/(\w+)\.team(\d+)\.ructf/, IN::TXT) do |transaction, md|
+		sub_domain = md[1]
+		N = md[2]
 
-		if cache.has_key?(sub_domain)
+		# debug line
+		puts "Asked TXT of subdomain #{sub_domain} for team #{N}. My team is #{team_n}"
+
+		if N != team_n
+			transaction.failure!(:NXDomain)
+		else
+			res = dbh.query("Select dvalue from records where dtype = 'TXT' and dkey = '#{sub_domain}'")
+			
+			if res.num_rows > 0
+				res.each do |row|
+					cache[sub_domain] = [row[0], TTL]
+					transaction.respond!(row[0])
+				end
+			elsif cache.has_key?(sub_domain)
+				record = cache[sub_domain]
+
+				if record[0] + TTL >= Time.new.to_i
+					transaction.respond!(record[1])
+				else
+					cache.delete(record)
+					transaction.failure!(:NXDomain)
+				end
+			else
+				transaction.failure!(:NXDomain)
+			end
+		end
+	end
+
+	match(/(\w+)\.team(\d+)\.ructf/, IN::A) do |transaction, md|
+		sub_domain = md[1]
+		N = md[2].to_i
+
+		# debug line
+		puts "Asked A of subdomain #{sub_domain} for team #{N}. My team is #{team_n}"
+
+		if N != team_n
+			transaction.failure!(:NXDomain)
+		elsif cache.has_key?(sub_domain)
 			record = cache[sub_domain]
+
 			if record[0] + TTL >= Time.new.to_i
 				transaction.respond!(record[1])
 			else
 				cache.delete(record)
+				transaction.respond!(record[1])
 			end
 		else
-			answer = ''
-			# ask database or IPC?
-			transaction.respond!(answer)
-			cache[sub_domain] = answer
+			res = dbh.query("Select dvalue from records where dtype = 'A' and dkey = '#{sub_domain}'")
+			if res.num_rows > 0
+				res.each do |row|
+					cache[sub_domain] = [row[0], TTL]
+					transaction.respond!(row[0])
+				end
+			elsif not cache.empty?
+				transaction.respond!(cache.flatten[-1])
+			else
+				transaction.failure!(:NXDomain)
+			end
 		end
+	end
 
-	# insert some more rules here
 	otherwise do |transaction|
-		transaction.passthrough!(R)
+		transaction.failure!(:NXDomain)
 	end
 end

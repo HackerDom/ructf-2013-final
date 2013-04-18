@@ -11,7 +11,7 @@ start() {
         checkpath -d -m 0750 -o user:user /home/user/mongodb/run/mongodb
 
         # Listen to MONGODB_IP if configured
-        MONGODB_OPTIONS="--bind_ip 127.0.0.1 --journal"
+        MONGODB_OPTIONS="--bind_ip 127.0.0.1 --journal --smallfiles --noprealloc"
 
         # Baselayout-1 user should use --chuid instead of --user
         local USEROPT="--user"

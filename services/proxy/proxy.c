@@ -21,6 +21,8 @@
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
 typedef struct conn_state_s {
+    char rules_buf[PROXY_BUF_LEN];
+
     unsigned int client_fd;
     char buff_c2s[PROXY_BUF_LEN];
 
@@ -301,13 +303,13 @@ thread_func(int *fd_ptr)
         }        
     }
 
-    free_conn_state(state);
-
     if (!client_closed)
         close(state->client_fd);
 
     if (!server_closed)
         close(state->server_fd);
+
+    free_conn_state(state);
 
     return;
 }
@@ -374,7 +376,7 @@ main(int argc, char **argv) {
         return 1;
     }
 
-    int listen_port = atoi(argv[1]);//TODO может просто в short парсить? :)
+    int listen_port = atoi(argv[1]);
     if (listen_port <=0 || listen_port > 65535) {
         fprintf(stderr, "Invalid listen_port '%s'\n", argv[1]);
         return 1;
@@ -386,7 +388,7 @@ main(int argc, char **argv) {
         return 1;   
     }
 
-    dst_port = atoi(argv[3]);//TODO может просто в short парсить? :)
+    dst_port = atoi(argv[3]);
     if (dst_port <=0 || dst_port > 65535) {
         fprintf(stderr, "Invalid dst_port '%s'\n", argv[3]);
         return 1;

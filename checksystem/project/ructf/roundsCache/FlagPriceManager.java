@@ -2,39 +2,57 @@ package ructf.roundsCache;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
+
+//  ласс дл€ обновлени€ цены украденных флагов в таблицах
+//   * flag_price (туда новые данные добавл€ютс€ - хранитс€ вс€ истори€ за все раунды) 
+//   * teams (там данные о стоимости флагов замен€ютс€ - хранитс€ только стоимость за последний раунд) 
 
 public class FlagPriceManager {
 	
+	private static double epsilon = 0.0001d;
 	private static int minPrice = 15;
 	
 	private static PreparedStatement psDel;
 	private static PreparedStatement psIns;
+	private static PreparedStatement psSel;
+	private static PreparedStatement psUpd;
 	
 	public FlagPriceManager(Connection conn) throws SQLException {
-		psDel = conn.prepareStatement("DELETE FROM flag_price WHERE round = ?");
-		psIns = conn.prepareStatement("INSERT INTO flag_price(round,time,team,price) VALUES (?,NOW(),?,?)");
+		psDel = conn.prepareStatement("DELETE FROM flag_price WHERE round = ?");											// ќчистить старые данные 
+		psIns = conn.prepareStatement("INSERT INTO flag_price(round,time,team,price,rank,rank_def,rank_att) VALUES (?,NOW(),?,?,?,?,?)");
+		psSel = conn.prepareStatement("SELECT team_id, privacy+availability, attack FROM rounds_cache WHERE round = ?");	// ѕрочитать актуальные данные о баллах
+		psUpd = conn.prepareStatement("UPDATE teams SET flag_price = ? WHERE id = ?");										// ќбновить цену флага в таблице команд
 	}
 	
-	public void updatePrices(int round, Hashtable<Integer, TeamScores> teamsScores) throws SQLException {
-		List<Integer> teams = getTeams(teamsScores);
-		ArrayList<TeamRank> ranks = calculateRanks(teams, teamsScores);
+	public void updatePrices(int round) throws SQLException {
+		List<TeamDefenseAttack> data = loadDefenseAttack(round);	// load from DB
+		ArrayList<TeamRank> ranks = calculateRanks(data);
 		Collections.sort(ranks);
 		calculatePrices(ranks);
 		debugPrintPrices(ranks, round);
 		updateDbPrices(ranks, round);
 	}
 	
+	private List<TeamDefenseAttack> loadDefenseAttack(int round) throws SQLException {
+		List<TeamDefenseAttack> result = new LinkedList<TeamDefenseAttack>();
+		psSel.setInt(1, round);
+		ResultSet rs = psSel.executeQuery();
+		while (rs.next())
+			result.add(new TeamDefenseAttack(rs.getInt(1), rs.getInt(2), rs.getInt(3)));
+		return result;
+	}
+
 	private void debugPrintPrices(ArrayList<TeamRank> ranks, int round) {
 		StringBuilder sb = new StringBuilder();
 		for (TeamRank r : ranks)
 			sb.append(r.toString() + "  ");
-		System.out.println(String.format("FlagPriceManager: round: %d, team->(rank,price): %s", round, sb.toString()));
+		System.out.println(String.format("FlagPriceManager: round: %d, team->(rank|price): %s", round, sb.toString()));
 	}
 
 	private void updateDbPrices(ArrayList<TeamRank> ranks, int round) throws SQLException {
@@ -44,69 +62,65 @@ public class FlagPriceManager {
 		for (TeamRank r : ranks) {
 			psIns.setInt(2, r.getTeam());		// team
 			psIns.setInt(3, r.getFlagPrice());	// price
+			psIns.setDouble(4, r.getRank());
+			psIns.setDouble(5, r.getRankDefense());
+			psIns.setDouble(6, r.getRankAttack());
+			psIns.executeUpdate();
+			psUpd.setInt(1, r.getFlagPrice());
+			psUpd.setInt(2, r.getTeam());
+			psUpd.executeUpdate();
 		}
 	}
 	
 	private void calculatePrices(ArrayList<TeamRank> ranks) {
 		int price = minPrice;
 		int add = 1;
-		Double prevRank = 0d;
+		Double prevRank = -1d;
 		for (TeamRank rank : ranks) {
-			rank.setAttackPrice(price);
-			if (rank.getRank() != prevRank) { 
-				price += add;
-				add = 1;
+			if (prevRank >= 0) {	// not first element
+				if (Math.abs(rank.getRank() - prevRank) > epsilon) { 
+					price += add;
+					add = 1;
+				}
+				else 
+					add++;
 			}
-			else 
-				add++;
+			rank.setAttackPrice(price);
 			prevRank = rank.getRank();
 		}
 	}
-
-	private static List<Integer> getTeams(Hashtable<Integer, TeamScores> teamsScores)
-	{
-		List<Integer> teams = new ArrayList<>();
-	    Enumeration<Integer> e = teamsScores.keys();
-	    while (e.hasMoreElements()) {
-	    	teams.add(e.nextElement());
-	    }
-	    return teams;
-	}
 	
-	private static int getMaxDefense(Hashtable<Integer, TeamScores> teamsScores) {
+	private static int getMaxDefense(List<TeamDefenseAttack> data) {
 		int max = 0;
-		for (TeamScores sc : teamsScores.values()) {
-			max = Math.max(max, sc.calculateDefense());
-		}
+		for (TeamDefenseAttack i : data)
+			max = Math.max(max, i.getDefense());
 		return max;
 	}
 
-	private static int getMaxAttack(Hashtable<Integer, TeamScores> teamsScores) {
+	private static int getMaxAttack(List<TeamDefenseAttack> data) {
 		int max = 0;
-		for (TeamScores sc : teamsScores.values()) {
-			max = Math.max(max, sc.getAttack());
-		}
+		for (TeamDefenseAttack i : data)
+			max = Math.max(max, i.getAttack());
 		return max;
 	}
 	
-	private static ArrayList<TeamRank> calculateRanks(List<Integer> teams, Hashtable<Integer, TeamScores> teamsScores) {
+	private static ArrayList<TeamRank> calculateRanks(List<TeamDefenseAttack> data) {
 		ArrayList<TeamRank> ranks = new ArrayList<TeamRank>();
 		
-		int maxDefense = getMaxDefense(teamsScores);
-		int maxAttack = getMaxAttack(teamsScores);
+		int maxDefense = getMaxDefense(data);
+		int maxAttack = getMaxAttack(data);
 		
 	    Double maxRank = 0d;
-	    for (Integer team : teams) {
-	    	Double rankDefense = (double) (100*teamsScores.get(team).calculateDefense())/maxDefense;
-	    	Double rankAttack  = (double) (100*teamsScores.get(team).getAttack())/maxAttack;
-	    	Double rank = rankDefense + rankAttack;
-	    	ranks.add(new TeamRank(team, rank));
-	    	maxRank = Math.max(maxRank, rank);
+	    for (TeamDefenseAttack i : data) {
+	    	Double rankDefense = maxDefense > 0 ? (double) (100*i.getDefense())/maxDefense : 0;
+	    	Double rankAttack  = maxAttack > 0 ? (double) (100*i.getAttack())/maxAttack : 0;
+	    	TeamRank r = new TeamRank(i.getTeam(), rankDefense, rankAttack);
+	    	ranks.add(r);
+	    	maxRank = Math.max(maxRank, r.getRank());
 	    }
 	    // Normalize ranks to 100%
-	    for (TeamRank rank : ranks) {
+	    for (TeamRank rank : ranks)
 	    	rank.normalize(maxRank);
-	    }
 		return ranks;
 	}
 }

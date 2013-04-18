@@ -131,7 +131,7 @@ public class Main {
 			UpdateCacheInDb(conn, scoresCache, roundTimes, updateFrom, updateTo);
 			
 			for (int round=updateFrom; round<=updateTo; round++)
-				flagPriceManager.updatePrices(round, lastRounds.get(round));
+				flagPriceManager.updatePrices(round);
 			
 			scoreboardWriter.WriteFiles();		// подтянет данные из базы (из кэшей)
 						
