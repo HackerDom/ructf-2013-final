@@ -25,7 +25,7 @@
                         </ul>
                         <div class="pull-right name-pan">
                             <a href="#" class="name">{% block name %} {{name}} {% endblock %}</a>
-                            <a class="btn btn-delete" href="/logout">Logout</a>
+                            <a class="btn btn-delete" href="/logout.html">Logout</a>
                         </div>
                     </div>
                 </div>
