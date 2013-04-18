@@ -38,10 +38,10 @@ check_security(ModuleName) ->
 
 check_security([], _) ->
     ok;
-check_security([Import = {Module, _, _} | Tail], BlackList) ->
-    case not match(Import, BlackList) andalso code:is_loaded(Module) of
-        {file, _} -> check_security(Tail, BlackList);
-        _         -> throw(secfail)
+check_security([Import | Tail], BlackList) ->
+    case match(Import, BlackList) of
+        false -> check_security(Tail, BlackList);
+        true  -> throw(secfail)
     end.
 
 match(_, []) ->

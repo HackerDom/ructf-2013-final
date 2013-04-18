@@ -21,9 +21,12 @@ YourZone::run_server do
 		syscall(23, 10004)
 	end
 	
-	match(/(\w+)\.team(\d+)\.ructf/, IN::TXT) do |transaction|
-		sub_domain = match[1]
-		N = match[2].to_i
+	match(/(\w+)\.team(\d+)\.ructf/, IN::TXT) do |transaction, md|
+		sub_domain = md[1]
+		N = md[2]
+
+		# debug line
+		puts "Asked TXT of subdomain #{sub_domain} for team #{N}. My team is #{team_n}"
 
 		if N != team_n
 			transaction.failure!(:NXDomain)
@@ -50,9 +53,12 @@ YourZone::run_server do
 		end
 	end
 
-	match(/(\w+)\.team(\d+)\.ructf/, IN::A) do |transaction|
-		sub_domain = match[1]
-		N = match[2].to_i
+	match(/(\w+)\.team(\d+)\.ructf/, IN::A) do |transaction, md|
+		sub_domain = md[1]
+		N = md[2].to_i
+
+		# debug line
+		puts "Asked A of subdomain #{sub_domain} for team #{N}. My team is #{team_n}"
 
 		if N != team_n
 			transaction.failure!(:NXDomain)
