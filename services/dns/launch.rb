@@ -2,15 +2,18 @@
 
 require 'yourzone'
 require 'yourzone/server'
+require 'yourzone/system'
+require 'mysql'
 
 cache = {}
-R = YourZone::Resolver.new(YourZone::System::nameservers)
+R = YourZone::Resolver.new([[:udp, "8.8.8.8", 53], [:tcp, "8.8.8.8", 53]]); #YourZone::System::nameservers)
 a = `ifconfig eth0`
 a = a[/inet addr:\d+\.\d+\.(\d+)/]
 a = a[/\d+$/]
 team_n = a.to_i
 dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
 TTL = 10000
+IN = Resolv::DNS::Resource::IN
 
 # not finished
 YourZone::run_server do
@@ -25,7 +28,7 @@ YourZone::run_server do
 		if N != team_n
 			transaction.failure!(:NXDomain)
 		else
-			res = dbh.query("Select dvalue from records where dtype = 'TXT' and dkey = '#{sub_domain}')")
+			res = dbh.query("Select dvalue from records where dtype = 'TXT' and dkey = '#{sub_domain}'")
 			
 			if res.num_rows > 0
 				res.each do |row|
@@ -63,7 +66,7 @@ YourZone::run_server do
 				transaction.respond!(record[1])
 			end
 		else
-			res = dbh.query("Select dvalue from records where dtype = 'A' and dkey = '#{sub_domain}')")
+			res = dbh.query("Select dvalue from records where dtype = 'A' and dkey = '#{sub_domain}'")
 			if res.num_rows > 0
 				res.each do |row|
 					cache[sub_domain] = [row[0], TTL]
