@@ -6,7 +6,13 @@ options {
 		8.8.4.4;
 	};
 
-	allow-transfer { "none"; };
+	allow-transfer  { 
+		"none"; 
+	};
+
+	allow-recursion {
+		10.0.0.0/8;
+	};
 
 	dnssec-validation auto;
 
