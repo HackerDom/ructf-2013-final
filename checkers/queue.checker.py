@@ -140,7 +140,7 @@ def put(host, flag_id, flag):
         s = socket.create_connection((host, PORT), 10)
     except Exception as E:
         print('Connect: {}'.format(E))
-        sys.exit(OK)
+        sys.exit(DOWN)
 
     readline(s)
 
@@ -167,7 +167,7 @@ def get(host, flag_id, flag):
         s = socket.create_connection((host, PORT), 10)
     except Exception as E:
         print('Connect: {}'.format(E))
-        sys.exit(OK)
+        sys.exit(DOWN)
 
     readline(s)
 
