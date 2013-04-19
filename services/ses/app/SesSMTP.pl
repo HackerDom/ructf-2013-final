@@ -35,6 +35,8 @@ $SIG{'INT'} = sub {
     exit 0;
 };
 
+$SIG{'CHLD'} = 'IGNORE';
+
 threads->create(\&queue_processor)->detach();
 
 while (my $c = $s->accept) {
