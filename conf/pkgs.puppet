@@ -3,12 +3,14 @@ package { 'app-portage/layman': ensure => present }
 package { 'dev-libs/libcgroup': ensure => present }
 package { 'dev-util/strace': ensure => present }
 package { 'sys-devel/gdb': ensure => present }
+package { 'sys-process/lsof': ensure => present }
 package { 'app-arch/unzip': ensure => present }
 package { 'sys-process/htop': ensure => present }
 package { 'net-analyzer/tcpdump': ensure => present }
 package { 'net-analyzer/netcat': ensure => present }
 package { 'app-portage/g-cpan': ensure => present }
 package { 'sys-apps/iproute2': ensure => present }
+package { 'sys-fs/quota': ensure => present }
 
 
 # user service
@@ -67,6 +69,7 @@ file { '/home/dns/mysql': mode => 600, owner => dns, group =>dns,
        ensure => directory, require => File['/home/dns']}
 file { '/home/dns/mysql/db': mode => 600, owner => dns, group =>dns,
        ensure => directory, require => File['/home/dns/mysql']}
+package { 'dev-lang/ruby': ensure => present }
 package { 'dev-ruby/mysql-ruby': ensure => present }
 package { 'dev-ruby/sinatra': ensure => present }
 package { 'dev-ruby/eventmachine': ensure => present }
