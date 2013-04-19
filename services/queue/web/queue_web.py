@@ -48,37 +48,48 @@ def send_cmd_sequence(cmds):
     return data
 
 
+def need_json(request):
+    content_type = request.headers.get("Content-Type")
+    return content_type == "application/json"
+
+
 @app.route("/")
 def index():
-    return redirect(url_for('list'))
+    return redirect(url_for("list"))
 
 
-@app.route("/list/")
+@app.route("/list/", methods=["GET", "POST"])
 def list():
-    session = request.cookies.get('session', 'none')
+    session = request.cookies.get("session", "none")
     login = get_login_by_session(session)
 
     raw_result = send_cmd_sequence([b"list\n"])
 
     queues = []
-    error = ""
 
-    if not raw_result.startswith("OK: "):
-        error = raw_result
-    else:
+    if raw_result.startswith("OK: "):
         queues = re.findall(r"(\w+):(\w+)", raw_result[4:])
 
-    queues = [(user, queue) for user, queue in queues if user == login]
-    return render_template('list.html', login=login, queues=queues,
-                           error=error)
+    queues = [queue for user, queue in queues if user == login]
+
+    if need_json(request):
+        if raw_result.startswith("OK: "):
+            return json.dumps({"status": "OK", "queues": queues})
+        else:
+            return json.dumps({"status": "Fail"})
+    else:
+        return render_template("list.html", login=login, queues=queues)
 
 
-@app.route("/create/", methods=['POST'])
+@app.route("/create/", methods=["POST"])
 def create():
-    session = request.cookies.get('session', 'none')
+    session = request.cookies.get("session", "none")
     login = get_login_by_session(session)
 
-    queuename = request.form.get('queuename', '')
+    if need_json(request):
+        queuename = request.json.get("queuename", "")
+    else:
+        queuename = request.form.get("queuename", "")
 
     cmd_seq = [
         b"user {}\n".format(login),
@@ -87,15 +98,25 @@ def create():
     ]
 
     result = send_cmd_sequence(cmd_seq)
-    return render_template('result.html', msg=result)
+
+    if need_json(request):
+        if result.startswith("OK"):
+            return json.dumps({"status": "OK"})
+        else:
+            return json.dumps({"status": "Fail"})
+    else:
+        return render_template("result.html", msg=result)
 
 
-@app.route("/delete/", methods=['POST'])
+@app.route("/delete/", methods=["POST"])
 def delete():
-    session = request.cookies.get('session', 'none')
+    session = request.cookies.get("session", "none")
     login = get_login_by_session(session)
 
-    queuename = request.form.get('queuename', '')
+    if need_json(request):
+        queuename = request.json.get("queuename", "")
+    else:
+        queuename = request.form.get("queuename", "")
 
     cmd_seq = [
         b"user {}\n".format(login),
@@ -104,16 +125,27 @@ def delete():
     ]
 
     result = send_cmd_sequence(cmd_seq)
-    return render_template('result.html', msg=result)
+
+    if need_json(request):
+        if result.startswith("OK"):
+            return json.dumps({"status": "OK"})
+        else:
+            return json.dumps({"status": "Fail"})
+    else:
+        return render_template("result.html", msg=result)
 
 
-@app.route("/enqueue/", methods=['POST'])
+@app.route("/enqueue/", methods=["POST"])
 def enqueue():
-    session = request.cookies.get('session', 'none')
+    session = request.cookies.get("session", "none")
     login = get_login_by_session(session)
 
-    queuename = request.form.get('queuename', '')
-    val = request.form.get('val', '')
+    if need_json(request):
+        queuename = request.json.get("queuename", "")
+        val = request.json.get("val", "")
+    else:
+        queuename = request.form.get("queuename", "")
+        val = request.form.get("val", "")
 
     s = socket.create_connection((QUEUE_SERVER, 3255), 3)
     readline(s)
@@ -125,15 +157,26 @@ def enqueue():
     ]
 
     result = send_cmd_sequence(cmd_seq)
-    return render_template('result.html', msg=result)
+
+    if need_json(request):
+        if result.startswith("OK"):
+            return json.dumps({"status": "OK"})
+        else:
+            return json.dumps({"status": "Fail"})
+    else:
+        return render_template("result.html", msg=result)
 
 
-@app.route("/dequeue/", methods=['POST'])
+@app.route("/dequeue/", methods=["POST"])
 def dequeue():
-    session = request.cookies.get('session', 'none')
+    session = request.cookies.get("session", "none")
     login = get_login_by_session(session)
 
-    queuename = request.form.get('queuename', '')
+    queuename = request.form.get("queuename", "")
+    if need_json(request):
+        queuename = request.json.get("queuename", "")
+    else:
+        queuename = request.form.get("queuename", "")
 
     cmd_seq = [
         b"user {}\n".format(login),
@@ -142,10 +185,15 @@ def dequeue():
     ]
 
     result = send_cmd_sequence(cmd_seq)
-    return render_template('result.html', msg=result)
+    if need_json(request):
+        if result.startswith("OK: "):
+            return json.dumps({"status": "OK", "val": result[4:].strip()})
+        else:
+            return json.dumps({"status": "Fail"})
+    else:
+        return render_template("result.html", msg=result)
 
 
 if __name__ == "__main__":
     app.debug = False
-    app.run(host='0.0.0.0', port=32550)
-    # app.run()
+    app.run(host="0.0.0.0", port=32550)

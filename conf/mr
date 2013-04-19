@@ -6,28 +6,27 @@
 #extra_started_commands=""
 
 depend() {
-	use logger
-	need net
+        use logger
+        need net
 }
 
 SVCNAME=mr
 PIDFILE="/var/run/${SVCNAME}.pid"
 DIR="/home/${SVCNAME}"
-START="-sname mr -setcookie mr_cookie -noshell -pa ${DIR}/ebin ${DIR}/deps/*/ebin ${DIR}priv/code -s inets -s yaws -s ibrowse"
-BINARY="/usr/bin/erl"
+BINARY="${DIR}/start.sh"
 USER="${SVCNAME}:${SVCNAME}"
 
 start() {
-	ebegin "Starting ${SVCNAME}"
-	start-stop-daemon --start \
-	    --interpreted --make-pidfile --pidfile "${PIDFILE}" --user "${USER}" \
-            --chdir "${DIR}" --background --stdout /home/mr/service.log --exec "${BINARY}" -- ${START} 
-	eend $?
+        ebegin "Starting ${SVCNAME}"
+        start-stop-daemon --start \
+            --interpreted --make-pidfile --pidfile "${PIDFILE}" --user "${USER}" \
+            --chdir "${DIR}" --background --exec "${BINARY}" < /dev/null
+        eend $?
 }
 
 stop() {
-	ebegin "Stopping ${SVCNAME}"
-	start-stop-daemon --stop \
-	    --interpreted --pidfile "${PIDFILE}" --user "${USER}" --quiet  --exec "${BINARY}"
-	eend $?
+        ebegin "Stopping ${SVCNAME}"
+        start-stop-daemon --stop \
+            --interpreted --pidfile "${PIDFILE}" --user "${USER}" --quiet  --exec "${BINARY}"
+        eend $?
 }

@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+
 require 'erb'
 require 'sinatra'
 require 'net/http'

