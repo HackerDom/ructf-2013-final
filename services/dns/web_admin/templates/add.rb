@@ -24,7 +24,7 @@ add_template = %q{
                         <li><a href="#">SES</a></li>
                         <li><a href="#">MapReduce</a></li>
                         <li><a href="#">DB</a></li>
-                        <li><a href="#">MessageQueue</a></li>
+                        <li><a href="#">Queue</a></li>
                         <li class="active"><a href="#">DNS</a></li>
                         <li><a href="#">Balanser</a></li>
                         <li><a href="#">ScriptAPI</a></li>

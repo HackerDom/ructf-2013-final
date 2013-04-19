@@ -6,12 +6,12 @@ require 'yourzone/system'
 require 'mysql'
 
 cache = {}
-R = YourZone::Resolver.new([[:udp, "8.8.8.8", 53], [:tcp, "8.8.8.8", 53]]); #YourZone::System::nameservers)
+R = YourZone::Resolver.new([[:udp, "8.8.8.8", 53], [:tcp, "8.8.8.8", 53]])
 a = `ifconfig eth0`
 a = a[/inet addr:\d+\.\d+\.(\d+)/]
 a = a[/\d+$/]
 team_n = a.to_i
-#dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
+
 dbh = Mysql.real_connect(nil, "root", nil, "dns", nil, "/home/dns/mysql/mysql.sock")
 TTL = 10000
 IN = Resolv::DNS::Resource::IN
