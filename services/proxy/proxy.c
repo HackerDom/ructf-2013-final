@@ -154,7 +154,7 @@ nstrstr(const char *in, const char *str, int n){
 
 
 int
-process_read(int fd, char *buff, int already_read, char * rules) {
+process_read(int fd, char *buff, int already_read, char *rules) {
     char tmp[TMP_BUF_LEN];
     memset(tmp, 0 , sizeof(tmp));
 
@@ -168,7 +168,11 @@ process_read(int fd, char *buff, int already_read, char * rules) {
     {
         int i;
         for (i = 0; i < RULES_BUF_LEN / RULE_MAX_LENGTH; i++) {
-            if (nstrstr(tmp, rules + RULE_MAX_LENGTH * i, RULE_MAX_LENGTH) != 0)
+            char *rule = rules + RULE_MAX_LENGTH * i;
+            if (rule[0] == 0)
+                break;
+            
+            if (nstrstr(tmp, rule, RULE_MAX_LENGTH) != 0)
             {
                 char log_mes[LOG_ENTRY_MAX_LEN];
                 snprintf(log_mes, LOG_ENTRY_MAX_LEN, "alert! rule '%s' matched", rules + RULE_MAX_LENGTH * i);
