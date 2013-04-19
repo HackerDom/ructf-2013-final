@@ -24,8 +24,7 @@
                 <li><a href="http://scripts">ScriptAPI</a></li>
               </ul>
               <div class="pull-right">
-                %b1()
-                %b2()
+                %x()
               </div>
             </div>
           </div>

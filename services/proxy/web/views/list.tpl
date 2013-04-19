@@ -36,14 +36,13 @@
         </tboby>
     </table>
 </div>
-%def b1():
-    <h1>qwer</h1>
-%end
-%def b11():
-    <h1>qwer1111</h1>
-%end
-%def b2():
-    <h2>test</h2>
-%end
-% x = b11
-%rebase default title='List', b1=x, b2=b2
+
+% def b1():
+    <a id="signup" class="btn btn-success" href="http://{{domain}}/register?n=http://ips.{{domain}}/list">Sign Up</a>
+    <a id="signin" class="btn" href="http://{{domain}}/login?n=http://ips.{{domain}}/list">Sign In</a>
+% end
+% def b2():
+    <a href="#" class="name">{{user['first_name'] + ' ' + user['last_name']}}</a>
+    <a href="http://{{domain}}/logout" class="btn btn-delete">Logout</a>
+% end
+%rebase default title='List', x = b2 if user else b1
