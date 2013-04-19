@@ -1,39 +1,113 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>Queue</title>
+    <title>Queue</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
 
-{% if login %}
-    <h1>{{ login }}</h1>
-{% else %}
-    <h1>You are not logged in, please log in</h1>
-{% endif %}
+    <script src="/static/js/jquery.js"></script>
+    <script src="/static/js/jquery.cookie.js"></script>
+    <script src="/static/js/jsrender.js"></script>
+    <script src="/static/js/ructf.js"></script>
 
-{% for queuename in queues %}
-    <div>
-        <span> {{queuename}} </span>
-        <form style="display: inline" method="POST" action="../enqueue/">
-            <input type="hidden" name="queuename" value="{{queuename}}">
-            <input name="val">
-            <input type="submit" value="enqueue">
-        </form>
-        <form style="display: inline" method="POST" action="../dequeue/">
-            <input type="hidden" name="queuename" value="{{queuename}}">
-            <input type="submit" value="dequeue">
-        </form>
-        <form style="display: inline" method="POST" action="../delete/">
-            <input type="hidden" name="queuename" value="{{queuename}}">
-            <input type="submit" value="delete">
-        </form>
+    <script>
+        $(document).ready(function() {
+            replace_urls();
+            user();
+        });
+    </script>
+
+</head>
+<body>
+    <div class="page">
+        <div id="wrap">
+            <div class="navbar navbar-fixed-top">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <a class="brand" href="#">RuCTF 2013</a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav">
+                                <li class="active"><a href="#">SES</a></li>
+                                <li><a href="#">MapReduce</a></li>
+                                <li><a href="#">DB</a></li>
+                                <li><a href="#">Queue</a></li>
+                                <li><a href="#">DNS</a></li>
+                                <li><a href="#">IPS</a></li>
+                                <li><a href="#">ScriptAPI</a></li>
+                            </ul>
+                            <div class="pull-right">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/x-jsrender" id="xxx-login">
+                <a id="signup" class="btn btn-success" href="{{ '{{' }}register{{ '}}' }}">Sign Up</a>
+                <a id="signin" class="btn" href="{{ '{{' }}>login{{ '}}' }}">Sign In</a>
+            </script>
+            <script type="text/x-jsrender" id="xxx-user">
+                <a href="#" class="name">{{ '{{' }}>name{{ '}}' }}</a>
+                <a href="{{ '{{' }}>logout{{ '}}' }}" class="btn btn-delete">Logout</a>
+            </script>
+
+            <div id="content">
+                <div class="container">
+                    <div class="header-main">
+                        Queue
+                    </div>
+                    <hr>
+                    <div class="central">
+                        {% if login %}
+                            <div class="about-main" style="width:800px">
+                                <table class="table table-hover" style="width:100%; table-layout:fixed">
+                                {% for queuename in queues %}
+                                        <tr>
+                                        <td width="400px"> {{queuename}} </td>
+                                        <td width="400px" style="text-align:right">
+                                            <form style="display: inline" method="POST" action="../enqueue/">
+                                                <input type="hidden" name="queuename" value="{{queuename}}">
+                                                <input name="val" placeholder="enqueue">
+                                            </form>
+                                            <form style="display: inline" method="POST" action="../dequeue/">
+                                                <input type="hidden" name="queuename" value="{{queuename}}">
+                                                <input type="submit" value="dequeue">
+                                            </form>
+                                            <form style="display: inline" method="POST" action="../delete/">
+                                                <input type="hidden" name="queuename" value="{{queuename}}">
+                                                <input type="submit" value="delete">
+                                            </form>
+                                        </td>
+                                        </tr>
+                                {% endfor %}
+                                </table>
+
+                                <table style="width:100%">
+                                    <tr>
+                                        <td>
+                                            <form method="POST" action="../create/">
+                                                <input name="queuename" placeholder="new queue">
+                                            </form>
+                                        </td>
+                                    </tr>
+                            </table>
+                        {% else %}
+                            <h2> Please, log in first <h2>
+                        {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-{% endfor %}
-
-<hr>
-
-<div>
-    <form method="POST" action="../create/">
-        <input name="queuename">
-        <input type="submit" value="create queue">
-    </form>
-</div>
-
+    <div id="footer">
+        <div class="container">
+            <div class="pull-right">
+                <a href="http://ructf.org">RuCTF</a>
+                <a href="http://hackerdom.ru">HackerDom</a>
+                <a href="ructf.org/2013/ru/devteam">Developers</a>
+            </div>
+        </div>
+    </div>
+</body>
 </html>

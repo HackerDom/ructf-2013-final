@@ -35,7 +35,9 @@ Script API (andgein, PHP)
 9) python2 by default
 
 10) nginx.conf, rc-update add nginx default
-mkdir -p /var/lib/overlays/cpan/
+10.1) /var/www/static
+
+11) mkdir -p /var/lib/overlays/cpan/
 PORTDIR_OVERLAY="/var/lib/overlays/cpan/"
 
 ------------------------ SERVICE DEPLOYMENT ------------------------
