@@ -7,7 +7,7 @@ var timeout = 200;
 
 function Load_Visual_Data() {
     $.ajaxSetup({ cache: false });  // Is it good? - It is!
-    $.getJSON("ructfe.json", init);
+    $.getJSON("json/ructfe.json", init);
 }
 
 function idToInd( id )
