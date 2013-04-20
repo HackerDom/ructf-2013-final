@@ -107,8 +107,8 @@ def Authorize(host, login, password):
     request.add_header("X-Requested-With", "XMLHttpRequest")
     request.add_header("Content-Type", "application/json")
     response = json.loads(urllib.request.urlopen(request).readall().decode('ascii'))
-    sys.stderr.write("Tried to authorize, got this response:" + "\n")
-    sys.stderr.write(str(response) + "\n")
+    #sys.stderr.write("Tried to authorize, got this response:" + "\n")
+    #sys.stderr.write(str(response) + "\n")
     if response["status"] != "OK": 
         if response["error"]["code"] == 3:
             registerData = bytes(json.dumps({ "login" : login, "password" : password, "first_name" : "checker", "last_name" : "checker", "language" : "checker" }), "ASCII")
@@ -117,15 +117,15 @@ def Authorize(host, login, password):
             registerRequest.add_header("X-Requested-With", "XMLHttpRequest")
             registerRequest.add_header("Content-Type", "application/json")
             registerResponse = json.loads(urllib.request.urlopen(registerRequest).readall().decode('ascii'))
-            sys.stderr.write("Failed to authorize, tried to register, got this response:" + "\n")
-            sys.stderr.write(str(registerResponse) + "\n")
+            #sys.stderr.write("Failed to authorize, tried to register, got this response:" + "\n")
+            #sys.stderr.write(str(registerResponse) + "\n")
             #sys.stderr.write(registerResponse + "\n")
             if registerResponse["status"] != "OK":
                 sys.stderr.write("Login system corrupted" + "\n")
                 exit(110)
             response = json.loads(urllib.request.urlopen(request).readall().decode('ascii'))
-            sys.stderr.write("Tried to authorize again, got this response:" + "\n")
-            sys.stderr.write(str(response) + "\n")
+            #sys.stderr.write("Tried to authorize again, got this response:" + "\n")
+            #sys.stderr.write(str(response) + "\n")
         else:
             sys.stderr.write("Some weird shit is happening with login system" + "\n")
             exit(110)
