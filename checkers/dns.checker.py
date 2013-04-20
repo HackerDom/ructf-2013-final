@@ -78,18 +78,18 @@ def del_record(host, session, d_id):
 						cookies={"session": session},
 						headers = {'content-type': 'application/json'})
 	if ans.status_code != 200:
-		print("Failed to add record - service returned not 200: %d" % ans.status_code)
+		print("Failed to del record - service returned not 200: %d" % ans.status_code)
 		sys.exit(DOWN)
 
 	answer_hash = json.loads(ans.content)
 
 	if answer_hash['code'] != "OK":
-		print("Failed to add record: {}".format(answer_hash['why']))
+		print("Failed to del record: {}".format(answer_hash['why']))
 		sys.exit(MUMBLE)
 
 # not ready
 def check(host):
-	user = "lena"+gen_random_str(10)
+	user = gen_random_str(10)
 	password = gen_random_str(10)
 
 	register_or_die(host, user, password)
@@ -127,7 +127,7 @@ def check(host):
 
 
 def put(host, flag_id, flag):
-	user = "lena"+flag_id.replace("-", "")
+	user = flag_id.replace("-", "")
 	password = gen_secret_hash(user)
 
 	register_or_die(host, user, password)
