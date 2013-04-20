@@ -110,7 +110,7 @@ def check(host):
 
 	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
 	html = ans.content
-	sys.stderr.write(html)
+	sys.stderr.write(ans.code + html)
 	sys.stderr.flush()
 	if not re.match(sub_domain, html):
 		print "Added record not shown"
