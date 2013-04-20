@@ -61,7 +61,7 @@ function func_greater($p1, $p2) { return (int) ($p1 > $p2); }
 function func_equal_less($p1, $p2) { return (int) ($p1 <= $p2); }
 function func_equal_greater($p1, $p2) { return (int) ($p1 >= $p2); }
 function func_not_equal($p1, $p2) { return (int) ($p1 != $p2); }
-function func_add($p1, $p2) { return $p1 + $p2; }
+function func_add($p1, $p2) { return is_string($p1) ? $p1.$p2 : $p1 + $p2; }
 function func_sub($p1, $p2) { return $p1 - $p2; }
 function func_mul($p1, $p2) { return $p1 * $p2; }
 function func_div($p1, $p2) { return $p1 / $p2; }

@@ -18,7 +18,10 @@ function init_i18n()
       mysql_query('SET NAMES '.mysql_escape_string($charset));
       break;
     }
+  }
 
+  if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER))
+  {
     $header_languages = split(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
     foreach ($header_languages as $l)
     {
@@ -27,7 +30,7 @@ function init_i18n()
       if (strpos($l, '-') !== false)
         $l = substr($l, 0, strpos($l, '-'));
       $l = strtolower($l);
-      $language = $language;
+      $language = $l;
       break;
     }
   }
@@ -35,9 +38,8 @@ function init_i18n()
 
 function i18n_template($template_name)
 {
-  global $language;
   extract($GLOBALS, EXTR_REFS | EXTR_SKIP);
-  if (! file_exists('template/'.$template_name.'.'.$language.'.html'))
+  if (! file_exists('templates/'.$template_name.'.'.$language.'.html'))
     $language = 'en';
   require 'templates/'.$template_name.'.'.$language.'.html';
 }
