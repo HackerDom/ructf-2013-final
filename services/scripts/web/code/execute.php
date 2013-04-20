@@ -46,12 +46,11 @@ function store($address, $value)
     $current .= '["'.$address[sizeof($address) - 1].'"]';
   if (is_string($value) && substr($value, 0, 2) == '0x')
     $value = str_replace('\n', "\n", hexToStr(substr($value, 2)));
-  if (is_string($value))
+  if (is_string($value) && ! ctype_digit($value))
     $value = '"'.$value.'"';
   if (is_array($value))
     $value = 'json_decode("'.addslashes(json_encode($value)).'", true)';
     
-  echo $current.' = '.$value.';'."\n";
   eval($current.' = '.$value.';');
 }
 
@@ -73,7 +72,6 @@ function execute_command($opcode, $args)
 {
   global $ip, $memory, $opcodes, $functions;
   $opcode = $opcodes[$opcode];
-#  echo $opcode.' '.join(', ', $args)."\n";
   switch ($opcode)
   {
     case 'store':
@@ -152,8 +150,4 @@ function execute_program($program)
   }
 }
 
-# TODO remove examples
-# $program_input = array('14');
-# execute_program(compile('a <- input(); for i from 1 to 10 print(a); a <- a + 1; end'));
-# execute_program(compile('print("Hello world")'));
 ?>

@@ -27,6 +27,20 @@ def index():
     user = get_user()
     return template('index', domain=domain, user=user)
 
+@get('/api_list')
+def api_list():
+    user = get_user()
+    if user is None:
+        return json.dumps({'status': "FAIL"})
+    uid = str(user['uid'])  
+    p = []
+    if d.has_key(uid):
+        u = d[uid]
+        for k in u:
+            (src_port, dst_host, dst_port) = k.split('-')
+            p.append({"src_port": int(src_port), "dst_host": dst_host, "dst_port": int(dst_port)})
+    return json.dumps({'status':"OK", "rules":p})
+
 @get('/list')
 def list():
     domain = re.search(domain_re, request.headers['Host']).group()
@@ -40,6 +54,27 @@ def list():
         for k in u:
             p.append(k)
     return template('list', proxy=p, user=user, domain=domain)
+
+@post('/api_del')
+def api_delete():
+    return json.dumps({'status': "QQQ"})
+    user = get_user()
+    if user is None:
+        return json.dumps({'status': "FAIL"})
+    uid = str(user['uid'])
+    body = json.load(request.body)
+    key = '-'.join([body.src_port, body.dst_host, body.dst_port])
+    if d.has_key(uid):
+        u = d[uid]
+        if key in u:
+            pid = u[key]
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except:
+                pass
+            del u[key]
+            d[uid] = u
+    return json.dumps({'status': "OK"})
 
 @post('/host/del')
 def delete():
@@ -61,6 +96,44 @@ def delete():
             d[uid] = u
     return redirect('/list')
 
+@post('/api_add')
+def api_add():
+    user = get_user()
+    if user is None:
+        return json.dumps({'status': "FAIL"})
+    uid = str(user['uid'])
+    body = json.load(request.body)
+    src_port = body.src_port
+    dst_host = body.dst_host
+    dst_port = body.dst_port
+    try:
+        if src_port < 60000 or src_port > 65535:
+            return json.dumps({'status': "FAIL"})
+        if dst_port < 0 or dst_port > 65535:
+            return json.dumps({'status': "FAIL"})
+    except:
+        return json.dumps({'status': "FAIL"})
+    rules = body.rules
+    if src_port and dst_port and dst_port:
+        key = '-'.join([src_port, dst_host, dst_port])
+        if d.has_key(uid):
+            u = d[uid]
+            if key in u:
+                return json.dumps({'status': "FAIL"})
+            else:
+                p = subprocess.Popen([command, src_port, dst_host, dst_port, "./rules/" + key])
+                u[key] = p.pid
+                d[uid] = u
+                save_rules(key, rules)
+                return json.dumps({'status': "OK"})
+        else:
+            p = subprocess.Popen([command, src_port, dst_host, dst_port, "./rules/" + key])
+            d[uid] = {key: p.pid}
+            save_rules(key, rules)
+            return json.dumps({'status': "OK"})
+    else:
+        return json.dumps({'status': "FAIL"})
+
 @post('/host/add')
 def add():
     domain = re.search(domain_re, request.headers['Host']).group()
@@ -76,6 +149,8 @@ def add():
         if port < 60000 or port > 65535:
             return abort(404)
         port = int(dst_port)
+        if port < 0 or port > 65535:
+            return abort(404)
     except:
         return abort(404)
     rules = request.forms.get('rules')

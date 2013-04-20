@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 import sys
 import requests
@@ -89,7 +89,7 @@ def del_record(host, session, d_id):
 
 # not ready
 def check(host):
-	user = "lena" + gen_random_str(10)
+	user = gen_random_str(10)
 	password = gen_random_str(14)
 
 	register_or_die(host, user, password)
