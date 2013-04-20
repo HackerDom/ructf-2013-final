@@ -15,6 +15,7 @@ import pprint
 domain_re = re.compile("(team\d+\.ructf)$")
 d = shelve.open('database')
 signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+command = "../ips"
 try:
     os.mkdir('rules')
 except:
@@ -85,13 +86,13 @@ def add():
             if key in u:
                 return abort(404)
             else:
-                p = subprocess.Popen(["sleep","10"])
+                p = subprocess.Popen([command, src_port, dst_host, dst_port, "./rules/" + key])
                 u[key] = p.pid
                 d[uid] = u
                 save_rules(key, rules)
                 return redirect('/list')
         else:
-            p = subprocess.Popen(["sleep","10"])
+            p = subprocess.Popen([command, src_port, dst_host, dst_port, "./rules/" + key])
             d[uid] = {key: p.pid}
             save_rules(key, rules)
             return redirect('/list')
