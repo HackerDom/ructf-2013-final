@@ -33,8 +33,8 @@ def gen_another_secret_hash(s):
 
 
 def register_or_die(host, login, password):
-	print("registering to http://{0}/register".format(host))
-	ans = requests.post("http://{0}/register".format(host),
+	print("registering to http://{}/register".format(host))
+	ans = requests.post("http://{}/register".format(host),
 						data={"login": login, "first_name": login,
 							  "last_name": "", "password": password,
 							  "language": "ru"})
@@ -44,7 +44,7 @@ def register_or_die(host, login, password):
 
 
 def get_session_num_or_die(host, login, password):
-	ans = requests.post("http://{0}/login".format(host),
+	ans = requests.post("http://{}/login".format(host),
 						data={"login": login, "password": password})
 
 	if "session" not in ans.cookies:
@@ -55,8 +55,8 @@ def get_session_num_or_die(host, login, password):
 
 
 def add_record(host, session, d_type, name, value):
-	print("Adding record to http://{0}:4567/add with session {}".format(host, session))
-	ans = requests.post("http://{0}:4567/add".format(host),
+	print("Adding record to http://{}:4567/add with session {}".format(host, session))
+	ans = requests.post("http://{}:4567/add".format(host),
 						data = json.dumps({"type": d_type, "name": name, "value": value}),
 						cookies = {"session": session},
 						headers = {'content-type': 'application/json'})
@@ -73,8 +73,8 @@ def add_record(host, session, d_type, name, value):
 	return answer_hash['id']
 
 def del_record(host, session, d_id):
-	print("Deleting record from http://{0}:4567/delete".format(host))
-	ans = requests.post("http://{0}:4567/delete".format(host),
+	print("Deleting record from http://{}:4567/delete".format(host))
+	ans = requests.post("http://{}:4567/delete".format(host),
 						data = json.dumps({"id": d_id}),
 						cookies={"session": session},
 						headers = {'content-type': 'application/json'})
@@ -85,7 +85,7 @@ def del_record(host, session, d_id):
 	answer_hash = json.loads(ans.content)
 
 	if answer_hash['code'] != "OK":
-		print("Failed to add record: {0}".format(answer_hash['why']))
+		print("Failed to add record: {}".format(answer_hash['why']))
 		sys.exit(MUMBLE)
 
 # not ready
