@@ -11,6 +11,8 @@ package { 'net-analyzer/netcat': ensure => present }
 package { 'app-portage/g-cpan': ensure => present }
 package { 'sys-apps/iproute2': ensure => present }
 package { 'sys-fs/quota': ensure => present }
+package { 'app-editors/vim': ensure => present }
+package { 'sys-boot/syslinux': ensure => present }
 
 
 # user service

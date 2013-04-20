@@ -76,26 +76,26 @@ def DoCheck(host, session):
 
     return True
 
-def PlantFlag(host, session, tableName, flagID, flag):
-    response = SendRequest(host, session, "insert into flags." + tableName + " values ( '" + flagID + "', '" + flag + "')")
-    #sys.stderr.write("insert into flags." + tableName + " values ( '" + flagID + "', '" + flag + "')" + "\n")
+def PlantFlag(host, session, databaseName, flagID, flag):
+    response = SendRequest(host, session, "insert into " + databaseName + ".flags values ( '" + flagID + "', '" + flag + "')")
+    #sys.stderr.write("insert into " + databaseName + ".flags values ( '" + flagID + "', '" + flag + "')" + "\n")
     #sys.stderr.write(response + "\n")
     if response["status"] == "FAIL":
         if response["error"]["code"] == 3:
-            tResponse = SendRequest(host, session, "create database flags")
+            tResponse = SendRequest(host, session, "create database " + databaseName)
             if tResponse["status"] != "OK": return False
         if response["error"]["code"] == 3 or response["error"]["code"] == 4:
-            tResponse = SendRequest(host, session, "create table flags." + tableName + " (id, flag)")
+            tResponse = SendRequest(host, session, "create table " + databaseName + ".flags (id, flag)")
             if tResponse["status"] != "OK": return False
         else:
             return False
-        response = SendRequest(host, session, "insert into flags." + tableName +" values ( '" + flagID + "', '" + flag + "')")
+        response = SendRequest(host, session, "insert into " + databaseName + ".flags values ( '" + flagID + "', '" + flag + "')")
         if response["status"] != "OK": return False
     return True
 
-def CheckPlantedFlag(host, session, tableName, flagID, flag):
-    response = SendRequest(host, session, "select * from flags." + tableName + " where id == '" + flagID + "'")
-    #sys.stderr.write("select * from flags." + tableName + "\n")
+def CheckPlantedFlag(host, session, databaseName, flagID, flag):
+    response = SendRequest(host, session, "select * from " + databaseName + ".flags where id == '" + flagID + "'")
+    #sys.stderr.write("select * from " + databaseName + ".flags\n")
     #sys.stderr.write(response + "\n")
     if response["status"] == "FAIL" or len(response["data"]["rows"]) < 1: return False
     rows = list(response["data"]["rows"])
@@ -139,7 +139,7 @@ try:
     dictionary = dictFile.read().split("\n")
     dictFile.close()
 
-    flagsTableName = dictionary[(int(time.time() / 60 / 15) * 42167) % len(dictionary)]
+    flagsDatabaseName = dictionary[(int(time.time() / 60 / 2) * 42167) % len(dictionary)]
 
     AuthorizationHost = "http://" + sys.argv[2]
     CheckerHost = "http://db." + sys.argv[2]
@@ -183,12 +183,12 @@ try:
 
         if CheckerMode == "put":
             sys.stderr.write("Starting putting flag" + "\n")
-            if not PlantFlag(CheckerHost, session, flagsTableName, flagID, flag):
+            if not PlantFlag(CheckerHost, session, flagsDatabaseName, flagID, flag):
                 sys.stderr.write("Something gone wrong" + "\n")
                 exit(103)
             else:
                 sys.stderr.write("Flag successfully planted" + "\n")
-                plantedFlags[flagID] = flagsTableName
+                plantedFlags[flagID] = flagsDatabaseName
                 plantedFlagsFile = open("./DatabaseChecker/" + TeamName , "w")
                 plantedFlagsFile.write(json.dumps(plantedFlags, "ASCII"))
                 plantedFlagsFile.close()
@@ -198,9 +198,9 @@ try:
             if not flagID in plantedFlags:
                 sys.stderr.write("YOU LIE TO ME, THERE'S NO SUCH FLAG" + "\n")
                 exit(102)
-            tableName = plantedFlags[flagID]
-            if not CheckPlantedFlag(CheckerHost, session, tableName, flagID, flag):
-                sys.stderr.write("Something gone wrong, no flag in there" + "\n")
+            databaseName = plantedFlags[flagID]
+            if not CheckPlantedFlag(CheckerHost, session, databaseName, flagID, flag):
+                sys.stderr.write("Something gone wrong, no flag ein there" + "\n")
                 exit(102)
             else:
                 sys.stderr.write("Correct flag detected" + "\n")
