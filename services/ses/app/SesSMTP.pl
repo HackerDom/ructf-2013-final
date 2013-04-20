@@ -24,7 +24,7 @@ my $s = IO::Socket::INET->new(
         Proto     => 'tcp',
         LocalPort => CFG_SMTP_PORT,
         Listen    => 20,
-        Reuse     => 1
+        ReuseAddr => 1
     ) or die "SES SMTP Server failed to start: $!\n";
 
 printf "SES SMTP Server started at %s:%d\n", $s->sockhost(), $s->sockport();
