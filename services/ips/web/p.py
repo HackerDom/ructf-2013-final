@@ -38,7 +38,7 @@ def api_list():
         u = d[uid]
         for k in u:
             (src_port, dst_host, dst_port) = k.split('-')
-            p.append({"src_port": src_port, "dst_host": dst_host, "dst_port": dst_port})
+            p.append({"src_port": int(src_port), "dst_host": dst_host, "dst_port": int(dst_port)})
     return json.dumps({'status':"OK", "rules":p})
 
 @get('/list')
@@ -55,14 +55,14 @@ def list():
             p.append(k)
     return template('list', proxy=p, user=user, domain=domain)
 
-@post('/host/api_del')
+@post('/api_del')
 def api_delete():
     user = get_user()
     if user is None:
         return json.dumps({'status': "FAIL"})
     uid = str(user['uid'])
     body = json.load(request.body)
-    key = '-'.join([body.src_port, body.dst_host, body.dst_port])
+    key = '-'.join([str(body["src_port"]), body["dst_host"], str(body["dst_port"])])
     if d.has_key(uid):
         u = d[uid]
         if key in u:
@@ -73,6 +73,8 @@ def api_delete():
                 pass
             del u[key]
             d[uid] = u
+        else:   
+            return json.dumps({'status': "FAIL"})    
     return json.dumps({'status': "OK"})
 
 @post('/host/del')
@@ -95,16 +97,16 @@ def delete():
             d[uid] = u
     return redirect('/list')
 
-@post('/host/api_add')
+@post('/api_add')
 def api_add():
     user = get_user()
     if user is None:
         return json.dumps({'status': "FAIL"})
     uid = str(user['uid'])
     body = json.load(request.body)
-    src_port = body.src_port
-    dst_host = body.dst_host
-    dst_port = body.dst_port
+    src_port = body["src_port"]
+    dst_host = body["dst_host"]
+    dst_port = body["dst_port"]
     try:
         if src_port < 60000 or src_port > 65535:
             return json.dumps({'status': "FAIL"})
@@ -112,7 +114,9 @@ def api_add():
             return json.dumps({'status': "FAIL"})
     except:
         return json.dumps({'status': "FAIL"})
-    rules = body.rules
+    src_port = str(src_port)
+    dst_port = str(dst_port)
+    rules = body["rules"]
     if src_port and dst_port and dst_port:
         key = '-'.join([src_port, dst_host, dst_port])
         if d.has_key(uid):

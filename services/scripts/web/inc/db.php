@@ -4,7 +4,7 @@ require_once 'inc/common.php';
 
 function connect()
 {
-  $db_server = 'localhost';
+  $db_server = ':/home/scripts/mysql/mysql.sock';
   $db_username = 'scripts';
   $db_password = 'scripts__p4Ssw0rd';
   $db_dbname = 'scripts';
