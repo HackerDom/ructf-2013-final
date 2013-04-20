@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 
 import sys
 import requests
@@ -7,6 +7,7 @@ import dns.resolver
 import sha
 import re
 import json
+import socket
 
 # Error codes
 OK = 101
@@ -54,7 +55,8 @@ def get_session_num_or_die(host, login, password):
 
 
 def add_record(host, session, d_type, name, value):
-	print("Adding record to http://{}:4567/add with session {}".format(host, session))
+	sys.stderr.write("Adding record to http://{}:4567/add with session {}\n".format(host, session))
+	sys.stderr.flush()
 	ans = requests.post("http://{}:4567/add".format(host),
 						data = json.dumps({"type": d_type, "name": name, "value": value}),
 						cookies = {"session": session},
@@ -72,7 +74,8 @@ def add_record(host, session, d_type, name, value):
 	return answer_hash['id']
 
 def del_record(host, session, d_id):
-	print("Deleting record from http://{}:4567/delete".format(host))
+	sys.stderr.write("Deleting record from http://{}:4567/delete\n".format(host))
+	sys.stderr.flush()
 	ans = requests.post("http://{}:4567/delete".format(host),
 						data = json.dumps({"id": d_id}),
 						cookies={"session": session},
@@ -94,7 +97,7 @@ def check(host):
 
 	register_or_die(host, user, password)
 	session = get_session_num_or_die(host, user, password)
-	print "'"+session+"'"
+
 	m = re.match(r"team\d+", host)
 	if m:
 		teamN = m.group(0)
@@ -107,20 +110,25 @@ def check(host):
 	record_id = add_record(host, session, "A", record_name, ip_value)
 
 	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
+	if ans.status_code != 200:
+		sys.exit(DOWN)
+
 	html = ans.content
-	if not re.match(sub_domain, html):
+	#
+	sys.stderr.flush()
+	if not re.search(sub_domain, html):
 		print "Added record not shown"
 		sys.exit(CORRUPT)
 
 	ans = requests.get("http://{}:4567/show{}".format(host, record_id), cookies = {"session": session})
-	if ans.code != 200:
+	if ans.status_code != 200:
 		print "Added record not shown by id!"
 		sys.exit(CORRUPT)
 
 	del_record(host, session, record_id)
 	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
 	html = ans.content
-	if re.match(sub_domain, html):
+	if re.search(sub_domain, html):
 		print "Deleted record is still shown!"
 		sys.exit(CORRUPT)
 
@@ -152,9 +160,14 @@ def get(host, flag_id, flag):
 		teamN = "team" + host.split('.')[2]
 		resolver.nameservers = [host]
 	flag2 = ''
+	#sys.stderr.write(resolver.nameservers[0])
 	for rdata in resolver.query("{}.{}.ructf".format(gen_another_secret_hash(flag_id), teamN), "TXT"):
-		flag2 = rdata
+		flag2 = re.sub('"', '', str(rdata), 2)
+		#sys.stderr.write("Got: {}\n".format(rdata))
+		#sys.stderr.flush()
 		if flag2 != flag:
+			#sys.stderr.write("Got another flag: '{}' VS '{}' \n".format(flag2, flag))
+			#sys.stderr.flush()
 			sys.exit(CORRUPT)
 	sys.exit(OK)
 

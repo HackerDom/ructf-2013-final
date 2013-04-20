@@ -16,4 +16,13 @@
   % }
 % end
 
-index
+<img src="/all.png" class="img-rounded about-img" usemap="#m">
+<map id="m" name="m">
+  <area href="<%= "http://ses.$domain" %>" shape="rect" coords="20,30,332,196">
+  <area href="<%= "http://queue.$domain" %>" shape="rect" coords="359,21,641,196">
+  <area href="<%= "http://mr.$domain" %>" shape="rect" coords="669,27,926,167">
+  <area href="<%= "http://ips.$domain" %>" shape="rect" coords="150 210 463 314">
+  <area href="<%= "http://dns.$domain" %>" shape="rect" coords="709,200,921,388">
+  <area href="<%= "http://db.$domain" %>" shape="rect" coords="32,334,306,506">
+  <area href="<%= "http://scripts.$domain" %>" shape="rect" coords="464,328,668,481">
+</map>

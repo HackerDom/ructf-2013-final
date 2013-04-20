@@ -4,10 +4,11 @@ $(document).ready(Load_Visual_Data);
 var fadeOffTime = 4;
 var roundInc = 0.2;
 var timeout = 200;
+var url = "http://172.16.16.100:3001/attacks";
 
 function Load_Visual_Data() {
     $.ajaxSetup({ cache: false });  // Is it good? - It is!
-    $.getJSON("json/ructfe.json", init);
+    $.getJSON(url, init);
 }
 
 function idToInd( id )

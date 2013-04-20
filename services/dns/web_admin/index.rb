@@ -159,11 +159,13 @@ post '/:action' do
 
   h = {'code' => 'ERROR', 'why' => '42'}.to_json
 
-  if request.cookies['session'] != nil
+  ses = request.cookies['session']
+  if ses != nil
     r_host = request.host
-    puts "DEBUG: host = #{r_host}\ncookie = #{request.cookies['session']}"
+    ses.gsub!('"', '')
+    puts "DEBUG: host = #{r_host}\ncookie = #{ses}"
     teamN = r_host[/team\d+/]
-    payload = {'session' => request.cookies['session']}.to_json
+    payload = {'session' => ses}.to_json
     puts payload
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload

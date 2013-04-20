@@ -5,6 +5,7 @@
     <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="js/scripts.js"></script>
     <script type="text/javascript" src="countdown/countdown.js"></script>
+    <script type="text/javascript" src="js/timer.js"></script>
     <title>RuCTF 2013 - Обратный отсчет</title>
   </head>
   <body onload="parse_emails()">
@@ -28,14 +29,18 @@
                 Обратный отсчет
               </h1>
 
-              <div class="inner_container">
-              <script type="text/javascript">
-                
-                $.get('http://172.16.16.100:3001/time_left', function(data) {
-                alert(data);
-                });
-              
-              </script>  
+              <div style="float: left; width: 48%;">
+                <h2 style="text-align:center;">Основное время</h2>
+                <div id="countdown-main" style="width: 300px; margin: 0 auto;"></div>
+              </div>
+
+              <div style="float: right; width: 48%;">
+                <h2 style="text-align:center;">Дополнительное время</h2>
+                <div id="countdown-extra" style="width: 300px; margin: 0 auto;"></div>
+              </div>
+
+              <div id="countdown-status" style="display:none;">
+                <h2 style="text-align:center;">Игра окончена!</h2>
               </div>
 
             </td>
