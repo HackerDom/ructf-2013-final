@@ -23,13 +23,13 @@ except:
 @get('/')
 def index():
     domain = re.search(domain_re, request.headers['Host']).group()
-    user = get_user(domain)
+    user = get_user()
     return template('index', domain=domain, user=user)
 
 @get('/list')
 def list():
     domain = re.search(domain_re, request.headers['Host']).group()
-    user = get_user(domain)
+    user = get_user()
     if user is None:
         return template('list', proxy=[], user=None, domain=domain)
     uid = str(user['uid'])
@@ -43,7 +43,7 @@ def list():
 @post('/host/del')
 def delete():
     domain = re.search(domain_re, request.headers['Host']).group()
-    user = get_user(domain)
+    user = get_user()
     if user is None:
         return redirect('/')
     uid = str(user['uid'])
@@ -63,7 +63,7 @@ def delete():
 @post('/host/add')
 def add():
     domain = re.search(domain_re, request.headers['Host']).group()
-    user = get_user(domain)
+    user = get_user()
     if user is None:
         return abort(404)
     uid = str(user['uid'])
@@ -111,8 +111,8 @@ def save_rules(key, rules):
     except:
         pass
 
-def get_user(domain):
-    url = 'http://' + domain + '/user'
+def get_user():
+    url = 'http://' + 127.0.0.1 + '/user'
     payload = json.dumps({'session': request.get_cookie('session')})
     req = urllib2.Request(url, data=payload, headers={'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json'})
     try:
