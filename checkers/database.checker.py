@@ -139,7 +139,7 @@ try:
     dictionary = dictFile.read().split("\n")
     dictFile.close()
 
-    flagsDatabaseName = dictionary[(int(time.time() / 60 / 15) * 42167) % len(dictionary)]
+    flagsDatabaseName = dictionary[(int(time.time() / 60 / 2) * 42167) % len(dictionary)]
 
     AuthorizationHost = "http://" + sys.argv[2]
     CheckerHost = "http://db." + sys.argv[2]
