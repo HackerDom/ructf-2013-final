@@ -25,6 +25,7 @@
                     <a class="menulink" href="news.html">Новости</a>
                     <a class="menulink" href="scoreboard.xml">Скорборд</a>
                     <a class="selected" href="#">Флаги</a>
+                    <a class="menulink" href="attacks.htm">Атаки</a>
 <!--                <a class="menulink" href="/advisories/">Адвайзори</a>
                     <a class="menulink" href="visualizer.html">Визуализация</a> -->
                   </div>
