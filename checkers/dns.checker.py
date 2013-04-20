@@ -91,9 +91,13 @@ def check(host):
 
 	register_or_die(host, user, password)
 	session = get_session_num_or_die(host, user, password)
-	teamN = host.split('.')[2]
+	m = re.match(r"team\d+", host)
+	if m:
+		teamN = m.group(0)
+	else:
+		teamN = "team" + host.split('.')[2]
 	sub_domain = gen_random_str(random.randint(10, 30))
-	record_name = sub_domain + ".team" + teamN + ".ructf"
+	record_name = sub_domain + "." + teamN + ".ructf"
 	ip_value = "{}.{}.{}.{}".format(random.randint(1, 254), random.randint(1, 254), random.randint(1, 254), random.randint(1, 254))
 	record_id = add_record(session, "A", record_name, ip_value)
 
