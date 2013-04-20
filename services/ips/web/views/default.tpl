@@ -6,7 +6,7 @@
     <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
     <link href="/static/css/style.css" rel="stylesheet">
   </head>
-  <body>
+  <body class="ips">
     <div class="page">
     <div id="wrap">
       <div class="navbar navbar-fixed-top">

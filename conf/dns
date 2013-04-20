@@ -7,7 +7,7 @@
 
 depend() {
         use logger
-        need net
+        need net mysql_dns
 }
 
 PIDFILE="/var/run/${SVCNAME}.pid"
