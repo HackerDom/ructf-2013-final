@@ -32,7 +32,7 @@ function link_to(service) {
 function replace_urls() {
     $('a.brand').attr('href', 'http://' + base_domain());
     $('.navbar ul.nav li:nth-child(1) a').attr('href', link_to('ses'));
-    $('.navbar ul.nav li:nth-child(2) a').attr('href', link_to('mp'));
+    $('.navbar ul.nav li:nth-child(2) a').attr('href', link_to('mr'));
     $('.navbar ul.nav li:nth-child(3) a').attr('href', link_to('db'));
     $('.navbar ul.nav li:nth-child(4) a').attr('href', link_to('queue'));
     $('.navbar ul.nav li:nth-child(5) a').attr('href', link_to('dns'));

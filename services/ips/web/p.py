@@ -27,9 +27,7 @@ for uid in d.keys():
         (src_port, dst_host, dst_port) = key.split('-')
         p = subprocess.Popen([command, src_port, dst_host, dst_port, "./rules/" + key])
         u[key] = p.pid
-        d[uid] = u        
-
-p = subprocess.Popen([command, src_port, dst_host, dst_port, "./rules/" + key])
+        d[uid] = u
 
 @get('/')
 def index():
