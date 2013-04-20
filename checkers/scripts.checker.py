@@ -27,7 +27,7 @@ def register_or_die(host, login, password):
   r = requests.post(url,
                     data=json.dumps({"login": login, "first_name": login, "last_name": login, "password": password, "language": "en"}),
                     headers=headers)
-  if r.status_code == 500:
+  if r.status_code in [403, 404, 500]:
     sys.stderr.write("Status code %d" % r.status_code)
     print("Failed to register the user in the user service: %s" % login)
     sys.exit(DOWN)
@@ -94,8 +94,8 @@ def check(host):
   url = "http://%s/scripts.php" % host
   sys.stderr.write("Open %s..\n" % url)
   r = requests.post(url)
-  if r.status_code == 500:
-    sys.stdout.write("Can't open %s, status code 500\n" % url)
+  if r.status_code in [403, 404, 500]:
+    sys.stdout.write("Can't open %s, status code 403, 404 or 500\n" % url)
     sys.exit(DOWN)
   if r.status_code != 200:
     sys.stdout.write("Can't open %s, status code %d\n" % (url, r.status_code))
@@ -117,7 +117,7 @@ def put(host, flag_id, flag):
 
   if r.status_code != 200:
     sys.stderr.write("Status code = %d" % r.status_code)
-    sys.exit(DOWN if r.status_code == 500 else MUMBLE)
+    sys.exit(DOWN if r.status_code in [403, 404, 500] else MUMBLE)
 
   print("%s %s %s %s" % (login, password, session, name))
 
@@ -134,7 +134,7 @@ def get(host, flag_id, flag):
 
   if r.status_code != 200:
     sys.stderr.write("Status code = %d\n" % r.status_code)
-    sys.exit(DOWN if r.status_code == 500 else MUMBLE)
+    sys.exit(DOWN if r.status_code in [403, 404, 500] else MUMBLE)
 
   sys.stderr.write(str(r.json) + "\n")
   if 'scripts' not in r.json:
