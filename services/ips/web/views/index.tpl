@@ -5,11 +5,7 @@
 <div class="tab-content">
     <div class="central">
         <div class="about">
-            testsdf dsf df sdf 
-            testsdaf sadf er
-            testewr awer asdf As
-            test dsaf afd daf 
-            test few fa sdf asdf asdg asdf
+            IPS service admin page
         </div>
         <img src="/static/pic/ips.png" class="img-rounded about-img">
     </div>
