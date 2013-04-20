@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 LD_LIBRARY_PATH="./lib:${LD_LIBRARY_PATH}"
 exec ./Database -d
