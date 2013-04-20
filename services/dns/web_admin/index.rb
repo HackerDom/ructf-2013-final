@@ -164,6 +164,7 @@ post '/:action' do
     puts "DEBUG: host = #{r_host}\ncookie = #{request.cookies['session']}"
     teamN = r_host[/team\d+/]
     payload = {'session' => request.cookies['session']}.to_json
+    puts payload
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
     response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }

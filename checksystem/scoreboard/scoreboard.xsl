@@ -28,7 +28,6 @@
                     <a class="menulink" href="flags.xml">Флаги</a>
                     <a class="menulink" href="attacks.html">Атаки</a>
                     <a class="menulink" href="countdown.html">Обратный отсчет</a>
-<!--                <a class="menulink" href="/advisories/">Адвайзори</a> -->
                   </div>
 
                   <div style="text-align:right">
