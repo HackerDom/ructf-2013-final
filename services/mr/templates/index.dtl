@@ -19,7 +19,7 @@
     </script>
 
 </head>
-<body>
+<body class="mr">
 <div class="page">
     <div id="wrap">
         <div class="navbar navbar-fixed-top">
@@ -59,15 +59,27 @@
                     <li><a href="/upload">Upload</a></li>
 					<li><a href="/exec">Execute</a></li>
 					<li><a href="/examples">Examples</a></li>
+					<li class="active"><a href="/index">About</a></li>
                 {% endblock %}
                 </ul>
                 <div class="tab-content">
 					{% block content %}
-                    <div class="mr-upload">
-                        <input type="text" placeholder="Name">
-                        <textarea placeholder="Code" rows="10"></textarea>
-                        <a class="btn btn-success" href="/register">Submit</a>
-                    </div>
+                        <div class="about-main">
+                            Что такое mapreduce все и так знают, так что вот вам стишок:
+                            Ты видел деву на скале
+                            В одежде белой над волнами,
+                            Когда, бушуя в бурной мгле,
+                            Играло море с берегами,
+                            Когда луч молний озарял
+                            Ее всечасно блеском алым
+                            И ветер бился и летал
+                            С ее летучим покрывалом?
+                            Прекрасно море в бурной мгле
+                            И небо в блесках без лазури;
+                            Но верь мне: дева на скале
+                            Прекрасней волн, небес и бури.
+                        </div>
+                        <img src="pic/map_reduce.jpg" class="img-rounded central-img">
 					{% endblock %}
                 </div>
             </div>

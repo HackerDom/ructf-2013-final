@@ -1,6 +1,13 @@
 {% extends "index.dtl" %}
 {% block title %} Error {% endblock %}
 
+{% block links %}
+	<li><a href="/upload">Upload</a></li>
+	<li><a href="/exec">Execute</a></li>
+	<li><a href="/examples">Examples</a></li>
+    <li><a href="/index">About</a></li>
+{% endblock %}
+
 {% block content %}
 <div class="alert alert-sucess">
 Error: {{msg}}, code: {{code}}
