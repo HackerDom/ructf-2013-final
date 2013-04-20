@@ -94,6 +94,7 @@ def check(host):
 
 	register_or_die(host, user, password)
 	session = get_session_num_or_die(host, user, password)
+	print "'"+session+"'"
 	m = re.match(r"team\d+", host)
 	if m:
 		teamN = m.group(0)
