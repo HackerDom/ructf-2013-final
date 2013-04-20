@@ -27,8 +27,7 @@
                     <a class="selected" href="#">Скорборд</a>
                     <a class="menulink" href="flags.xml">Флаги</a>
                     <a class="menulink" href="attacks.html">Атаки</a>
-<!--                <a class="menulink" href="/advisories/">Адвайзори</a> 
-                    <a class="menulink" href="visualizer.html">Визуализация</a> -->
+                    <a class="menulink" href="countdown.html">Обратный отсчет</a>
                   </div>
 
                   <div style="text-align:right">
