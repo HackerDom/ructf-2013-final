@@ -104,9 +104,9 @@ def api_add():
         return json.dumps({'status': "FAIL"})
     uid = str(user['uid'])
     body = json.load(request.body)
-    src_port = body.src_port
-    dst_host = body.dst_host
-    dst_port = body.dst_port
+    src_port = body["src_port"]
+    dst_host = body["dst_host"]
+    dst_port = body["dst_port"]
     try:
         if src_port < 60000 or src_port > 65535:
             return json.dumps({'status': "FAIL"})
@@ -114,7 +114,9 @@ def api_add():
             return json.dumps({'status': "FAIL"})
     except:
         return json.dumps({'status': "FAIL"})
-    rules = body.rules
+    src_port = str(src_port)
+    dst_port = str(dst_port)
+    rules = body["rules"]
     if src_port and dst_port and dst_port:
         key = '-'.join([src_port, dst_host, dst_port])
         if d.has_key(uid):
