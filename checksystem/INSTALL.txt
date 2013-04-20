@@ -34,3 +34,8 @@ service postgresql restart
 
 cd db && ./init-db.sh db.config && make main-db
 
+4. WEB INSTALL
+--------------
+
+sudo apt-get install lighttpd
+sudo ln -s /home/user/git/ructf2013-final/checksystem/scoreboard /var/www/checksystem
