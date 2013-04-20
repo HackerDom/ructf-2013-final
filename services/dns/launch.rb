@@ -23,24 +23,27 @@ YourZone::run_server do
 	
 	match(/(\w+)\.team(\d+)\.ructf/, IN::TXT) do |transaction, md|
 		sub_domain = md[1]
-		N = md[2]
+		N = md[2].to_i
 
 		# debug line
 		puts "Asked TXT of subdomain #{sub_domain} for team #{N}. My team is #{team_n}"
 
 		if N != team_n
+			puts "not my team"
 			transaction.failure!(:NXDomain)
 		else
+			puts "Answering"
 			res = dbh.query("Select dvalue from records where dtype = 'TXT' and dkey = '#{sub_domain}'")
 			
 			if res.num_rows > 0
+				puts "Answering from DB"
 				res.each do |row|
 					cache[sub_domain] = [row[0], TTL]
 					transaction.respond!(row[0])
 				end
 			elsif cache.has_key?(sub_domain)
 				record = cache[sub_domain]
-
+				puts "Answering from cache"
 				if record[0] + TTL >= Time.new.to_i
 					transaction.respond!(record[1])
 				else
@@ -48,6 +51,7 @@ YourZone::run_server do
 					transaction.failure!(:NXDomain)
 				end
 			else
+				puts "Answer not found"
 				transaction.failure!(:NXDomain)
 			end
 		end
