@@ -183,6 +183,8 @@ if __name__ == "__main__":
 			get(args[1], args[2], args[3])
 		else:
 			raise Exception("Wrong arguments")
+	except dns.resolver.NXDOMAIN as E:
+		sys.exit(CORRUPT)
 	except Exception as E:
 		sys.stderr.write("{}\n".format(E))
 		sys.exit(CHECKER_ERROR)
