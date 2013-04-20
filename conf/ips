@@ -27,5 +27,6 @@ stop() {
         ebegin "Stopping ${SVCNAME}"
         start-stop-daemon --stop --exec "${BINARY}" \
             --interpreted --pidfile "${PIDFILE}" --user "${USER}" --quiet
-        eend $?
+	killall -9 -u ips
+        eend 0
 }
