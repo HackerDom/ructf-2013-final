@@ -8,6 +8,7 @@ import sha
 import re
 import json
 import socket
+import time
 
 # Error codes
 OK = 101
@@ -147,6 +148,7 @@ def put(host, flag_id, flag):
 	else:
 		teamN = "team" + host.split('.')[2]
 	add_record(host, session, "TXT", "{}.{}.ructf".format(gen_another_secret_hash(flag_id), teamN), flag)
+	time.sleep(1)
 	sys.exit(OK)
 
 
