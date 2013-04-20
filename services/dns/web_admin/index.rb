@@ -30,10 +30,12 @@ r_has_records = false
 dbh = Mysql.real_connect(nil, "root", nil, "dns", nil, "/home/dns/mysql/mysql.sock")
 
 get '/add' do
-  if request.cookies['session'] != nil
+  ses = request.cookies['session']
+  if ses != nil
     r_host = request.host
+    ses.gsub!('"', '')
     teamN = r_host[/team\d+/]
-    payload = {'session' => request.cookies['session']}.to_json
+    payload = {'session' => ses}.to_json
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
     response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
@@ -74,9 +76,11 @@ get "/show:id" do
 end
 
 get "/index.html" do
-  r_host = request.host
-  teamN = r_host[/team\d+/]
-  if request.cookies['session'] != nil
+  ses = request.cookies['session']
+  if ses != nil
+    r_host = request.host
+    ses.gsub!('"', '')
+    teamN = r_host[/team\d+/]
     payload = {'session' => request.cookies['session']}.to_json
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
@@ -101,8 +105,10 @@ get "/index.html" do
 end
 
 get %r{/(show)?} do
-  if request.cookies['session'] != nil
+  ses = request.cookies['session']
+  if ses != nil
     r_host = request.host
+    ses.gsub!('"', '')
     teamN = r_host[/team\d+/]
     payload = {'session' => request.cookies['session']}.to_json
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
