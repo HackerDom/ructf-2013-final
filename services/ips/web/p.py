@@ -57,13 +57,12 @@ def list():
 
 @post('/api_del')
 def api_delete():
-    return json.dumps({'status': "QQQ"})
     user = get_user()
     if user is None:
         return json.dumps({'status': "FAIL"})
     uid = str(user['uid'])
     body = json.load(request.body)
-    key = '-'.join([body.src_port, body.dst_host, body.dst_port])
+    key = '-'.join([str(body["src_port"]), body["dst_host"], str(body["dst_port"])])
     if d.has_key(uid):
         u = d[uid]
         if key in u:
@@ -74,6 +73,8 @@ def api_delete():
                 pass
             del u[key]
             d[uid] = u
+        else:   
+            return json.dumps({'status': "FAIL"})    
     return json.dumps({'status': "OK"})
 
 @post('/host/del')
