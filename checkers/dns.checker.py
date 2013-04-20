@@ -63,7 +63,7 @@ def add_record(host, session, d_type, name, value):
 		print("Failed to add record - service returned not 200: %d" % ans.status_code)
 		sys.exit(DOWN)
 
-	answer_hash = ans.json()
+	answer_hash = json.loads(ans.text)
 
 	if answer_hash['code'] != "OK":
 		print("Failed to add record: {0}".format(answer_hash['why']))
@@ -79,7 +79,7 @@ def del_record(host, session, d_id):
 		print("Failed to add record - service returned not 200: %d" % ans.status_code)
 		sys.exit(DOWN)
 
-	answer_hash = ans.json()
+	answer_hash = json.loads(ans.text)
 
 	if answer_hash['code'] != "OK":
 		print("Failed to add record: {0}".format(answer_hash['why']))
