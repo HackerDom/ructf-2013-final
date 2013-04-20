@@ -119,12 +119,12 @@ def put(host, flag_id, flag):
     sys.stderr.write("Status code = %d" % r.status_code)
     sys.exit(DOWN if r.status_code in [403, 404, 500] else MUMBLE)
 
-  print("%s %s %s" % (login, password, name))
+  print("%s!%s!%s" % (login, password, name))
 
   sys.exit(OK)
 
 def get(host, flag_id, flag):
-  login, password, name = flag_id.split()
+  login, password, name = flag_id.split('!')
   session = login_or_die(host, login, password)
 
   host = "scripts." + host
