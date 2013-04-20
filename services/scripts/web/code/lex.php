@@ -125,7 +125,6 @@ function next_lexem(&$string)
     return $const_lexems[$lexem];
   }
 
-  // TODO move to function get_piece_by_function(ctype_digit|ctype_alpha)
   if (ctype_digit($string[0]))
   {
     global $lexem_value;
@@ -215,8 +214,6 @@ function opcode($name)
 {
   global $opcodes;
   $args = array_slice(func_get_args(), 1);
-#  echo "OPCODE $name\n";
-#  print_r($args);
   if (! in_array($name, $opcodes))
     throw new Exception('Internal error: invalid opcode: '.$name);
   foreach ($args as &$arg)
@@ -480,7 +477,6 @@ function read_statement(&$string)
           $to = read_expression($string);
 
           $block = read_block($string);
-          /* TODO optimize substr_count */
           $block_len = substr_count($block['code'], "\n");
           $to_len = substr_count($to['code'], "\n");
 
