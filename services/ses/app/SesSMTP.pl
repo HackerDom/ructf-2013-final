@@ -41,7 +41,13 @@ threads->create(\&queue_processor)->detach();
 
 while (my $c = $s->accept) {
     printf "Client connected: %s:%s\n", $c->sockhost(), $c->sockport();
-    threads->create(\&process_client, $c)->detach();
+    my $pid = fork();
+    defined $pid or die "Error: fork() failed: $!\n";
+    if ($pid==0) {
+        print "Child started: $$\n";
+        process_client($c);
+        exit 0;
+    }
 }
 
 print "This should never happen\n";
