@@ -79,7 +79,7 @@
                             Но верь мне: дева на скале
                             Прекрасней волн, небес и бури.
                         </div>
-                        <img src="pic/map_reduce.jpg" class="img-rounded central-img">
+                        <img src="/static/pic/map_reduce.jpg" class="img-rounded central-img">
 					{% endblock %}
                 </div>
             </div>
