@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 
 import sys
 import requests
@@ -109,22 +109,24 @@ def check(host):
 	record_id = add_record(host, session, "A", record_name, ip_value)
 
 	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
+	if ans.status_code != 200:
+		sys.exit(DOWN)
+
 	html = ans.content
-	sys.stderr.write(ans.code + html)
 	sys.stderr.flush()
-	if not re.match(sub_domain, html):
+	if not re.search(sub_domain, html):
 		print "Added record not shown"
 		sys.exit(CORRUPT)
 
 	ans = requests.get("http://{}:4567/show{}".format(host, record_id), cookies = {"session": session})
-	if ans.code != 200:
+	if ans.status_code != 200:
 		print "Added record not shown by id!"
 		sys.exit(CORRUPT)
 
 	del_record(host, session, record_id)
 	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
 	html = ans.content
-	if re.match(sub_domain, html):
+	if re.search(sub_domain, html):
 		print "Deleted record is still shown!"
 		sys.exit(CORRUPT)
 
