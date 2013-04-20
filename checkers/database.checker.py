@@ -124,7 +124,7 @@ def Authorize(host, login, password):
             if registerResponse["status"] != "OK":
                 sys.stderr.write("Login system corrupted" + "\n")
                 exit(110)
-            response = urllib.request.urlopen(request).readall()
+            response = json.loads(urllib.request.urlopen(request).readall().decode('ascii'))
             sys.stderr.write("Tried to authorize again, got this response:" + "\n")
             sys.stderr.write(str(response) + "\n")
         else:
