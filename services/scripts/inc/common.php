@@ -9,13 +9,13 @@ function error($error_msg)
 function check_args($args)
 {
   $data = file_get_contents("php://input");
-  if ($data != '')
+  if ($data != '' && json_decode($data))
   {
     $params = json_decode($data, true); 
-    print_r($params);
   }
   else
-    $params = array_merge($_GET, $_COOKIE);
+    $params = $_POST;
+  $params = array_merge($params, $_COOKIE);
   $result = array();
   foreach ($args as $arg)
   {

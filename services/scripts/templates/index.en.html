@@ -34,41 +34,18 @@
         <div id="content">
             <div class="container">
                 <div class="header-main">ScriptAPI</div>
-                <hr>
-                <ul class="nav nav-pills">
-                    <li class="active">
-                        <a href="/create.php">New script</a>
-                    </li>
-                    <li>
-                        <a href="/scripts.php">Saved scripts</a>
-                    </li>
-                </ul>
                 <div class="tab-content">
-                  <form action="" method="POST">
-                    <div class="row">
-                      <div class="span6 controls">
-                        <input type="text" name="name" class="span6" placeholder="Name" value="<?php echo isset($name) ? $name : ''; ?>">
-                      </div>
-                    </div>  
-                    <div class="row">
-                      <div class="span6 controls">
-                        <textarea rows=16 class="span6" name="code" placeholder="Your script here.."><?php echo isset($code) ? $code : ''; ?></textarea>
-                      </div>
+                    <div class="central">
+                        <div class="about">
+                          Исполнение кода всегда было уделом сильных, синонимом власти и богатства.
+                        </div>
+                        <div class="about">
+                          Почувствуйте себя Богами &mdash; используйте открытые API для построения
+                          своих собственных приложений.
+                        </div>
+                        <img src="/static/pic/scripts.png" class="img-rounded about-img">
                     </div>
-                    <?php if (isset($error)) { ?>
-                    <div class="row">
-                      <div class="span6 controls">
-                        <div class="alert alert-danger"><?php echo $error; ?></div>
-                      </div>
-                    </div> 
-                    <?php } ?>
-                    <div class="row">
-                      <div class="span6 controls">
-                        <button class="btn btn-large btn-block" type="submit" name="save">Save code</button>
-                      </div>
-                    </div>
-                 </form>
-               </div>
+                </div>
             </div>
         </div>
     </div>

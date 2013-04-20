@@ -2,6 +2,8 @@
   require_once 'inc/db.php';
   require_once 'inc/common.php';
   require_once 'inc/users.php';
+  require_once 'inc/i18n.php';
+  require_once 'code/lex.php';
 
   if (array_key_exists('save', $_POST))
   {
@@ -16,11 +18,32 @@
     $user_info = user_info($params['session']);
     $uid = $user_info['uid'];
     $name = addslashes($params['name']);
-    $code = addslashes($params['code']);
+    $code = $params['code'];
+    try
+    {
+      $code = compile($code);
+    }
+    catch (Exception $e)
+    {
+      $error = $e->getMessage();
+    }
   
-    $query = "INSERT INTO scripts (uid, name, code) VALUES ('$uid', '$name', '$code')";
-    mysql_query($query);
+    if (! isset($error))
+    {
+      $query = "INSERT INTO scripts (uid, name, script) VALUES ('$uid', '$name', '$code')";
+      mysql_query($query);
+      $name = '';
+      $code = '';
+      header('Location: scripts.php');
+    }
   }
 
-  include 'templates/create.en.html';
+  if (array_key_exists('session', $_COOKIE) && is_logon($_COOKIE['session']))
+  {
+    i18n_template('create');
+  }
+  else
+  {
+    i18n_template('index');
+  }
 ?>

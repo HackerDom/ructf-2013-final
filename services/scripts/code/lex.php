@@ -11,9 +11,14 @@ $lexems = array('L_ASSIGN',
 $const_lexems = array();
 
 $keywords = array('if', 'then', 'else', 'for', 'end', 'from', 'to');
-$whitespaces = array(' ', '\n', '\r', '\t');
+$whitespaces = array(' ', "\n", "\r", "\t");
 $functions = array('input', 'print');
-$opcodes = array('store', 'copy', 'call', 'add', 'sub', 'mul', 'div', 'and', 'or', 'xor', 'equal', 'less', 'greater', 'equal_less', 'equal_greater', 'not_equal', 'ifnot', 'jump');
+$services = array('ses' => array('identity.add' => array('email'), 'identity.list' => array(), 'identity.del' => array('id'),
+                                 'credentials.add' => array(), 'credentials.list' => array(), 'credentials.del' => array('id'),
+                                 'mail.send' => array('from', 'to', 'subject', 'message'),
+                                 'stats' => array(), 'error' => array('id'))
+                 );
+$opcodes = array('store', 'copy', 'call', 'add', 'sub', 'mul', 'div', 'and', 'or', 'xor', 'equal', 'less', 'greater', 'equal_less', 'equal_greater', 'not_equal', 'ifnot', 'jump', 'inc');
 
 $current_lexem = 0;
 $lexem_value = 0;
@@ -49,9 +54,22 @@ function init_keywords()
   }
 }
 
+function init_functions()
+{
+  global $services, $functions;
+  foreach ($services as $service => $service_functions)
+  {
+    foreach ($service_functions as $function => $params)
+    {
+      $functions[] = $service.'.'.$function;
+    }
+  }
+}
+
 init_lexems();
 init_const_lexems();
 init_keywords();
+init_functions();
 
 function hexToStr($hex)
 {
@@ -188,7 +206,7 @@ function opcode($name)
     throw new Exception('Internal error: invalid opcode: '.$name);
   foreach ($args as &$arg)
   {
-    if (! is_numeric($arg))
+    if ($arg[0] == '"')
       $arg = '0x'.strToHex($arg);
   }
   return array_search($name, $opcodes).' '.join(' ', $args)."\n";
@@ -217,7 +235,10 @@ function read_function_call(&$string)
   }
   $current_lexem = next_lexem($string);
   $new = new_memory();
-  $result = array('code' => $code.opcode('call', $function, join(' ', $params), $new), 'result' => $new);
+  if (sizeof($params) == 0)
+    $result = array('code' => $code.opcode('call', $function, $new), 'result' => $new);
+  else    
+    $result = array('code' => $code.opcode('call', $function, join(' ', $params), $new), 'result' => $new);
   return $result;
 }
 
@@ -452,9 +473,10 @@ function read_statement(&$string)
                   opcode('copy', $from['result'], $variable).
                   $to['code'].
                   opcode('equal_less', $variable, $to['result'], $compare).
-                  opcode('ifnot', $compare, ($block_len + 2)).
+                  opcode('ifnot', $compare, ($block_len + 3)).
                   $block['code'].
-                  opcode('jump', - ($block_len + $to_len + 2));
+                  opcode('inc', $variable).
+                  opcode('jump', - ($block_len + $to_len + 3));
 
           $result = array('code' => $code, 'result' => $compare);
           return $result;
@@ -498,5 +520,7 @@ function compile($program)
 
   return base64_encode(join("\n", $all)."\n".join('|', $code));
 }
+
+compile("a.a <- 1;\nprint(a);");
 
 ?>

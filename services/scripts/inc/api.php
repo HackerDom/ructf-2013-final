@@ -22,8 +22,7 @@ function api_request($service, $function, $params)
   $host = $_SERVER['HTTP_HOST'];
   if ($service != '')
     $service .= '.';
-  # TODO remove port!!!
-  $service_url = 'http://'.$service.join('.', array_slice(split('\.', $host), 1)).':8080/'.$function;
+  $service_url = 'http://'.$service.join('.', array_slice(split('\.', $host), 1)).'/'.$function;
   return request($service_url, $params);
 }
 

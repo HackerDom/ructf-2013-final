@@ -36,26 +36,41 @@
                 <div class="header-main">ScriptAPI</div>
                 <hr>
                 <ul class="nav nav-pills">
-                    <li class="active">
+                    <li>
                         <a href="/create.php">New script</a>
                     </li>
-                    <li>
-                        <a href="/scripts.php">Saved scripts</a>
+                    <li class="active">
+                        <a href="/codes.php">Saved scripts</a>
                     </li>
                 </ul>
                 <div class="tab-content">
-                  <form action="" method="POST">
-                    <div class="row">
-                      <div class="span6 controls">
-                        <input type="text" name="name" class="span6" placeholder="Name" value="<?php echo isset($name) ? $name : ''; ?>">
-                      </div>
-                    </div>  
-                    <div class="row">
-                      <div class="span6 controls">
-                        <textarea rows=16 class="span6" name="code" placeholder="Your script here.."><?php echo isset($code) ? $code : ''; ?></textarea>
-                      </div>
+                  <?php foreach ($user_codes as $user_code) { 
+                          $is_run = isset($code_id) && $code_id == $user_code['id']; ?>
+                  <div class="row">
+                    <div class="span6"><h4><?php echo htmlspecialchars($user_code['name']); ?></h4></div>
+                  </div>
+                  <div class="row">
+                    <div class="span6">
+                      <pre class="text-left"><?php echo htmlspecialchars($user_code['script']); ?></pre>
                     </div>
-                    <?php if (isset($error)) { ?>
+                  </div>
+                  <form action="" method="POST">
+                    <a id="code<?php echo $user_code['id']; ?>">
+                    <input type="hidden" name="code_id" value="<?php echo $user_code['id']; ?>">
+                    <div class="row">
+                      <div class="span6 controls">
+                        <textarea rows=4 class="span6" name="input" placeholder="Input for code"><?php echo $is_run && isset($input) ? $input : ''; ?></textarea>
+                      </div>
+                      <?php if ($is_run) { ?>
+                      <script>
+                        document.getElementById('code' + <?php echo $code_id; ?>).scrollIntoView();
+                      </script>
+                      <div class="span5 text-left">
+                        <div class="alert alert-info"><strong>Result:</strong><br><?php echo str_replace("\n", '<br>', htmlspecialchars($result)); ?></div>
+                      </div>
+                      <?php } ?>
+                    </div>
+                    <?php if ($is_run && isset($error)) { ?>
                     <div class="row">
                       <div class="span6 controls">
                         <div class="alert alert-danger"><?php echo $error; ?></div>
@@ -64,10 +79,12 @@
                     <?php } ?>
                     <div class="row">
                       <div class="span6 controls">
-                        <button class="btn btn-large btn-block" type="submit" name="save">Save code</button>
+                        <button class="btn btn-large btn-block" type="submit" name="Run">Run</button>
                       </div>
                     </div>
-                 </form>
+                  </form>
+                  <hr>
+                  <?php } ?>
                </div>
             </div>
         </div>
