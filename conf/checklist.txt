@@ -15,6 +15,7 @@ chmod +x /etc/init.d/database
 chmod +x /etc/init.d/mr
 chmod +x /etc/init.d/ses_http /etc/init.d/ses_smtp
 chmod +x /etc/init.d/dns
+chmod +x /etc/init.d/ips
 chmod +x /etc/init.d/queue /etc/init.d/queue_web
 
 rc-update add user
@@ -31,6 +32,8 @@ rc-update add dns
 rc-update add dns_web
 rc-update add mysql_dns
 
+rc-update add ips
+
 rc-update add queue
 rc-update add queue_web
 
@@ -41,7 +44,7 @@ rc-update add queue_web
 2.3) RUN_QUOTACHECK="no" в /etc/conf.d/quota
 2.4) edquota , limit 1000000, inode 100000
 2.5) quota user 2gb, rest 1gb
-2.6) quota user database mr ses dns proxy queue
+2.6) quota user database mr ses dns ips queue
 3) cgroups для каждого сервиса
 3.1) pam_cgroups в system-auth и start-stop-daemon
 3.1.1) session optional pam_cgroup.so
@@ -52,9 +55,9 @@ database(10001) Database API ? (umineko & krait, C++)
 mr(10002) MapReduce (Егор, erlang)
 ses(10003) Simple Email Service (dimmo, perl)
 dns(10004) Cache DNS (lena, ruby)
-proxy(10005) TCP Balancer (kost, C)
+ips(10005) TCP Balancer (kost, C)
 queue(10006) Message Queue (bay, rust)
-Script API (andgein, PHP)
+scripts(10007) Script API (andgein, PHP)
 
 5) права в /home
 chown -R user:user /home/user
@@ -62,7 +65,9 @@ chown -R database:database /home/database
 chown -R mr:mr /home/mr
 chown -R ses:ses /home/ses
 chown -R dns:dns /home/dns
+chown -R ips:ips /home/ips
 chown -R queue:queue /home/queue
+chown -R scripts:scripts /home/scripts
 
 6) nginx.conf
 6.1) /var/www/static
@@ -74,6 +79,8 @@ chown -R queue:queue /home/queue
 PORTDIR_OVERLAY="/var/lib/overlays/cpan/"
 
 8) dd if=/dev/zero of=/zero bs=1000000 count=6000
+
+9) grub-set-default 1
 
 ------------------------ SERVICE DEPLOYMENT ------------------------
 
@@ -104,6 +111,9 @@ su mr -s /bin/bash
 mysql_install_db --user=dns --datadir=/home/dns/mysql/db/ --skip-name-resolve --defaults-file=/home/dns/mysql/my.cnf
 
 mysql -S /home/dns/mysql/mysql.sock < /home/dns/web_admin/create.mysql
+
+
+=== ips service ===
 
 === queue service ===
 

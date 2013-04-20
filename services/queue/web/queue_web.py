@@ -58,7 +58,7 @@ def index():
     return redirect(url_for("list"))
 
 
-@app.route("/list/", methods=["GET", "POST"])
+@app.route("/list", methods=["GET", "POST"])
 def list():
     session = request.cookies.get("session", "none")
     login = get_login_by_session(session)
@@ -81,7 +81,7 @@ def list():
         return render_template("list.html", login=login, queues=queues)
 
 
-@app.route("/create/", methods=["POST"])
+@app.route("/create", methods=["POST"])
 def create():
     session = request.cookies.get("session", "none")
     login = get_login_by_session(session)
@@ -108,7 +108,7 @@ def create():
         return render_template("result.html", msg=result)
 
 
-@app.route("/delete/", methods=["POST"])
+@app.route("/delete", methods=["POST"])
 def delete():
     session = request.cookies.get("session", "none")
     login = get_login_by_session(session)
@@ -135,7 +135,7 @@ def delete():
         return render_template("result.html", msg=result)
 
 
-@app.route("/enqueue/", methods=["POST"])
+@app.route("/enqueue", methods=["POST"])
 def enqueue():
     session = request.cookies.get("session", "none")
     login = get_login_by_session(session)
@@ -167,7 +167,7 @@ def enqueue():
         return render_template("result.html", msg=result)
 
 
-@app.route("/dequeue/", methods=["POST"])
+@app.route("/dequeue", methods=["POST"])
 def dequeue():
     session = request.cookies.get("session", "none")
     login = get_login_by_session(session)

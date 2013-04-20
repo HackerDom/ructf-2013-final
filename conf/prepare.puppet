@@ -4,7 +4,10 @@
 file {'/etc/portage/package.accept_keywords':
      ensure  => present,
      content =>
-"#required by mongodb
+"
+sys-kernel/gentoo-sources ~x86
+
+#required by mongodb
 app-arch/snappy ~x86
 dev-db/mongodb ~x86
 dev-libs/boost ~x86

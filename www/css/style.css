@@ -573,11 +573,19 @@ option[disabled]{
     margin-bottom: 0;
 }
 
-
-
 .db-input > table {
     margin: 10px 200px 10px 40%;
 }
+
+#content > .container > .central > .db-about-main {
+	text-align: left;
+	width: 30%;
+}
+
+#content > .container > .central > .db-central-img {
+	margin-right: 10px;
+}
+
 .table-hd {
     background-color:  #373737;
     background-image: -moz-linear-gradient(top, #373737, #111111);
