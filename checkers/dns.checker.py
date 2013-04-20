@@ -55,7 +55,7 @@ def get_session_num_or_die(host, login, password):
 
 
 def add_record(host, session, d_type, name, value):
-	print("Adding record to http://{0}:4567/add".format(host))
+	print("Adding record to http://{0}:4567/add with session {}".format(host, session))
 	ans = requests.post("http://{0}:4567/add".format(host),
 						data = json.dumps({"type": d_type, "name": name, "value": value}),
 						cookies = {"session": session},
