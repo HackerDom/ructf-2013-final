@@ -5,7 +5,7 @@ Valid for: Ubuntu 12.04
 
 # Install Sun Java, PosgreSQL Server, PosgreSQL libs for perl, make
 
-apt-get install python-software-properties
+apt-get install python-software-properties software-properties-common
 add-apt-repository ppa:upubuntu-com/java
 apt-get update
 apt-get install oracle-java7-installer
@@ -34,3 +34,8 @@ service postgresql restart
 
 cd db && ./init-db.sh db.config && make main-db
 
+4. WEB INSTALL
+--------------
+
+sudo apt-get install lighttpd
+sudo ln -s /home/user/git/ructf2013-final/checksystem/scoreboard /var/www/checksystem

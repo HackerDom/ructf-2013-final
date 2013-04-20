@@ -1,5 +1,5 @@
 #!/bin/bash
-DBNAME=ructfetest
+DBNAME=ructf
 OUTDIR=/home/user/backup
 
 FNAME=$OUTDIR/`date +"%Y-%m-%d-%H%M%S".sql.gz`
