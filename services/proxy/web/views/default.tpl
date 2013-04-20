@@ -12,16 +12,16 @@
       <div class="navbar navbar-fixed-top">
         <div class="navbar-inner">
           <div class="container">
-            <a class="brand" href="#">RuCTF</a>
+            <a class="brand" href="http://{{domain}}/">RuCTF 2013</a>
             <div class="nav-collapse collapse">
               <ul class="nav">
-                <li><a href="http://ses">SES</a></li>
-                <li><a href="http://mp">MapReduce</a></li>
-                <li><a href="http://db">DB</a></li>
-                <li><a href="http://queue">MessageQueue</a></li>
-                <li><a href="http://dns">DNS</a></li>
-                <li class="active"><a href="http://ips">IPS</a></li>
-                <li><a href="http://scripts">ScriptAPI</a></li>
+                <li><a href="http://ses.{{domain}}/">SES</a></li>
+                <li><a href="http://mp.{{domain}}/">MapReduce</a></li>
+                <li><a href="http://db.{{domain}}/">DB</a></li>
+                <li><a href="http://queue.{{domain}}/">MessageQueue</a></li>
+                <li><a href="http://dns.{{domain}}/">DNS</a></li>
+                <li class="active"><a href="http://ips.{{domain}}/">IPS</a></li>
+                <li><a href="http://scripts.{{domain}}/">ScriptAPI</a></li>
               </ul>
               <div class="pull-right">
                 %x()

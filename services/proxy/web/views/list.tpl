@@ -1,14 +1,15 @@
 <ul class="nav nav-pills">
-    <li class="active"><a href="#">List</a></li>
+    <li class="active"><a href="#">Proxy</a></li>
     <li><a href="/about">About</a></li>
 </ul>
 <div class="tab-content">
     <form action="/host/add" method="POST">
         <fieldset>
-            <input type="text" name="src_port" placeholder="Source port">
+            <input type="text" name="src_port" placeholder="Source port (>= 60000)">
             <input type="text" name="dst_host" placeholder="Destination host">
             <input type="text" name="dst_port" placeholder="Destination port">
-            <input class="btn" type="submit" value="Add host">
+            <textarea rows="5" name="rules" placeholder="Rules (one line one rule)"></textarea>
+            <input class="btn" type="submit" value="Create proxy instance">
         </fieldset>
     </form>
     <table class="table table-striped table-hover table-bordered">
@@ -29,7 +30,7 @@
                         <td>{{src_port}}</td>
                         <td>{{dst_host}}</td>
                         <td>{{dst_port}}</td>
-                        <td><input class="btn" type="submit" value="-"></td>
+                        <td><input class="btn" type="submit" value="&nbsp;-&nbsp;"></td>
                     </form>
                 </tr>
             % end
@@ -45,4 +46,4 @@
     <a href="#" class="name">{{user['first_name'] + ' ' + user['last_name']}}</a>
     <a href="http://{{domain}}/logout" class="btn btn-delete">Logout</a>
 % end
-%rebase default title='List', x = b2 if user else b1
+%rebase default title='List', x = b2 if user else b1, domain=domain
