@@ -16,7 +16,12 @@ $functions = array('input', 'print');
 $services = array('ses' => array('identity.add' => array('email'), 'identity.list' => array(), 'identity.del' => array('id'),
                                  'credentials.add' => array(), 'credentials.list' => array(), 'credentials.del' => array('id'),
                                  'mail.send' => array('from', 'to', 'subject', 'message'),
-                                 'stats' => array(), 'error' => array('id'))
+                                 'stats' => array(), 'error' => array('id')),
+                  'mr' => array('upload' => array('name', 'code'), 'exec' => array('name', 'data')),
+                  'db' => array('' => array('query')),
+                  'queue' => array('list' => array(), 'create' => array('queue_name'), 'delete' => array('queue_name'),
+                                   'enqueue' => array('queue_name', 'val'), 'dequeue' => array('queue_name')),
+                  'dns' => array('add' => array('type', 'name', 'value'), 'delete' => array('id'))
                  );
 $opcodes = array('store', 'copy', 'call', 'add', 'sub', 'mul', 'div', 'and', 'or', 'xor', 'equal', 'less', 'greater', 'equal_less', 'equal_greater', 'not_equal', 'ifnot', 'jump', 'inc');
 
@@ -35,7 +40,6 @@ function init_lexems()
 
 function init_const_lexems()
 {
-  // TODO move $const_lexems to up with string constants
   global $const_lexems;
   $const_lexems = array('<-' => L_ASSIGN,
                         '=' => L_EQUAL, '<' => L_LESS, '>' => L_GREATER, '<=' => L_EQUAL_LESS, '>=' => L_EQUAL_GREATER, '!=' => L_NOT_EQUAL,
@@ -61,7 +65,7 @@ function init_functions()
   {
     foreach ($service_functions as $function => $params)
     {
-      $functions[] = $service.'.'.$function;
+      $functions[] = $service.($function == '' ? '' : '.'.$function);
     }
   }
 }
@@ -161,15 +165,23 @@ function next_lexem(&$string)
     global $lexem_value;
     $idx = 1;
     $len = strlen($string);
+    $lexem_value = '';
     while ($idx < $len)
     {
       if ($string[$idx] == '\\')
       {
+/*
+        if ($string[$idx + 1] == 'n')
+          $lexem_value .= "\n";
+        else
+          $lexem_value .= $string[$idx + 1];
+*/
         $idx += 1;
         continue;
       }
       if ($string[$idx] == '"')
         break;
+#      $lexem_value .= $string[$idx];
       ++$idx;
     }
     if ($idx >= $len)
@@ -202,12 +214,14 @@ function opcode($name)
 {
   global $opcodes;
   $args = array_slice(func_get_args(), 1);
+#  echo "OPCODE $name\n";
+#  print_r($args);
   if (! in_array($name, $opcodes))
     throw new Exception('Internal error: invalid opcode: '.$name);
   foreach ($args as &$arg)
   {
     if ($arg[0] == '"')
-      $arg = '0x'.strToHex($arg);
+      $arg = '0x'.strToHex(substr($arg, 1, strlen($arg) - 2));
   }
   return array_search($name, $opcodes).' '.join(' ', $args)."\n";
 }
@@ -267,7 +281,7 @@ function read_factor(&$string)
       return $result;
     case L_STRING:
       $new = new_memory();
-      $result = array('code' => opcode('store', $lexem_value, $new), 'result' => $new);
+      $result = array('code' => opcode('store', '"'.$lexem_value.'"', $new), 'result' => $new);
       $current_lexem = next_lexem($string);
       return $result;      
     default:
@@ -520,7 +534,5 @@ function compile($program)
 
   return base64_encode(join("\n", $all)."\n".join('|', $code));
 }
-
-compile("a.a <- 1;\nprint(a);");
 
 ?>

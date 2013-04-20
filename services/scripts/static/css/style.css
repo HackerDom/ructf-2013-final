@@ -15,6 +15,28 @@ html, body {
     margin: 0 auto -30px;
 }
 
+.ses {
+    background: #fff url('/static/pic/bg/ses_bg.png') no-repeat fixed left bottom
+}
+.mr {
+    background: #fff url('/static/pic/bg/mr_bg.png') no-repeat fixed left bottom
+}
+.db {
+    background: #fff url('/static/pic/bg/db_bg.png') no-repeat fixed left bottom
+}
+.mq {
+    background: #fff url('/static/pic/bg/mq_bg.png') no-repeat fixed left bottom
+}
+.dns {
+    background: #fff url('/static/pic/bg/dns_bg.png') no-repeat fixed left bottom
+}
+.ips {
+    background: #fff url('/static/pic/bg/ips_bg.png') no-repeat fixed left bottom
+}
+.script_api {
+    background: #fff url('/static/pic/bg/script_api_bg.png') no-repeat fixed left bottom
+}
+
 /**
 *Head menu
 **/
@@ -371,7 +393,24 @@ html, body {
     width: 25%;
     display: inline-block;
 }
-
+.about {
+    margin-left: 30px;
+    margin-top: 10%;
+    width: 25%;
+    display: inline-block;
+}
+.about-img {
+    width: 600px;
+    height: 400px;
+    margin-right: 30px;
+    float: right;
+    display: inline-block;
+}
+.about-bg {
+    z-index: -10;
+    position: relative;
+    margin-left: -100px;
+}
 
 /**
 * Tabs
@@ -522,15 +561,20 @@ option[disabled]{
     line-height: 50px;
 }
 
-.db-input > input{
-    margin: 10px 200px 10px 40%;
-    width: 70%;
-    resize: none
+.db-controls {
+	margin: 10px 200px 10px 40%;
+    width: 100%;
+	text-align: left;
+	margin-bottom: 0;
 }
 
-.db-input > .btn {
-    margin-left: 98%;
+.db-controls > input{
+	width: 70%;
+    margin-bottom: 0;
 }
+
+
+
 .db-input > table {
     margin: 10px 200px 10px 40%;
 }
@@ -618,7 +662,24 @@ option[disabled]{
     border-radius: 3px;
 }
 /*---------------------------------------------MapReduce styles ends---------------------------------------------------*/
-
+/*---------------------------------------------SES styles starts-------------------------------------------------*/
+.add-mail {
+    display: inline-block;
+    margin-top: -12px;
+}
+.example {
+    color: #2973b8;
+}
+.mail-form {
+    margin: 3px;
+}
+#mail-send {
+    margin-left: 17.5%;
+}
+.stats {
+    margin-bottom: 10px;
+}
+/*---------------------------------------------SES styles ends---------------------------------------------------*/
 /*----------------------------------------------ScriptAPI styles-------------------------------------------------------*/
 .btn-block {
     display: block;
@@ -628,3 +689,5 @@ option[disabled]{
 .btn-large {
     padding: 11px 19px;
 }
+/*----------------------------------------------ScriptAPI styles ends--------------------------------------------------*/
+

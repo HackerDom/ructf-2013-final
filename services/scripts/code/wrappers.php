@@ -35,7 +35,7 @@ function wrapper_api($service, $function)
   $a = array();
   foreach ($args_names as $idx => $arg_name)
     $a[$arg_name] = $args[$idx];
-  api_request($service, $function, $a);
+  return api_request($service, $function, $a);
 }
 
 ?>

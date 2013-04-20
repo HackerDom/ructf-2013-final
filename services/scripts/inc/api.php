@@ -7,18 +7,27 @@ function request($url, $params)
   curl_setopt($c, CURLOPT_POST, 1);
   curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($c, CURLOPT_POSTFIELDS, json_encode($params));
-  curl_setopt($c, CURLOPT_HTTPHEADER, array('X-Requested-With: XMLHttpRequest', 'Content-Type: application/json'));
+  $http_headers = array('X-Requested-With: XMLHttpRequest', 'Content-Type: application/json');
+  if (array_key_exists('session', $_COOKIE))
+    $http_headers[] = 'Cookie: session='.str_replace("\n", "", str_replace("\r", "", $_COOKIE['session']));
+  curl_setopt($c, CURLOPT_HTTPHEADER, $http_headers);
   $res = curl_exec($c);
   curl_close($c);
 
   if (! $res)
     return null;
 
-  return json_decode($res, true);
+  $res = json_decode($res, true);
+  if (! $res)
+  {
+    throw new Exception('Runtime error: answer of service in\'t in JSON format');
+  }
+  return $res;
 }
 
 function api_request($service, $function, $params)
 {                
+  $function = str_replace('.', '/', $function);
   $host = $_SERVER['HTTP_HOST'];
   if ($service != '')
     $service .= '.';

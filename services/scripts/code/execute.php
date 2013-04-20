@@ -44,12 +44,14 @@ function store($address, $value)
   }
   if (sizeof($address) > 1)
     $current .= '["'.$address[sizeof($address) - 1].'"]';
-  if (substr($value, 0, 2) == '0x')
-    $value = hexToStr(substr($value, 2));
-  if (! is_numeric($value))
+  if (is_string($value) && substr($value, 0, 2) == '0x')
+    $value = str_replace('\n', "\n", hexToStr(substr($value, 2)));
+  if (is_string($value))
     $value = '"'.$value.'"';
+  if (is_array($value))
+    $value = 'json_decode("'.addslashes(json_encode($value)).'", true)';
     
-  #echo $current.' = '.$value.';'."\n";
+  echo $current.' = '.$value.';'."\n";
   eval($current.' = '.$value.';');
 }
 
@@ -153,5 +155,5 @@ function execute_program($program)
 # TODO remove examples
 # $program_input = array('14');
 # execute_program(compile('a <- input(); for i from 1 to 10 print(a); a <- a + 1; end'));
-# execute_program(compile('a.a <- 1; print(a);'));
+# execute_program(compile('print("Hello world")'));
 ?>
