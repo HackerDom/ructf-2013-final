@@ -65,15 +65,15 @@
                                         <tr>
                                         <td width="400px"> {{queuename}} </td>
                                         <td width="400px" style="text-align:right">
-                                            <form style="display: inline" method="POST" action="../enqueue/">
+                                            <form style="display: inline" method="POST" action="../enqueue">
                                                 <input type="hidden" name="queuename" value="{{queuename}}">
                                                 <input name="val" placeholder="enqueue">
                                             </form>
-                                            <form style="display: inline" method="POST" action="../dequeue/">
+                                            <form style="display: inline" method="POST" action="../dequeue">
                                                 <input type="hidden" name="queuename" value="{{queuename}}">
                                                 <input type="submit" value="dequeue">
                                             </form>
-                                            <form style="display: inline" method="POST" action="../delete/">
+                                            <form style="display: inline" method="POST" action="../delete">
                                                 <input type="hidden" name="queuename" value="{{queuename}}">
                                                 <input type="submit" value="delete">
                                             </form>
@@ -85,7 +85,7 @@
                                 <table style="width:100%">
                                     <tr>
                                         <td>
-                                            <form method="POST" action="../create/">
+                                            <form method="POST" action="../create">
                                                 <input name="queuename" placeholder="new queue">
                                             </form>
                                         </td>

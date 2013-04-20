@@ -11,9 +11,19 @@ $lexems = array('L_ASSIGN',
 $const_lexems = array();
 
 $keywords = array('if', 'then', 'else', 'for', 'end', 'from', 'to');
-$whitespaces = array(' ', '\n', '\r', '\t');
+$whitespaces = array(' ', "\n", "\r", "\t");
 $functions = array('input', 'print');
-$opcodes = array('store', 'copy', 'call', 'add', 'sub', 'mul', 'div', 'and', 'or', 'xor', 'equal', 'less', 'greater', 'equal_less', 'equal_greater', 'not_equal', 'ifnot', 'jump');
+$services = array('ses' => array('identity.add' => array('email'), 'identity.list' => array(), 'identity.del' => array('id'),
+                                 'credentials.add' => array(), 'credentials.list' => array(), 'credentials.del' => array('id'),
+                                 'mail.send' => array('from', 'to', 'subject', 'message'),
+                                 'stats' => array(), 'error' => array('id')),
+                  'mr' => array('upload' => array('name', 'code'), 'exec' => array('name', 'data')),
+                  'db' => array('' => array('query')),
+                  'queue' => array('list' => array(), 'create' => array('queue_name'), 'delete' => array('queue_name'),
+                                   'enqueue' => array('queue_name', 'val'), 'dequeue' => array('queue_name')),
+                  'dns' => array('add' => array('type', 'name', 'value'), 'delete' => array('id'))
+                 );
+$opcodes = array('store', 'copy', 'call', 'add', 'sub', 'mul', 'div', 'and', 'or', 'xor', 'equal', 'less', 'greater', 'equal_less', 'equal_greater', 'not_equal', 'ifnot', 'jump', 'inc');
 
 $current_lexem = 0;
 $lexem_value = 0;
@@ -30,7 +40,6 @@ function init_lexems()
 
 function init_const_lexems()
 {
-  // TODO move $const_lexems to up with string constants
   global $const_lexems;
   $const_lexems = array('<-' => L_ASSIGN,
                         '=' => L_EQUAL, '<' => L_LESS, '>' => L_GREATER, '<=' => L_EQUAL_LESS, '>=' => L_EQUAL_GREATER, '!=' => L_NOT_EQUAL,
@@ -49,9 +58,39 @@ function init_keywords()
   }
 }
 
+function init_functions()
+{
+  global $services, $functions;
+  foreach ($services as $service => $service_functions)
+  {
+    foreach ($service_functions as $function => $params)
+    {
+      $functions[] = $service.($function == '' ? '' : '.'.$function);
+    }
+  }
+}
+
 init_lexems();
 init_const_lexems();
 init_keywords();
+init_functions();
+
+function hexToStr($hex)
+{
+  $string = '';
+  for ($i = 0; $i < strlen($hex) - 1; $i += 2)
+    $string .= chr(hexdec($hex[$i].$hex[$i + 1]));
+  return $string;
+}
+
+function strToHex($string)
+{
+  $hex = '';
+  $len = strlen($string);
+  for ($i = 0; $i < $len; $i++)
+    $hex .= dechex(ord($string[$i]));
+  return $hex;
+}
 
 function is_variable_symbol($ch)
 {
@@ -121,6 +160,37 @@ function next_lexem(&$string)
     return L_VARIABLE;
   }
 
+  if ($string[0] == '"')
+  {
+    global $lexem_value;
+    $idx = 1;
+    $len = strlen($string);
+    $lexem_value = '';
+    while ($idx < $len)
+    {
+      if ($string[$idx] == '\\')
+      {
+/*
+        if ($string[$idx + 1] == 'n')
+          $lexem_value .= "\n";
+        else
+          $lexem_value .= $string[$idx + 1];
+*/
+        $idx += 1;
+        continue;
+      }
+      if ($string[$idx] == '"')
+        break;
+#      $lexem_value .= $string[$idx];
+      ++$idx;
+    }
+    if ($idx >= $len)
+      throw new Exception('Error: unclosed string constant');
+    $lexem_value = substr($string, 1, $idx - 1);
+    $string = substr($string, $idx + 1);
+    return L_STRING;
+  }
+
   throw new Exception('Error: can\'t parse near '.substr($string, 0, 10));
 }
 
@@ -144,8 +214,15 @@ function opcode($name)
 {
   global $opcodes;
   $args = array_slice(func_get_args(), 1);
+#  echo "OPCODE $name\n";
+#  print_r($args);
   if (! in_array($name, $opcodes))
     throw new Exception('Internal error: invalid opcode: '.$name);
+  foreach ($args as &$arg)
+  {
+    if ($arg[0] == '"')
+      $arg = '0x'.strToHex(substr($arg, 1, strlen($arg) - 2));
+  }
   return array_search($name, $opcodes).' '.join(' ', $args)."\n";
 }
 
@@ -172,7 +249,10 @@ function read_function_call(&$string)
   }
   $current_lexem = next_lexem($string);
   $new = new_memory();
-  $result = array('code' => $code.opcode('call', $function, join(' ', $params), $new), 'result' => $new);
+  if (sizeof($params) == 0)
+    $result = array('code' => $code.opcode('call', $function, $new), 'result' => $new);
+  else    
+    $result = array('code' => $code.opcode('call', $function, join(' ', $params), $new), 'result' => $new);
   return $result;
 }
 
@@ -199,12 +279,16 @@ function read_factor(&$string)
         throw new Exception('Error: not-closed bracket near '.substr($string, 0, 10));
       $current_lexem = next_lexem($string);
       return $result;
+    case L_STRING:
+      $new = new_memory();
+      $result = array('code' => opcode('store', '"'.$lexem_value.'"', $new), 'result' => $new);
+      $current_lexem = next_lexem($string);
+      return $result;      
     default:
       throw new Exception('Error: can\'t understand near '.substr($string, 0, 10));
   }
 }
 
-/* TODO copy-paste from read_expression */
 function read_summand(&$string)
 {
   global $current_lexem;
@@ -403,9 +487,10 @@ function read_statement(&$string)
                   opcode('copy', $from['result'], $variable).
                   $to['code'].
                   opcode('equal_less', $variable, $to['result'], $compare).
-                  opcode('ifnot', $compare, ($block_len + 2)).
+                  opcode('ifnot', $compare, ($block_len + 3)).
                   $block['code'].
-                  opcode('jump', - ($block_len + $to_len + 2));
+                  opcode('inc', $variable).
+                  opcode('jump', - ($block_len + $to_len + 3));
 
           $result = array('code' => $code, 'result' => $compare);
           return $result;

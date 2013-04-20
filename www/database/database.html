@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Database</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+	<script src="/static/js/jquery.js"></script>
+	<script src="/static/js/jquery.cookie.js"></script>
+	<script src="/static/js/jsrender.js"></script>
+	<script src="/static/js/ructf.js"></script>
+	<script src="/static/js/database.js"></script>
+	<script>
+		$(document).ready(function() {
+			replace_urls();
+			user();
+		});
+	</script>
+</head>
+<body>
+<div class="page">
+    <div id="wrap">
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+					<a class="brand" href="#">RuCTF 2013</a>
+					<div class="nav-collapse collapse">
+						<ul class="nav">
+							<li class="active"><a href="#">SES</a></li>
+							<li><a href="#">MapReduce</a></li>
+							<li><a href="#">DB</a></li>
+							<li><a href="#">Queue</a></li>
+							<li><a href="#">DNS</a></li>
+							<li><a href="#">IPS</a></li>
+							<li><a href="#">ScriptAPI</a></li>
+						</ul>
+						<div class="pull-right">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/x-jsrender" id="xxx-login">
+			<a id="signup" class="btn btn-success" href="{{>register}}">Sign Up</a>
+			<a id="signin" class="btn" href="{{>login}}">Sign In</a>
+		</script>
+		<script type="text/x-jsrender" id="xxx-user">
+			<a href="#" class="name">{{>name}}</a>
+			<a href="{{>logout}}" class="btn btn-delete">Logout</a>
+		</script>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="#">RuCTF 2013</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li><a href="#">SES</a></li>
+                            <li><a href="#">MapReduce</a></li>
+                            <li class="active"><a href="#">DB</a></li>
+                            <li><a href="#">Queue</a></li>
+                            <li><a href="#">DNS</a></li>
+                            <li><a href="#">Balancer</a></li>
+                            <li><a href="#">ScriptAPI</a></li>
+                        </ul>
+                        <div class="pull-right name-pan">
+                            <a href="#" class="name">Gamer Name</a>
+                            <a class="btn btn-delete" href="/login">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="content">
+            <div class="container">
+                <div class="header-main">Database</div>
+                <hr>
+                <ul class="nav nav-pills">
+                    <li class="active">
+                        <a href="database.html">Database</a>
+                    </li>
+					<li>
+                        <a href="about.html">About</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="db-input">
+						<div class="db-controls">
+							<input id="query" type="text" placeholder="Query" >
+							<a id="send" class="btn">Execute</a>
+						</div>
+						<div>
+							<strong><span id="status">OK</span></strong>
+							<span id="message">Message</span>
+						</div>
+                        <table id="output" class="table table-striped table-hover table-bordered">
+                            <thead class="table-hd">
+                            <tr>
+                                <th>number</th>
+                                <th>name</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>tu</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>tu</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>tu</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="footer">
+    <div class="container">
+        <div class="pull-right">
+            <a href="http://ructf.org">RuCTF</a>
+            <a href="http://hackerdom.ru">HackerDom</a>
+            <a href="ructf.org/2013/ru/devteam">Developers</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
