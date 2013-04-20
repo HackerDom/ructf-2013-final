@@ -108,19 +108,25 @@ def Authorize(host, login, password):
     request.add_header("Content-Type", "application/json")
     response = urllib.request.urlopen(request)
     responseJson = json.loads(response.readall().decode('ascii'))
+    sys.stderr.write("Tried to authorize, got this response:" + "\n")
+    sys.stderr.write(str(response) + "\n")
     if responseJson["status"] != "OK": 
         if responseJson["error"]["code"] == 3:
             registerData = bytes(json.dumps({ "login" : login, "password" : password, "first_name" : "checker", "last_name" : "checker", "language" : "checker" }), "ASCII")
             #sys.stderr.write(registerData + "\n")
-            registerRequest = urllib.request.Request(host + ":12345/register", registerData)
+            registerRequest = urllib.request.Request(host + "/register", registerData)
             registerRequest.add_header("X-Requested-With", "XMLHttpRequest")
             registerRequest.add_header("Content-Type", "application/json")
             registerResponse = json.loads(urllib.request.urlopen(registerRequest).readall().decode('ascii'))
+            sys.stderr.write("Failed to authorize, tried to register, got this response:" + "\n")
+            sys.stderr.write(str(registerResponse) + "\n")
             #sys.stderr.write(registerResponse + "\n")
             if registerResponse["status"] != "OK":
                 sys.stderr.write("Login system corrupted" + "\n")
                 exit(110)
             response = urllib.request.urlopen(request).readall()
+            sys.stderr.write("Tried to authorize again, got this response:" + "\n")
+            sys.stderr.write(str(response) + "\n")
         else:
             sys.stderr.write("Some weird shit is happening with login system" + "\n")
             exit(110)
