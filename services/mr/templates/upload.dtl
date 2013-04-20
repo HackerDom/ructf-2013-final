@@ -5,6 +5,7 @@
 	<li class="active"><a href="/upload">Upload</a></li>
 	<li ><a href="/exec">Execute</a></li>
 	<li><a href="/examples">Examples</a></li>
+    <li ><a href="/index">About</a></li>
 {% endblock %}
 
 {% block content %}
