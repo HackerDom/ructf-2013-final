@@ -187,6 +187,6 @@ if __name__ == "__main__":
         else:
             raise Exception("Wrong arguments")
     except Exception as e:
-        sys.stdout.write('Connection to host failed\n')
+        sys.stdout.write('Connection to service failed\n')
         sys.stderr.write("%s\n" % e)
         sys.exit(DOWN)
