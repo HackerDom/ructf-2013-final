@@ -18,6 +18,12 @@ try:
 except:
     pass
 
+@get('/')
+def index():
+    domain = re.search(domain_re, request.headers['Host']).group()
+    user = get_user(domain)
+    return template('index', domain=domain, user=user)
+
 @get('/list')
 def list():
     domain = re.search(domain_re, request.headers['Host']).group()
@@ -37,7 +43,7 @@ def delete():
     domain = re.search(domain_re, request.headers['Host']).group()
     user = get_user(domain)
     if user is None:
-        return abort(404)
+        return redirect('/')
     uid = str(user['uid'])
     key = request.forms.get('key')
     if d.has_key(uid):
@@ -62,6 +68,13 @@ def add():
     src_port = request.forms.get('src_port')
     dst_host = request.forms.get('dst_host')
     dst_port = request.forms.get('dst_port')
+    try:
+        port = int(src_port)
+        if port < 60000 or port > 65535:
+            return abort(404)
+        port = int(dst_port)
+    except:
+        return abort(404)
     rules = request.forms.get('rules')
     if src_port and dst_port and dst_port:
         key = '-'.join([src_port, dst_host, dst_port])
