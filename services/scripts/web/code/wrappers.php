@@ -20,7 +20,7 @@ function wrapper_input()
   global $program_input;
   if (sizeof($program_input) == 0)
     throw new Exception('Error: read attempt from empty input');
-  $first = $program_input[0];
+  $first = trim($program_input[0]);
   $program_input = array_slice($program_input, 1);
   if (is_numeric($first))
     $first = (int) $first;
