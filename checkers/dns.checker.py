@@ -33,7 +33,6 @@ def gen_another_secret_hash(s):
 
 
 def register_or_die(host, login, password):
-	print("registering to http://{}/register".format(host))
 	ans = requests.post("http://{}/register".format(host),
 						data={"login": login, "first_name": login,
 							  "last_name": "", "password": password,

@@ -161,6 +161,7 @@ post '/:action' do
 
   if request.cookies['session'] != nil
     r_host = request.host
+    puts "DEBUG: host = #{r_host}\ncookie = #{request.cookies['session']}"
     teamN = r_host[/team\d+/]
     payload = {'session' => request.cookies['session']}.to_json
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
@@ -216,10 +217,10 @@ post '/:action' do
         h = {'code' => 'ERROR', 'why' => '42'}.to_json
       end
     else
-      h = {'code' => 'ERROR', 'why' => 'prohibited'}.to_json
+      h = {'code' => 'ERROR', 'why' => "bad_session: "+r_hash['error']['str']}.to_json
     end
   else
-    h = {'code' => 'ERROR', 'why' => 'prohibited'}.to_json
+    h = {'code' => 'ERROR', 'why' => 'no_session'}.to_json
   end
   if (way == "mouse" and params[:action] == "add")
     redirect "http://#{r_host}/show"
