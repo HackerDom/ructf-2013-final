@@ -58,7 +58,8 @@ def add_record(host, session, d_type, name, value):
 	print("Adding record to http://{0}:4567/add".format(host))
 	ans = requests.post("http://{0}:4567/add".format(host),
 						data = json.dumps({"type": d_type, "name": name, "value": value}),
-						cookies = {"session": session})
+						cookies = {"session": session},
+						headers = {'content-type': 'application/json'})
 	if ans.status_code != 200:
 		print("Failed to add record - service returned not 200: %d" % ans.status_code)
 		sys.exit(DOWN)
@@ -75,7 +76,8 @@ def del_record(host, session, d_id):
 	print("Deleting record from http://{0}:4567/delete".format(host))
 	ans = requests.post("http://{0}:4567/delete".format(host),
 						data = json.dumps({"id": d_id}),
-						cookies={"session": session})
+						cookies={"session": session},
+						headers = {'content-type': 'application/json'})
 	if ans.status_code != 200:
 		print("Failed to add record - service returned not 200: %d" % ans.status_code)
 		sys.exit(DOWN)
