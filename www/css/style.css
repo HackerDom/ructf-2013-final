@@ -347,7 +347,7 @@ html, body {
     font-size: 35px;
     color: #2973b8;
     font-weight: bold;
-    margin-top: 10%;
+    margin: 80px 0 40px 0;
     text-shadow: 2px 2px 2px #dbe3de;
 }
 
@@ -356,6 +356,7 @@ html, body {
     color: #dbe3de;
     background-color: #dbe3de;
     height: 2px;
+    margin: 5px;
 }
 
 #content > .container > .central > .central-img {
@@ -657,3 +658,14 @@ option[disabled]{
     margin-bottom: 10px;
 }
 /*---------------------------------------------SES styles ends---------------------------------------------------*/
+
+/*----------------------------------------------ScriptAPI styles-------------------------------------------------------*/
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+.btn-large {
+    padding: 11px 19px;
+}
+/*----------------------------------------------ScriptAPI styles ends--------------------------------------------------*/
