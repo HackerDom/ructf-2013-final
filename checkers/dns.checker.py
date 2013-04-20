@@ -184,6 +184,8 @@ if __name__ == "__main__":
 		else:
 			raise Exception("Wrong arguments")
 	except dns.resolver.NXDOMAIN as E:
+		sys.stderr.write("NXDOMAIN\n")
+		sys.stderr.flush()
 		sys.exit(CORRUPT)
 	except Exception as E:
 		sys.stderr.write("{}\n".format(E))
