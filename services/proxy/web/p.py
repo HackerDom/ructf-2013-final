@@ -13,6 +13,10 @@ import pprint
 domain_re = re.compile("(team\d+\.ructf)$")
 d = shelve.open('database')
 signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+try:
+    os.mkdir('rules')
+except:
+    pass
 
 @get('/list')
 def list():
@@ -58,6 +62,7 @@ def add():
     src_port = request.forms.get('src_port')
     dst_host = request.forms.get('dst_host')
     dst_port = request.forms.get('dst_port')
+    rules = request.forms.get('rules')
     if src_port and dst_port and dst_port:
         key = '-'.join([src_port, dst_host, dst_port])
         if d.has_key(uid):
@@ -68,18 +73,28 @@ def add():
                 p = subprocess.Popen(["sleep","10"])
                 u[key] = p.pid
                 d[uid] = u
+                save_rules(key, rules)
                 return redirect('/list')
         else:
             p = subprocess.Popen(["sleep","10"])
             d[uid] = {key: p.pid}
+            save_rules(key, rules)
             return redirect('/list')
     else:
-        print "404!"
         return abort(404)
 
 @route('/static/<filepath:path>')
 def server_static(filepath):
     return static_file(filepath, root='./static/files/')
+
+def save_rules(key, rules):
+    file = './rules/' + key
+    try:
+        f = open(file, "w")
+        f.write(rules)
+        f.close()
+    except:
+        pass
 
 def get_user(domain):
     url = 'http://' + domain + '/user'
