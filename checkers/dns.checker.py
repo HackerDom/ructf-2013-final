@@ -54,7 +54,8 @@ def get_session_num_or_die(host, login, password):
 
 
 def add_record(host, session, d_type, name, value):
-	print("Adding record to http://{}:4567/add with session {}".format(host, session))
+	sys.stderr.write("Adding record to http://{}:4567/add with session {}\n".format(host, session))
+	sys.stderr.flush()
 	ans = requests.post("http://{}:4567/add".format(host),
 						data = json.dumps({"type": d_type, "name": name, "value": value}),
 						cookies = {"session": session},
@@ -72,7 +73,8 @@ def add_record(host, session, d_type, name, value):
 	return answer_hash['id']
 
 def del_record(host, session, d_id):
-	print("Deleting record from http://{}:4567/delete".format(host))
+	sys.stderr.write("Deleting record from http://{}:4567/delete\n".format(host))
+	sys.stderr.flush()
 	ans = requests.post("http://{}:4567/delete".format(host),
 						data = json.dumps({"id": d_id}),
 						cookies={"session": session},
@@ -94,7 +96,7 @@ def check(host):
 
 	register_or_die(host, user, password)
 	session = get_session_num_or_die(host, user, password)
-	print "'"+session+"'"
+
 	m = re.match(r"team\d+", host)
 	if m:
 		teamN = m.group(0)
@@ -108,6 +110,8 @@ def check(host):
 
 	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
 	html = ans.content
+	sys.stderr.write(html)
+	sys.stderr.flush()
 	if not re.match(sub_domain, html):
 		print "Added record not shown"
 		sys.exit(CORRUPT)
