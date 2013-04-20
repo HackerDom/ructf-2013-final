@@ -12,8 +12,7 @@ depend() {
 
 PIDFILE="/var/run/${SVCNAME}.pid"
 DIR="/home/${SVCNAME}"
-BINARY="$DIR/Database"
-ARGS="-d"
+BINARY="$DIR/start.sh"
 USER="${SVCNAME}:${SVCNAME}"
 
 start() {
@@ -21,7 +20,7 @@ start() {
 	start-stop-daemon --start  \
 	    --interpreted --make-pidfile --pidfile "${PIDFILE}" --user "${USER}" \
             --chdir "${DIR}" --background --stdout /home/database/log/service.log \
-            --exec "${BINARY}" -- ${ARGS}
+            --exec "${BINARY}" -- 
 	eend $?
 }
 
