@@ -112,7 +112,7 @@ def save_rules(key, rules):
         pass
 
 def get_user():
-    url = 'http://' + 127.0.0.1 + '/user'
+    url = 'http://127.0.0.1/user'
     payload = json.dumps({'session': request.get_cookie('session')})
     req = urllib2.Request(url, data=payload, headers={'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json'})
     try:
