@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from bottle import route, get, post, run, template, static_file, request, response, redirect, abort
 import bottle
 import re
