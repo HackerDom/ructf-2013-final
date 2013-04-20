@@ -8,7 +8,7 @@
       <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <style>@import "scoreboard.css";</style>
-        <script type="text/javascript" src="scripts.js"></script>
+        <script type="text/javascript" src="js/scripts.js"></script>
         <title>RuCTF 2013 - Захваченные флаги</title>
         <meta http-equiv="Refresh" content="30"/>
       </head>
@@ -25,9 +25,9 @@
                     <a class="menulink" href="news.html">Новости</a>
                     <a class="menulink" href="scoreboard.xml">Скорборд</a>
                     <a class="selected" href="#">Флаги</a>
-                    <a class="menulink" href="attacks.htm">Атаки</a>
-<!--                <a class="menulink" href="/advisories/">Адвайзори</a>
-                    <a class="menulink" href="visualizer.html">Визуализация</a> -->
+                    <a class="menulink" href="attacks.html">Атаки</a>
+                    <a class="menulink" href="countdown.html">Обратный отсчет</a>
+<!--                <a class="menulink" href="/advisories/">Адвайзори</a> -->
                   </div>
 
                   <div style="text-align:right">

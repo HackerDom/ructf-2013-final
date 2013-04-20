@@ -8,7 +8,7 @@
       <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <style>@import "scoreboard.css";</style>
-        <script type="text/javascript" src="scripts.js"></script>
+        <script type="text/javascript" src="js/scripts.js"></script>
         <title>RuCTFE 2011 - Captured flags</title>
         <meta http-equiv="Refresh" content="30"/>
       </head>
