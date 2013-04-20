@@ -21,6 +21,16 @@ try:
 except:
     pass
 
+for uid in d.keys():
+    u = d[uid];
+    for key in u:
+        (src_port, dst_host, dst_port) = key.split('-')
+        p = subprocess.Popen([command, src_port, dst_host, dst_port, "./rules/" + key])
+        u[key] = p.pid
+        d[uid] = u        
+
+p = subprocess.Popen([command, src_port, dst_host, dst_port, "./rules/" + key])
+
 @get('/')
 def index():
     domain = re.search(domain_re, request.headers['Host']).group()
