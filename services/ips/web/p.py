@@ -38,7 +38,7 @@ def api_list():
         u = d[uid]
         for k in u:
             (src_port, dst_host, dst_port) = k.split('-')
-            p.append({"src_port": src_port, "dst_host": dst_host, "dst_port": dst_port})
+            p.append({"src_port": int(src_port), "dst_host": dst_host, "dst_port": int(dst_port)})
     return json.dumps({'status':"OK", "rules":p})
 
 @get('/list')
@@ -55,8 +55,9 @@ def list():
             p.append(k)
     return template('list', proxy=p, user=user, domain=domain)
 
-@post('/host/api_del')
+@post('/api_del')
 def api_delete():
+    return json.dumps({'status': "QQQ"})
     user = get_user()
     if user is None:
         return json.dumps({'status': "FAIL"})
@@ -95,7 +96,7 @@ def delete():
             d[uid] = u
     return redirect('/list')
 
-@post('/host/api_add')
+@post('/api_add')
 def api_add():
     user = get_user()
     if user is None:
