@@ -6,9 +6,6 @@ import urllib.error
 import socket
 from urllib.parse import *
 
-CheckerLogin="DatabaseChecker"
-CheckerPassword="DXjAtYeAq6extWEx"
-
 def SendRequest(host, session, requestString):
     data=bytes(json.dumps({ "query" : requestString }), "ASCII")
     request=urllib.request.Request(host, data)
@@ -104,8 +101,8 @@ def CheckPlantedFlag(host, session, databaseName, flagID, flag):
             return True
     return False
 
-def Authorize(host):
-    data=bytes(json.dumps({ "login" : CheckerLogin, "password" : CheckerPassword}), "ASCII")
+def Authorize(host, login, password):
+    data=bytes(json.dumps({ "login" : login, "password" : password}), "ASCII")
     request=urllib.request.Request(host + "/login", data)
     request.add_header("X-Requested-With", "XMLHttpRequest")
     request.add_header("Content-Type", "application/json")
@@ -113,7 +110,7 @@ def Authorize(host):
     responseJson = json.loads(response.readall().decode('ascii'))
     if responseJson["status"] != "OK": 
         if responseJson["error"]["code"] == 3:
-            registerData = bytes(json.dumps({ "login" : CheckerLogin, "password" : CheckerPassword, "first_name" : "checker", "last_name" : "checker", "language" : "checker" }), "ASCII")
+            registerData = bytes(json.dumps({ "login" : login, "password" : password, "first_name" : "checker", "last_name" : "checker", "language" : "checker" }), "ASCII")
             #sys.stderr.write(registerData + "\n")
             registerRequest = urllib.request.Request(host + ":12345/register", registerData)
             registerRequest.add_header("X-Requested-With", "XMLHttpRequest")
@@ -133,6 +130,9 @@ def Authorize(host):
 if len(sys.argv) < 3:
     sys.stderr.write("Not enough parameters" + "\n")
     exit(110)
+
+BaseCheckerLogin="DatabaseChecker"
+CheckerPassword="DXjAtYeAq6extWEx"
 
 try:
     dictFile = open("./DatabaseChecker/Dictionary.txt")
@@ -160,7 +160,7 @@ try:
         plantedFlagsFile.close()
 
     sys.stderr.write("Authorization..." + "\n")
-    session = Authorize(AuthorizationHost)
+    session = Authorize(AuthorizationHost, BaseCheckerLogin + flagsDatabaseName, CheckerPassword)
 
     #sys.stderr.write("session is " + session + "\n")
 
@@ -199,6 +199,7 @@ try:
                 sys.stderr.write("YOU LIE TO ME, THERE'S NO SUCH FLAG" + "\n")
                 exit(102)
             databaseName = plantedFlags[flagID]
+            session = Authorize(AuthorizationHost, BaseCheckerLogin + databaseName, CheckerPassword)
             if not CheckPlantedFlag(CheckerHost, session, databaseName, flagID, flag):
                 sys.stderr.write("Something gone wrong, no flag ein there" + "\n")
                 exit(102)
