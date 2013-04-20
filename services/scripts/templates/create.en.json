@@ -1,0 +1,10 @@
+<?php if (! isset($error)) { ?>
+{
+  "status": "OK"
+}
+<?php } else { ?>
+{
+  "status": "FAIL",
+  "error": "<?php echo $error; ?>"
+}
+<?php } ?>

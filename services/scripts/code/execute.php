@@ -40,11 +40,18 @@ function store($address, $value)
   {
     if (! is_array(eval($current)))
       eval($current.' = array();');
-    $current = $current.'['.$p.']';
+    $current = $current.'["'.$p.'"]';
   }
   if (sizeof($address) > 1)
-    $current .= '['.$address[sizeof($address) - 1].']';
-/*  echo $current.' = '.$value.';'."\n";*/
+    $current .= '["'.$address[sizeof($address) - 1].'"]';
+  if (is_string($value) && substr($value, 0, 2) == '0x')
+    $value = str_replace('\n', "\n", hexToStr(substr($value, 2)));
+  if (is_string($value))
+    $value = '"'.$value.'"';
+  if (is_array($value))
+    $value = 'json_decode("'.addslashes(json_encode($value)).'", true)';
+    
+  echo $current.' = '.$value.';'."\n";
   eval($current.' = '.$value.';');
 }
 
@@ -66,7 +73,7 @@ function execute_command($opcode, $args)
 {
   global $ip, $memory, $opcodes, $functions;
   $opcode = $opcodes[$opcode];
-  echo $opcode.' '.join(', ', $args)."\n";
+#  echo $opcode.' '.join(', ', $args)."\n";
   switch ($opcode)
   {
     case 'store':
@@ -79,7 +86,16 @@ function execute_command($opcode, $args)
       $function_name = $functions[$args[0]];
       $result = $args[sizeof($args) - 1];
       $args = array_map('get_memory_value', array_slice($args, 1, sizeof($args) - 2));
-      store($result, call_user_func_array('wrapper_'.$function_name, $args));
+      if ($function_name == 'input' || $function_name == 'print')
+        $function_name = 'wrapper_'.$function_name;
+      else
+      {
+        $function_name_splitted = split('\.', $function_name);
+        array_unshift($args, join('.', array_slice($function_name_splitted, 1)));
+        array_unshift($args, $function_name_splitted[0]);
+        $function_name = 'wrapper_api';
+      }
+      store($result, call_user_func_array($function_name, $args));
       break;
     case 'equal':
     case 'less':
@@ -111,6 +127,10 @@ function execute_command($opcode, $args)
       $ip += $args[0];
       $not_need_change_ip = true;
       break;
+    case 'inc':
+      $var = $args[0];
+      store($var, get_memory_value($var) + 1);
+      break;
     default:
       throw new Exception('Error: unknown opcode: '.$opcode);
   }
@@ -122,7 +142,6 @@ function execute_program($program)
 {
   global $ip;
   $program = split("\n", base64_decode($program));
-  print_r($program);
   $cmds = split('\|', $program[sizeof($program) - 1]);
 
   $ip = 0;
@@ -133,6 +152,8 @@ function execute_program($program)
   }
 }
 
-execute_program(compile('a <- 1; print(a); if a < 1 then print(a + 1) end'));
-
+# TODO remove examples
+# $program_input = array('14');
+# execute_program(compile('a <- input(); for i from 1 to 10 print(a); a <- a + 1; end'));
+# execute_program(compile('print("Hello world")'));
 ?>
