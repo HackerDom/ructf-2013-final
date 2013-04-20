@@ -15,6 +15,28 @@ html, body {
     margin: 0 auto -30px;
 }
 
+.ses {
+    background: #fff url('/static/pic/bg/ses_bg.png') no-repeat fixed left bottom
+}
+.mr {
+    background: #fff url('/static/pic/bg/mr_bg.png') no-repeat fixed left bottom
+}
+.db {
+    background: #fff url('/static/pic/bg/db_bg.png') no-repeat fixed left bottom
+}
+.mq {
+    background: #fff url('/static/pic/bg/mq_bg.png') no-repeat fixed left bottom
+}
+.dns {
+    background: #fff url('/static/pic/bg/dns_bg.png') no-repeat fixed left bottom
+}
+.ips {
+    background: #fff url('/static/pic/bg/ips_bg.png') no-repeat fixed left bottom
+}
+.script_api {
+    background: #fff url('/static/pic/bg/script_api_bg.png') no-repeat fixed left bottom
+}
+
 /**
 *Head menu
 **/
@@ -658,7 +680,6 @@ option[disabled]{
     margin-bottom: 10px;
 }
 /*---------------------------------------------SES styles ends---------------------------------------------------*/
-
 /*----------------------------------------------ScriptAPI styles-------------------------------------------------------*/
 .btn-block {
     display: block;
@@ -669,3 +690,4 @@ option[disabled]{
     padding: 11px 19px;
 }
 /*----------------------------------------------ScriptAPI styles ends--------------------------------------------------*/
+

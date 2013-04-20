@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import sys
 import requests
@@ -7,8 +7,6 @@ import dns.resolver
 import sha
 import re
 import json
-
-PORT = 3255
 
 # Error codes
 OK = 101
@@ -97,19 +95,20 @@ def check(host):
 		teamN = m.group(0)
 	else:
 		teamN = "team" + host.split('.')[2]
+
 	sub_domain = gen_random_str(random.randint(10, 30))
 	record_name = sub_domain + "." + teamN + ".ructf"
 	ip_value = "{}.{}.{}.{}".format(random.randint(1, 254), random.randint(1, 254), random.randint(1, 254), random.randint(1, 254))
 	record_id = add_record(host, session, "A", record_name, ip_value)
 
-	ans = requests.get("http://{}:4567/show", cookies = {"session": session})
+	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
 	html = ans.content
 	if not re.match(sub_domain, html):
 		print "Added record not shown"
 		sys.exit(CORRUPT)
 
 	del_record(host, session, record_id)
-	ans = requests.get("http://{}:4567/show", cookies = {"session": session})
+	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
 	html = ans.content
 	if re.match(sub_domain, html):
 		print "Deleted record is still shown!"

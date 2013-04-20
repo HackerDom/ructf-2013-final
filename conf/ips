@@ -7,13 +7,13 @@
 
 depend() {
         use logger
-        need net mysql_dns
+        need net
 }
 
 PIDFILE="/var/run/${SVCNAME}.pid"
-DIR="/home/dns/web_admin"
-BINARY="$DIR/index.rb"
-USER="dns:dns"
+DIR="/home/ips/web"
+BINARY="$DIR/p.py"
+USER="ips:ips"
 
 start() {
         ebegin "Starting ${SVCNAME}"

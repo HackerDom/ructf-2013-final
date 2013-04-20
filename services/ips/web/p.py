@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from bottle import route, get, post, run, template, static_file, request, response, redirect, abort
 import bottle
 import re
@@ -13,15 +15,22 @@ import pprint
 domain_re = re.compile("(team\d+\.ructf)$")
 d = shelve.open('database')
 signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+command = "../ips"
 try:
     os.mkdir('rules')
 except:
     pass
 
+@get('/')
+def index():
+    domain = re.search(domain_re, request.headers['Host']).group()
+    user = get_user()
+    return template('index', domain=domain, user=user)
+
 @get('/list')
 def list():
     domain = re.search(domain_re, request.headers['Host']).group()
-    user = get_user(domain)
+    user = get_user()
     if user is None:
         return template('list', proxy=[], user=None, domain=domain)
     uid = str(user['uid'])
@@ -35,9 +44,9 @@ def list():
 @post('/host/del')
 def delete():
     domain = re.search(domain_re, request.headers['Host']).group()
-    user = get_user(domain)
+    user = get_user()
     if user is None:
-        return abort(404)
+        return redirect('/')
     uid = str(user['uid'])
     key = request.forms.get('key')
     if d.has_key(uid):
@@ -55,13 +64,20 @@ def delete():
 @post('/host/add')
 def add():
     domain = re.search(domain_re, request.headers['Host']).group()
-    user = get_user(domain)
+    user = get_user()
     if user is None:
         return abort(404)
     uid = str(user['uid'])
     src_port = request.forms.get('src_port')
     dst_host = request.forms.get('dst_host')
     dst_port = request.forms.get('dst_port')
+    try:
+        port = int(src_port)
+        if port < 60000 or port > 65535:
+            return abort(404)
+        port = int(dst_port)
+    except:
+        return abort(404)
     rules = request.forms.get('rules')
     if src_port and dst_port and dst_port:
         key = '-'.join([src_port, dst_host, dst_port])
@@ -70,13 +86,13 @@ def add():
             if key in u:
                 return abort(404)
             else:
-                p = subprocess.Popen(["sleep","10"])
+                p = subprocess.Popen([command, src_port, dst_host, dst_port, "./rules/" + key])
                 u[key] = p.pid
                 d[uid] = u
                 save_rules(key, rules)
                 return redirect('/list')
         else:
-            p = subprocess.Popen(["sleep","10"])
+            p = subprocess.Popen([command, src_port, dst_host, dst_port, "./rules/" + key])
             d[uid] = {key: p.pid}
             save_rules(key, rules)
             return redirect('/list')
@@ -96,8 +112,8 @@ def save_rules(key, rules):
     except:
         pass
 
-def get_user(domain):
-    url = 'http://' + domain + '/user'
+def get_user():
+    url = 'http://127.0.0.1/user'
     payload = json.dumps({'session': request.get_cookie('session')})
     req = urllib2.Request(url, data=payload, headers={'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json'})
     try:
@@ -110,4 +126,4 @@ def get_user(domain):
     except:
         return None
 
-run(host='localhost', port=8080)
+run(host='localhost', port=9000)

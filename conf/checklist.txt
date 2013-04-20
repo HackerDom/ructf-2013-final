@@ -71,7 +71,6 @@ chown -R queue:queue /home/queue
 7) export SYBASE="/usr"
 7.1) use ithreads
 7.2) python2 by default
-7.3) mkdir -p /var/lib/overlays/cpan/
 PORTDIR_OVERLAY="/var/lib/overlays/cpan/"
 
 8) dd if=/dev/zero of=/zero bs=1000000 count=6000
@@ -82,11 +81,18 @@ PORTDIR_OVERLAY="/var/lib/overlays/cpan/"
 g-cpan -i Mojolicious
 g-cpan -i MongoDB
 
-
+# из user
+cd /home/user/users
+su user -s /bin/bash
+./script/indexes
 
 === database service ===
 
 === mr service ===
+su mr -s /bin/bash
+./rebar get-deps
+./rebar compile
+
 
 === ses service ===
 

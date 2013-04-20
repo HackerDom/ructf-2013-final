@@ -14,6 +14,12 @@ package { 'sys-fs/quota': ensure => present }
 package { 'app-editors/vim': ensure => present }
 package { 'sys-boot/syslinux': ensure => present }
 
+file { '/var/lib/overlays': mode => 755, owner => root, group =>root,
+       ensure => directory}
+file { '/var/lib/overlays/cpan': mode => 755, owner => root, group =>root,
+       ensure => directory, require => File['/var/lib/overlays']}
+
+
 
 # user service
 user { 'user': uid => 10000, shell=>"/sbin/nologin", ensure => present}

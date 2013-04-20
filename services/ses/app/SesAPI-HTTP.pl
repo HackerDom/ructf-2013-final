@@ -30,7 +30,8 @@ my %HANDLERS = (
 
 my $d = HTTP::Daemon->new(
         LocalPort => CFG_HTTP_PORT,
-        Listen => 20
+        Listen    => 20,
+        ReuseAddr => 1
     ) or die "SES API Web Server failed to start: $!\n";
 
 printf "SES API Server started at %s:%d\n", $d->sockhost(), $d->sockport();

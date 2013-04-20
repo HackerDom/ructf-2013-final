@@ -1,6 +1,6 @@
 <ul class="nav nav-pills">
     <li class="active"><a href="#">Proxy</a></li>
-    <li><a href="/about">About</a></li>
+    <li><a href="/">About</a></li>
 </ul>
 <div class="tab-content">
     <form action="/host/add" method="POST">
