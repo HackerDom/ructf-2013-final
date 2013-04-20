@@ -19,11 +19,18 @@ function check_args($args)
   $result = array();
   foreach ($args as $arg)
   {
-    if (! isset($params[$arg]))
-      error('Parameter '.$arg.' isn\'t defined');
-    $result[$arg] = $params[$arg];
+    if (isset($params[$arg]))
+      $result[$arg] = $params[$arg];
   }
   return $result;
+}
+
+function required_args($args)
+{
+  $a = check_args($args);
+  foreach ($args as $arg)
+    if (! array_key_exists($arg, $a))
+      error('Parameter '.$arg.' isn\'t defined');
 }
 
 ?>

@@ -5,35 +5,15 @@
   require_once 'inc/i18n.php';
   require_once 'code/execute.php';
 
-  if (! isset($_COOKIE['session']) || ! is_logon($_COOKIE['session']))
+  $params = check_args(array('session', 'code_id', 'input'));
+
+  if (! isset($params['session']) || ! is_logon($params['session']))
   {
-    include 'templates/index.en.html';
+    i18n_template('index');
     exit;
   }
 
-  if (array_key_exists('code_id', $_POST) && array_key_exists('input', $_POST))
-  {
-    $code_id = (int) $_POST['code_id'];
-    $input = $_POST['input'];
-    
-    $query = 'SELECT script FROM scripts WHERE id = '.$code_id.' LIMIT 1';
-    $script = mysql_fetch_array(mysql_query($query), MYSQL_ASSOC);
-    $script = $script['script'];
-
-    $program_input = split("\n", $input); 
-    try
-    {
-      execute_program($script);
-    }
-    catch (Exception $e)
-    {
-      $error = $e->getMessage();
-    }
-
-    $result = isset($program_output) ? $program_output : '';
-  }
-
-  $user_info = user_info($_COOKIE['session']);
+  $user_info = user_info($params['session']);
   $query = 'SELECT * FROM scripts WHERE uid = \''.$user_info['uid'].'\' ORDER BY id DESC';
   $ans = mysql_query($query);
   $user_codes = array();

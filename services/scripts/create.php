@@ -5,9 +5,11 @@
   require_once 'inc/i18n.php';
   require_once 'code/lex.php';
 
-  if (array_key_exists('save', $_POST))
+  $params = check_args(array('session', 'name', 'code', 'save'));
+
+  if (array_key_exists('save', $params))
   {
-    $params = check_args(array('session', 'name', 'code'));
+    required_args(array('session', 'name', 'code', 'save'));
 
     if (! is_logon($params['session']))
     {
@@ -38,7 +40,7 @@
     }
   }
 
-  if (array_key_exists('session', $_COOKIE) && is_logon($_COOKIE['session']))
+  if (array_key_exists('session', $params) && is_logon($params['session']))
   {
     i18n_template('create');
   }
