@@ -95,12 +95,12 @@ def check(host):
   sys.stderr.write("Open %s..\n" % url)
   r = requests.post(url)
   if r.status_code == 500:
-    sys.stdour.write("Can't open %s, status code 500\n" % url)
+    sys.stdout.write("Can't open %s, status code 500\n" % url)
     sys.exit(DOWN)
   if r.status_code != 200:
-    sys.stdour.write("Can't open %s, status code %d\n" % (url, r.status_code))
+    sys.stdout.write("Can't open %s, status code %d\n" % (url, r.status_code))
     sys.exit(MUMBLE)
-  sys.stderr.write("%s\n" % r.json)
+  sys.stderr.write("%s\n" % r)
   sys.exit(OK)
 
 def put(host, flag_id, flag):
@@ -176,7 +176,7 @@ def get(host, flag_id, flag):
   sys.exit(OK)
 
 if __name__ == "__main__":
-#    try:
+    try:
         args = sys.argv[1:]
         if len(args) == 2 and args[0] == "check":
             check(args[1])
@@ -186,6 +186,7 @@ if __name__ == "__main__":
             get(args[1], args[2], args[3])
         else:
             raise Exception("Wrong arguments")
-#    except Exception as e:
-#        sys.stderr.write("%s" % e.print_exception())
-#        sys.exit(CHECKER_ERROR)
+    except Exception as e:
+        sys.stdout.write('Connection to host failed\n')
+        sys.stderr.write("%s\n" % e)
+        sys.exit(DOWN)
