@@ -21,7 +21,8 @@ $services = array('ses' => array('identity.add' => array('email'), 'identity.lis
                   'db' => array('' => array('query')),
                   'queue' => array('list' => array(), 'create' => array('queue_name'), 'delete' => array('queue_name'),
                                    'enqueue' => array('queue_name', 'val'), 'dequeue' => array('queue_name')),
-                  'dns' => array('add' => array('type', 'name', 'value'), 'delete' => array('id'))
+                  'dns' => array('add' => array('type', 'name', 'value'), 'delete' => array('id')),
+                  'ips' => array()
                  );
 $opcodes = array('store', 'copy', 'call', 'add', 'sub', 'mul', 'div', 'and', 'or', 'xor', 'equal', 'less', 'greater', 'equal_less', 'equal_greater', 'not_equal', 'ifnot', 'jump', 'inc');
 
