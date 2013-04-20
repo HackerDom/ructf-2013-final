@@ -39,12 +39,11 @@ rc-update add queue_web
 
 2) квоты
 2.0) usrquota в /etc/fstab
-2.1) rc-update add quota boot
 2.2) /usr/sbin/quotacheck -avugm
 2.3) RUN_QUOTACHECK="no" в /etc/conf.d/quota
 2.4) edquota , limit 1000000, inode 100000
 2.5) quota user 2gb, rest 1gb
-2.6) quota user database mr ses dns ips queue
+2.6) quota user database mr ses dns ips queue scripts
 3) cgroups для каждого сервиса
 3.1) pam_cgroups в system-auth и start-stop-daemon
 3.1.1) session optional pam_cgroup.so
@@ -74,7 +73,7 @@ chown -R scripts:scripts /home/scripts
 
 
 7) export SYBASE="/usr"
-7.1) use ithreads
+7.1) use ithreads, fpm
 7.2) python2 by default
 PORTDIR_OVERLAY="/var/lib/overlays/cpan/"
 
@@ -88,7 +87,7 @@ PORTDIR_OVERLAY="/var/lib/overlays/cpan/"
 g-cpan -i Mojolicious
 g-cpan -i MongoDB
 
-# из user
+/etc/init.d/mongodb_user start
 cd /home/user/users
 su user -s /bin/bash
 ./script/indexes
@@ -97,6 +96,7 @@ su user -s /bin/bash
 
 === mr service ===
 su mr -s /bin/bash
+cd
 ./rebar get-deps
 ./rebar compile
 
@@ -110,6 +110,8 @@ su mr -s /bin/bash
 === dns service ===
 mysql_install_db --user=dns --datadir=/home/dns/mysql/db/ --skip-name-resolve --defaults-file=/home/dns/mysql/my.cnf
 
+
+/etc/init.d/mysql_dns start
 mysql -S /home/dns/mysql/mysql.sock < /home/dns/web_admin/create.mysql
 
 

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ScriptAPI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+    <script src="/static/js/jquery.js"></script>
+    <script src="/static/js/jquery.cookie.js"></script>
+    <script src="/static/js/jsrender.js"></script>
+    <script src="/static/js/ructf.js"></script>
+</head>
+<body>
+<div class="page">
+    <div id="wrap">
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="#">RuCTF 2013</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li><a href="#">SES</a></li>
+                            <li><a href="#">MapReduce</a></li>
+                            <li><a href="#">DB</a></li>
+                            <li><a href="#">Queue</a></li>
+                            <li><a href="#">DNS</a></li>
+                            <li><a href="#">IPS</a></li>
+                            <li class="active"><a href="#">ScriptAPI</a></li>
+                        </ul>
+                        <div class="pull-right">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/x-jsrender" id="xxx-login">
+            <a id="signup" class="btn btn-success" href="{{>register}}">Sign Up</a>
+            <a id="signin" class="btn" href="{{>login}}">Sign In</a>
+        </script>
+        <script type="text/x-jsrender" id="xxx-user">
+            <a href="#" class="name">{{>name}}</a>
+            <a href="{{>logout}}" class="btn btn-delete">Logout</a>
+        </script>
+        <div id="content">
+            <div class="container">
+                <div class="header-main">ScriptAPI</div>
+                <?php if (isset($about)) { ?>
+                <hr>
+                <ul class="nav nav-pills">
+                    <li>
+                        <a href="/create.php">New script</a>
+                    </li>
+                    <li>
+                        <a href="/scripts.php">Saved scripts</a>
+                    </li>
+                    <li>
+                        <a href="/examples.php">Examples</a>
+                    </li>
+                    <li class="active">
+                        <a href="/about.php">About</a>
+                    </li>
+                </ul>
+                <?php } ?>
+                <div class="tab-content">
+                    <div class="central">
+                        <div class="about">
+                          Code execution has always been a lot of strong, synonymous with power and wealth.
+
+                          Feel Gods &mdash; use the open API to build
+                          their own applications.
+                        </div>
+                        <img src="/static/pic/script_api.png" class="img-rounded about-img">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="footer">
+    <div class="container">
+        <div class="pull-right">
+            <a href="http://ructf.org">RuCTF</a>
+            <a href="http://hackerdom.ru">HackerDom</a>
+            <a href="http://ructf.org/2013/ru/devteam">Developers</a>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        replace_urls();
+        user();
+    });
+</script>
+</body>
+</html>

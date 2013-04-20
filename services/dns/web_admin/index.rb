@@ -56,10 +56,11 @@ get '/add' do
 end
 
 get "/show:id" do
+  puts "asked special page"
   id = dbh.escape_string(params[:id])
   r_has_records = false
   r_dns_records = []
-  res = dbh.query("Select did, dtype, dkey, dvalue from records where dcreator = '#{id}'")
+  res = dbh.query("Select did, dtype, dkey, dvalue from records where did = '#{id}'")
   if res.num_rows > 0
     r_has_records = true
     res.each do |row|
@@ -68,6 +69,33 @@ get "/show:id" do
   end
   r_authored = r_has_records
   message = ERB.new(show_template, nil, "%")
+  payload = message.result
+  "#{payload}"
+end
+
+get "/index.html" do
+  r_host = request.host
+  teamN = r_host[/team\d+/]
+  if request.cookies['session'] != nil
+    payload = {'session' => request.cookies['session']}.to_json
+    req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
+    req.body = payload
+    response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
+    r_hash = JSON.parse(response.body)
+
+    if r_hash['status'] != 'OK'
+      r_authored = false
+    else
+      r_authored = true
+      r_user_name = r_hash['first_name'] + " " + r_hash['last_name'] + "!"
+    end
+  else
+    r_authored = false
+  end
+  f = File.open("./templates/index.html")
+  temp = f.read()
+  f.close()
+  message = ERB.new(temp, nil, "%")
   payload = message.result
   "#{payload}"
 end
@@ -112,29 +140,33 @@ get %r{/(show)?} do
   "#{payload}"
 end
 
-post '/' do
+post '/:action' do
   data = {}
+  way = "mouse"
 
   if request.media_type =~ /json/
     data = JSON.parse request.body.read
+    way = "json"
   else
-    data['action'] = request["action"]
-
-    if data['action'] == "ADD"
+    if params[:action] == "add"
       data['type'] = request["type"]
       data['name'] = request["name"]
       data['value'] = request["value"]
-    elsif data['action'] == "DELETE"
+    elsif params[:action] == "delete"
       data['id'] = request["id"]
     end
   end
 
   h = {'code' => 'ERROR', 'why' => '42'}.to_json
 
-  if request.cookies['session'] != nil
+  ses = request.cookies['session']
+  if ses != nil
     r_host = request.host
+    ses.gsub!('"', '')
+    puts "DEBUG: host = #{r_host}\ncookie = #{ses}"
     teamN = r_host[/team\d+/]
-    payload = {'session' => request.cookies['session']}.to_json
+    payload = {'session' => ses}.to_json
+    puts payload
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
     response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
@@ -144,10 +176,9 @@ post '/' do
       r_user_name = r_hash['first_name'] + " " + r_hash['last_name']
       uid = r_hash['uid']
 
-      if data['action'] != nil
-        act = data['action']
+      if params[:action] != nil
 
-        if act == "ADD"
+        if params[:action] == "add"
 
           if data['type'] != nil and data['name'] != nil and data['value'] != nil
             type = dbh.escape_string(data['type'])
@@ -167,7 +198,7 @@ post '/' do
             h = {'code' => 'ERROR', 'why' => '42'}.to_json
           end
 
-        elsif act == "DELETE"
+        elsif params[:action] == "delete"
 
           if data['id'] != nil
             id = dbh.escape_string(data['id'])
@@ -189,12 +220,15 @@ post '/' do
         h = {'code' => 'ERROR', 'why' => '42'}.to_json
       end
     else
-      h = {'code' => 'ERROR', 'why' => 'prohibited'}.to_json
+      h = {'code' => 'ERROR', 'why' => "bad_session: "+r_hash['error']['str']}.to_json
     end
   else
-    h = {'code' => 'ERROR', 'why' => 'prohibited'}.to_json
+    h = {'code' => 'ERROR', 'why' => 'no_session'}.to_json
   end
-  
-  content_type "application/json"
-  "#{h}"
+  if (way == "mouse" and params[:action] == "add")
+    redirect "http://#{r_host}/show"
+  else
+    content_type "application/json"
+    "#{h}"
+  end
 end

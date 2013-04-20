@@ -5,7 +5,7 @@ Valid for: Ubuntu 12.04
 
 # Install Sun Java, PosgreSQL Server, PosgreSQL libs for perl, make
 
-apt-get install python-software-properties
+apt-get install python-software-properties software-properties-common
 add-apt-repository ppa:upubuntu-com/java
 apt-get update
 apt-get install oracle-java7-installer
