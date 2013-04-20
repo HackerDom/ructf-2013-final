@@ -89,8 +89,8 @@ def del_record(host, session, d_id):
 
 # not ready
 def check(host):
-	user = "lena"+gen_random_str(10)
-	password = gen_random_str(10)
+	user = gen_random_str(10)
+	password = gen_random_str(14)
 
 	register_or_die(host, user, password)
 	session = get_session_num_or_die(host, user, password)
@@ -127,7 +127,7 @@ def check(host):
 
 
 def put(host, flag_id, flag):
-	user = "lena"+flag_id.replace("-", "")
+	user = flag_id.replace("-", "")
 	password = gen_secret_hash(user)
 
 	register_or_die(host, user, password)
