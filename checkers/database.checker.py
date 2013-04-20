@@ -6,9 +6,6 @@ import urllib.error
 import socket
 from urllib.parse import *
 
-CheckerLogin="DatabaseChecker"
-CheckerPassword="DXjAtYeAq6extWEx"
-
 def SendRequest(host, session, requestString):
     data=bytes(json.dumps({ "query" : requestString }), "ASCII")
     request=urllib.request.Request(host, data)
@@ -76,26 +73,26 @@ def DoCheck(host, session):
 
     return True
 
-def PlantFlag(host, session, tableName, flagID, flag):
-    response = SendRequest(host, session, "insert into flags." + tableName + " values ( '" + flagID + "', '" + flag + "')")
-    #sys.stderr.write("insert into flags." + tableName + " values ( '" + flagID + "', '" + flag + "')" + "\n")
+def PlantFlag(host, session, databaseName, flagID, flag):
+    response = SendRequest(host, session, "insert into " + databaseName + ".flags values ( '" + flagID + "', '" + flag + "')")
+    #sys.stderr.write("insert into " + databaseName + ".flags values ( '" + flagID + "', '" + flag + "')" + "\n")
     #sys.stderr.write(response + "\n")
     if response["status"] == "FAIL":
         if response["error"]["code"] == 3:
-            tResponse = SendRequest(host, session, "create database flags")
+            tResponse = SendRequest(host, session, "create database " + databaseName)
             if tResponse["status"] != "OK": return False
         if response["error"]["code"] == 3 or response["error"]["code"] == 4:
-            tResponse = SendRequest(host, session, "create table flags." + tableName + " (id, flag)")
+            tResponse = SendRequest(host, session, "create table " + databaseName + ".flags (id, flag)")
             if tResponse["status"] != "OK": return False
         else:
             return False
-        response = SendRequest(host, session, "insert into flags." + tableName +" values ( '" + flagID + "', '" + flag + "')")
+        response = SendRequest(host, session, "insert into " + databaseName + ".flags values ( '" + flagID + "', '" + flag + "')")
         if response["status"] != "OK": return False
     return True
 
-def CheckPlantedFlag(host, session, tableName, flagID, flag):
-    response = SendRequest(host, session, "select * from flags." + tableName + " where id == '" + flagID + "'")
-    #sys.stderr.write("select * from flags." + tableName + "\n")
+def CheckPlantedFlag(host, session, databaseName, flagID, flag):
+    response = SendRequest(host, session, "select * from " + databaseName + ".flags where id == '" + flagID + "'")
+    #sys.stderr.write("select * from " + databaseName + ".flags\n")
     #sys.stderr.write(response + "\n")
     if response["status"] == "FAIL" or len(response["data"]["rows"]) < 1: return False
     rows = list(response["data"]["rows"])
@@ -104,26 +101,32 @@ def CheckPlantedFlag(host, session, tableName, flagID, flag):
             return True
     return False
 
-def Authorize(host):
-    data=bytes(json.dumps({ "login" : CheckerLogin, "password" : CheckerPassword}), "ASCII")
+def Authorize(host, login, password):
+    data=bytes(json.dumps({ "login" : login, "password" : password}), "ASCII")
     request=urllib.request.Request(host + "/login", data)
     request.add_header("X-Requested-With", "XMLHttpRequest")
     request.add_header("Content-Type", "application/json")
     response = urllib.request.urlopen(request)
     responseJson = json.loads(response.readall().decode('ascii'))
+    #sys.stderr.write("Tried to authorize, got this response:" + "\n")
+    #sys.stderr.write(str(response) + "\n")
     if responseJson["status"] != "OK": 
         if responseJson["error"]["code"] == 3:
-            registerData = bytes(json.dumps({ "login" : CheckerLogin, "password" : CheckerPassword, "first_name" : "checker", "last_name" : "checker", "language" : "checker" }), "ASCII")
+            registerData = bytes(json.dumps({ "login" : login, "password" : password, "first_name" : "checker", "last_name" : "checker", "language" : "checker" }), "ASCII")
             #sys.stderr.write(registerData + "\n")
-            registerRequest = urllib.request.Request(host + ":12345/register", registerData)
+            registerRequest = urllib.request.Request(host + "/register", registerData)
             registerRequest.add_header("X-Requested-With", "XMLHttpRequest")
             registerRequest.add_header("Content-Type", "application/json")
             registerResponse = json.loads(urllib.request.urlopen(registerRequest).readall().decode('ascii'))
+            #sys.stderr.write("Failed to authorize, tried to register, got this response:" + "\n")
+            #sys.stderr.write(str(registerResponse) + "\n")
             #sys.stderr.write(registerResponse + "\n")
             if registerResponse["status"] != "OK":
                 sys.stderr.write("Login system corrupted" + "\n")
                 exit(110)
-            response = urllib.request.urlopen(request).readall()
+            response = urllib.request.urlopen(request)
+            #sys.stderr.write("Tried to authorize again, got this response:" + "\n")
+            #sys.stderr.write(str(response) + "\n")
         else:
             sys.stderr.write("Some weird shit is happening with login system" + "\n")
             exit(110)
@@ -134,12 +137,15 @@ if len(sys.argv) < 3:
     sys.stderr.write("Not enough parameters" + "\n")
     exit(110)
 
+BaseCheckerLogin="DatabaseChecker"
+CheckerPassword="DXjAtYeAq6extWEx"
+
 try:
     dictFile = open("./DatabaseChecker/Dictionary.txt")
     dictionary = dictFile.read().split("\n")
     dictFile.close()
 
-    flagsTableName = dictionary[(int(time.time() / 60 / 15) * 42167) % len(dictionary)]
+    flagsDatabaseName = dictionary[(int(time.time() / 60 / 2) * 42167) % len(dictionary)]
 
     AuthorizationHost = "http://" + sys.argv[2]
     CheckerHost = "http://db." + sys.argv[2]
@@ -160,7 +166,7 @@ try:
         plantedFlagsFile.close()
 
     sys.stderr.write("Authorization..." + "\n")
-    session = Authorize(AuthorizationHost)
+    session = Authorize(AuthorizationHost, BaseCheckerLogin + flagsDatabaseName, CheckerPassword)
 
     #sys.stderr.write("session is " + session + "\n")
 
@@ -183,12 +189,12 @@ try:
 
         if CheckerMode == "put":
             sys.stderr.write("Starting putting flag" + "\n")
-            if not PlantFlag(CheckerHost, session, flagsTableName, flagID, flag):
+            if not PlantFlag(CheckerHost, session, flagsDatabaseName, flagID, flag):
                 sys.stderr.write("Something gone wrong" + "\n")
                 exit(103)
             else:
                 sys.stderr.write("Flag successfully planted" + "\n")
-                plantedFlags[flagID] = flagsTableName
+                plantedFlags[flagID] = flagsDatabaseName
                 plantedFlagsFile = open("./DatabaseChecker/" + TeamName , "w")
                 plantedFlagsFile.write(json.dumps(plantedFlags, "ASCII"))
                 plantedFlagsFile.close()
@@ -198,9 +204,10 @@ try:
             if not flagID in plantedFlags:
                 sys.stderr.write("YOU LIE TO ME, THERE'S NO SUCH FLAG" + "\n")
                 exit(102)
-            tableName = plantedFlags[flagID]
-            if not CheckPlantedFlag(CheckerHost, session, tableName, flagID, flag):
-                sys.stderr.write("Something gone wrong, no flag in there" + "\n")
+            databaseName = plantedFlags[flagID]
+            session = Authorize(AuthorizationHost, BaseCheckerLogin + databaseName, CheckerPassword)
+            if not CheckPlantedFlag(CheckerHost, session, databaseName, flagID, flag):
+                sys.stderr.write("Something gone wrong, no flag ein there" + "\n")
                 exit(102)
             else:
                 sys.stderr.write("Correct flag detected" + "\n")

@@ -5,6 +5,8 @@ require LWP::UserAgent;
 use Ses::Config;
 use JSON -no_export;
 
+my $USERAPI_ENDPOINT = 'http://127.0.0.1:12345';
+
 #########################################################################################
 
 sub new {
@@ -21,15 +23,15 @@ sub new {
 sub sendRequest {
     my ($self, $url, $args) = @_;
 
-    my $req = HTTP::Request->new('POST', 'http://'.$self->{host}."/$url");
+    my $req = HTTP::Request->new('POST', "$USERAPI_ENDPOINT/$url");
     $req->header('Content-Type'     => 'application/json');
     $req->header('X-Requested-With' => 'XMLHttpRequest');
     $req->header('Host'             => $self->{host});
     $req->content(JSON::to_json($args));
-    warn JSON::to_json($args);
+    print "  UserAPI request: ".JSON::to_json($args).$/;
 
     my $r = $self->{ua}->request($req);
-    warn $r->decoded_content;
+    print "  UserAPI reply: ".$r->decoded_content.$/;
     return undef, $r->status_line unless $r->is_success;
 
     my $json = JSON::from_json($r->decoded_content);

@@ -17,8 +17,8 @@ sub index {
 
 sub logout {
   my $self = shift;
-  $self->cookie(session => '', {expires => 1, domain => '.' . $self->stash('domain')});
-  $self->redirect_to('index');
+  $self->cookie(session => '', {domain => '.' . $self->stash('domain')});
+  $self->render();
 }
 
 sub register {
@@ -108,7 +108,7 @@ sub login {
       $self->cookie(session => $session, {domain => '.' . $self->stash('domain')});
       return $self->req->is_xhr
         ? $self->render_json({status => 'OK'})
-        : $self->redirect_to('index');
+        : $self->redirect_to(length($self->req->param('n')) ? $self->req->param('n') : 'index');
     } else {
       return $self->req->is_xhr
         ? $self->render_json($self->_error(3, 'invalid login or password'))

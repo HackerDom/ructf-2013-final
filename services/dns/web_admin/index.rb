@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+
 require 'erb'
 require 'sinatra'
 require 'net/http'
@@ -25,7 +26,8 @@ r_dns_records = []
 r_authored = false
 r_has_records = false
 
-dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
+#dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
+dbh = Mysql.real_connect(nil, "root", nil, "dns", nil, "/home/dns/mysql/mysql.sock")
 
 get '/add' do
   if request.cookies['session'] != nil
@@ -34,7 +36,7 @@ get '/add' do
     payload = {'session' => request.cookies['session']}.to_json
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
-    response = Net::HTTP.new("#{teamN}.ructf", 80).start {|http| http.request(req) }
+    response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
     r_hash = JSON.parse(response.body)
 
     if r_hash['status'] != 'OK'
@@ -77,7 +79,7 @@ get %r{/(show)?} do
     payload = {'session' => request.cookies['session']}.to_json
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
-    response = Net::HTTP.new("#{teamN}.ructf", 80).start {|http| http.request(req) }
+    response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
     r_hash = JSON.parse(response.body)
 
     if r_hash['status'] != 'OK'
@@ -135,7 +137,7 @@ post '/' do
     payload = {'session' => request.cookies['session']}.to_json
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
-    response = Net::HTTP.new("#{teamN}.ructf", 80).start {|http| http.request(req) }
+    response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
     r_hash = JSON.parse(response.body)
 
     if r_hash['status'] == 'OK'
@@ -150,7 +152,7 @@ post '/' do
           if data['type'] != nil and data['name'] != nil and data['value'] != nil
             type = dbh.escape_string(data['type'])
             name = dbh.escape_string(data['name'])
-            name.sub!(/team\d+\.ructf$/, '')
+            name.sub!(/\.team\d+\.ructf$/, '')
             value = dbh.escape_string(data['value'])
             res = dbh.query("Select * from records where dtype = '#{type}' and dkey = '#{name}' and dvalue = '#{value}'")
             

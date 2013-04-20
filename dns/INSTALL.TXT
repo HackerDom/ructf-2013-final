@@ -1,0 +1,2 @@
+1. apt-get install bind9
+2. copy named.conf.options to /etc/bind

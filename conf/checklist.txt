@@ -1,28 +1,52 @@
 0) CONFIG_CFQ_GROUP_IOSCHED=y
 CONFIG_BLK_DEV_THROTTLING=y
 0.1) Latest kernel
-1) квоты
-2) cgroups для каждого сервиса
-3) init-скрипты
-4) права в /home
-5) pam_cgroups в system-auth и start-stop-daemon
 
-6.0) emerge ruby mongodb erlang
-     package { 'app-portage/layman': ensure => present }
-     package { 'dev-util/strace': ensure => present }
-     package { 'sys-process/htop': ensure => present }
-6.1)
-6.3) export SYBASE="/usr"
-6.3) cpan install mango
-6.4) g-cpan -i MongoDB
-su user -s /bin/bash
-cd
-mkdir mongodb mongodb/run mongodb/db mongodb/log
+1) init-скрипты, скопировать все
+rc-update add quota boot
+
+rc-update add cgconfig
+
+rc-update add nginx default
+rc-update add postfix default
+
+chmod +x /etc/init.d/user /etc/init.d/mongodb_user
+chmod +x /etc/init.d/database
+chmod +x /etc/init.d/mr
+chmod +x /etc/init.d/ses_http /etc/init.d/ses_smtp
+chmod +x /etc/init.d/dns
+chmod +x /etc/init.d/queue /etc/init.d/queue_web
+
+rc-update add user
 rc-update add mongodb_user
-6.6) quota user 2gb
 
-7.1) use ithreads
-8) services:
+rc-update add database
+
+rc-update add mr
+
+rc-update add ses_http
+rc-update add ses_smtp
+
+rc-update add dns
+rc-update add dns_web
+rc-update add mysql_dns
+
+rc-update add queue
+rc-update add queue_web
+
+2) квоты
+2.0) usrquota в /etc/fstab
+2.1) rc-update add quota boot
+2.2) /usr/sbin/quotacheck -avugm
+2.3) RUN_QUOTACHECK="no" в /etc/conf.d/quota
+2.4) edquota , limit 1000000, inode 100000
+2.5) quota user 2gb, rest 1gb
+2.6) quota user database mr ses dns proxy queue
+3) cgroups для каждого сервиса
+3.1) pam_cgroups в system-auth и start-stop-daemon
+3.1.1) session optional pam_cgroup.so
+
+4) сервисы
 user(10000) Users API (and)
 database(10001) Database API ? (umineko & krait, C++)
 mr(10002) MapReduce (Егор, erlang)
@@ -31,50 +55,49 @@ dns(10004) Cache DNS (lena, ruby)
 proxy(10005) TCP Balancer (kost, C)
 queue(10006) Message Queue (bay, rust)
 Script API (andgein, PHP)
-9) python2 by default
-9.1) layman -a yac
 
-10) nginx.conf, rc-update add nginx default
-mkdir -p /var/lib/overlays/cpan/
+5) права в /home
+chown -R user:user /home/user
+chown -R database:database /home/database
+chown -R mr:mr /home/mr
+chown -R ses:ses /home/ses
+chown -R dns:dns /home/dns
+chown -R queue:queue /home/queue
+
+6) nginx.conf
+6.1) /var/www/static
+
+
+7) export SYBASE="/usr"
+7.1) use ithreads
+7.2) python2 by default
+7.3) mkdir -p /var/lib/overlays/cpan/
 PORTDIR_OVERLAY="/var/lib/overlays/cpan/"
+
+8) dd if=/dev/zero of=/zero bs=1000000 count=6000
 
 ------------------------ SERVICE DEPLOYMENT ------------------------
 
 === user service ===
-chown -R user:user /home/user
-chmod +x /etc/init.d/user /etc/init.d/mongodb_user
-
 g-cpan -i Mojolicious
 g-cpan -i MongoDB
 
-rc-update add user
-rc-update add mongodb_user
 
 
 === database service ===
-chown -R database:database /home/database
-chmod +x /etc/init.d/database
-
-rc-update add database
-
 
 === mr service ===
-chown -R mr:mr /home/mr
-chmod +x /etc/init.d/mr
-
-rc-update add mr
-
 
 === ses service ===
-chown -R ses:ses /home/ses
-chmod +x /etc/init.d/ses_http /etc/init.d/ses_smtp
 
-rc-update add ses
+# В /etc/postfix/main.cf раскомментировать строку mynetworks_style = host
+# В /etc/postfix/main.cf раскомментировать строку home_mailbox = Maildir/
+
+
+=== dns service ===
+mysql_install_db --user=dns --datadir=/home/dns/mysql/db/ --skip-name-resolve --defaults-file=/home/dns/mysql/my.cnf
+
+mysql -S /home/dns/mysql/mysql.sock < /home/dns/web_admin/create.mysql
 
 === queue service ===
-chown -R queue:queue /home/queue
-chmod +x /etc/init.d/queue /etc/init.d/queue_web
-
-rc-update add queue
-rc-update add queue_web
 

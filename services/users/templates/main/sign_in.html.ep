@@ -26,7 +26,7 @@
 <div class="header-main">Sign in</div>
 <hr>
 <div class="content" id="login">
-<form method="POST" action="<%= url_for('login') %>" class="login">
+<form method="POST" action="<%= url_for('login')->query(n => $self->req->param('n')) %>" class="login">
     <fieldset>
         %= $input->('text', 'login', 'Login');
         %= $input->('password', 'password', 'Password');

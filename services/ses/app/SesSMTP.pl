@@ -35,6 +35,8 @@ $SIG{'INT'} = sub {
     exit 0;
 };
 
+$SIG{'CHLD'} = 'IGNORE';
+
 threads->create(\&queue_processor)->detach();
 
 while (my $c = $s->accept) {
@@ -167,25 +169,30 @@ sub queue_deliver {
     $to =~ s/ //g;
     $to =~ s/[<>]//g;
     print " queue_deliver: $id: $from -> $to\n";
-    $to =~ /@(.*)/;
-    my $host = $1;
-    print "  host: $host\n";
-    my @mx = map { $_->exchange } mx($host);
-    push @mx,$host if @mx==0;
-    for my $mx (@mx) {
-        printf "    start delivery: %s\n", $mx;
-        my $smtp = Net::SMTP->new($mx, Timeout => 10, Debug => 1);
-        $smtp->mail($from);
-        $smtp->to($to);
-        $smtp->data();
-        for my $line (@data[2..$#data]) {
-            $smtp->datasend($line);
-        }
-        $smtp->dataend();
-        $smtp->quit;
-        print "    end delivery.\n";
-        last;
+
+    my $sendmail = `which sendmail` or do {
+        warn "Error: sendmail command not found, skip delivery\n";
+        return;
+    };
+    $sendmail =~ s/[\r\n]//g;
+
+    $from =~ s/[^a-z0-9_@=.-]//g;
+    $to   =~ s/[^a-z0-9_@=.-]//g;
+
+    open MAIL, "| $sendmail -f $from $to" or do {
+        warn "Error: sendmail command failed to execute, skip delivery\n";
+        return;
+    };
+    for my $s (@data) {
+        print MAIL "$s\n";
     }
+    close MAIL;
+    my $ret = $? >> 8;
+    if ($ret!=0) {
+        warn "Error: sendmail failed with code $ret\n";
+        return;
+    }
+    print "Sent OK, remove from queue\n";
     $Msg->remove();
 }
 
