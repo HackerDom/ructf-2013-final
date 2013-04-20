@@ -15,6 +15,10 @@ html, body {
     margin: 0 auto -30px;
 }
 
+.ips {
+    background: #fff url('/static/pic/bg/ips_bg.png') no-repeat fixed left bottom
+}
+
 /**
 *Head menu
 **/
