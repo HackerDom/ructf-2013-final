@@ -33,6 +33,7 @@ def gen_another_secret_hash(s):
 
 
 def register_or_die(host, login, password):
+	print("registering to http://{0}/register".format(host))
 	ans = requests.post("http://{0}/register".format(host),
 						data={"login": login, "first_name": login,
 							  "last_name": "", "password": password,
@@ -54,8 +55,9 @@ def get_session_num_or_die(host, login, password):
 
 
 def add_record(host, session, d_type, name, value):
-	ans = requests.post("http://{0}:4567/".format(host),
-						data = json.dumps({"action": "ADD", "type": d_type, "name": name, "value": value}),
+	print("Adding record to http://{0}:4567/add".format(host))
+	ans = requests.post("http://{0}:4567/add".format(host),
+						data = json.dumps({"type": d_type, "name": name, "value": value}),
 						cookies = {"session": session})
 	if ans.status_code != 200:
 		print("Failed to add record - service returned not 200: %d" % ans.status_code)
@@ -70,8 +72,9 @@ def add_record(host, session, d_type, name, value):
 	return answer_hash['id']
 
 def del_record(host, session, d_id):
-	ans = requests.post("http://{0}:4567/".format(host),
-						data = json.dumps({"action": "DELETE", "id": d_id}),
+	print("Deleting record from http://{0}:4567/delete".format(host))
+	ans = requests.post("http://{0}:4567/delete".format(host),
+						data = json.dumps({"id": d_id}),
 						cookies={"session": session})
 	if ans.status_code != 200:
 		print("Failed to add record - service returned not 200: %d" % ans.status_code)
@@ -105,6 +108,11 @@ def check(host):
 	html = ans.content
 	if not re.match(sub_domain, html):
 		print "Added record not shown"
+		sys.exit(CORRUPT)
+
+	ans = requests.get("http://{}:4567/show{}".format(host, record_id), cookies = {"session": session})
+	if ans.code != 200:
+		print "Added record not shown by id!"
 		sys.exit(CORRUPT)
 
 	del_record(host, session, record_id)

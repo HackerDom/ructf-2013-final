@@ -1,36 +1,10 @@
-# need to set up:
-# r_user_name
-# r_host
-# teamN
-# r_dns_records
-# r_has_records
-# r_authored
-
-show_template = %q{
-	<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <title>DNS records</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
     <link href="/static/css/style.css" rel="stylesheet">
-
-    <script src="/static/js/jquery.js"></script>
-    <script> 
-function send4del(id){
-    $.ajax({
-                url: 'http://<%= r_host %>/delete',
-                data: JSON.stringify({"id": id}),
-                type: 'POST',
-                contentType:"application/json; charset=utf-8",
-                dataType: 'json',
-               success: function () {
-                   alert("Deleting record!!");
-                   window.location.reload();
-                }
-            });
-}
-    </script>
 </head>
 <body class="dns">
 <div class="page">
@@ -70,28 +44,16 @@ function send4del(id){
                 <hr>
                 <ul class="nav nav-pills">
                     <li><a href="http://<%= r_host %>/add">Add record</a></li>
-                    <li class="active"><a href="http://<%= r_host %>/show">View all records</a></li>
-                    <li><a href="http://<%= r_host %>/index.html">About</a></li>
+                    <li><a href="http://<%= r_host %>/show">View all records</a></li>
+                    <li class="active"><a href="http://<%= r_host %>/index.html">About</a></li>
                 </ul>
                 <div class="tab-content">
-                <% if r_authored %>
-                	<% if r_has_records %>
-                    <table class="table table-striped table-hover">
-                        <tbody>
-                        	<% r_dns_records.each do |r_record, r_id| %>
-		                        <tr>
-		                            <td><%= r_record %></td>
-		                            <td class="btn-td"><button type="submit" class="btn btn-delete" id="<%= r_id %>" onclick="send4del(this.id)">Delete</button></td>
-		                        </tr>
-                        	<% end %>
-                        </tbody>
-                    </table>
-                    <% else %>
-                        <p> You have no records</p>
-                    <% end %>
-                <% else %>
-                    <p> Log in, please</p>
-                <% end %>
+                    <div class="central">
+                        <div class="about">
+                            This is DNS control panel
+                        </div>
+                        <img src="/static/pic/dns.png" class="img-rounded about-img">
+                    </div>
                 </div>
             </div>
         </div>
@@ -108,4 +70,3 @@ function send4del(id){
 </div>
 </body>
 </html>
-}
