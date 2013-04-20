@@ -119,17 +119,26 @@ def put(host, flag_id, flag):
 
 	register_or_die(host, user, password)
 	session = get_session_num_or_die(host, user, password)
-	teamN = host.split('.')[2]
-	add_record(session, "TXT", "{}.team{}.ructf".format(gen_another_secret_hash(flag_id), teamN), flag)
+	m = re.match(r"team\d+", host)
+	if m:
+		teamN = m.group(0)
+	else:
+		teamN = "team" + host.split('.')[2]
+	add_record(session, "TXT", "{}.{}.ructf".format(gen_another_secret_hash(flag_id), teamN), flag)
 	sys.exit(OK)
 
 
 def get(host, flag_id, flag):
 	resolver = dns.resolver.Resolver()
-	resolver.nameservers = [host]
-	teamN = host.split('.')[2]
+	m = re.match(r"team\d+", host)
+	if m:
+		teamN = m.group(0)
+		resolver.nameservers = [socket.gethostbyname(host)]
+	else:
+		teamN = "team" + host.split('.')[2]
+		resolver.nameservers = [host]
 	flag2 = ''
-	for rdata in resolver.query("{}.team{}.ructf".format(gen_another_secret_hash(flag_id), teamN), "TXT"):
+	for rdata in resolver.query("{}.{}.ructf".format(gen_another_secret_hash(flag_id), teamN), "TXT"):
 		flag2 = rdata
 		if flag2 != flag:
 			sys.exit(CORRUPT)
