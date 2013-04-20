@@ -54,7 +54,7 @@ def get_session_num_or_die(host, login, password):
 	return ans.cookies["session"]
 
 
-def add_record(session, d_type, name, value):
+def add_record(host, session, d_type, name, value):
 	ans = requests.post("http://{0}:4567/".format(host),
 						data = json.dumps({"action": "ADD", "type": d_type, "name": name, "value": value}),
 						cookies = {"session": session})
@@ -70,7 +70,7 @@ def add_record(session, d_type, name, value):
 
 	return answer_hash['id']
 
-def del_record(session, d_id):
+def del_record(host, session, d_id):
 	ans = requests.post("http://{0}:4567/".format(host),
 						data = json.dumps({"action": "DELETE", "id": d_id}),
 						cookies={"session": session})
@@ -99,7 +99,7 @@ def check(host):
 	sub_domain = gen_random_str(random.randint(10, 30))
 	record_name = sub_domain + "." + teamN + ".ructf"
 	ip_value = "{}.{}.{}.{}".format(random.randint(1, 254), random.randint(1, 254), random.randint(1, 254), random.randint(1, 254))
-	record_id = add_record(session, "A", record_name, ip_value)
+	record_id = add_record(host, session, "A", record_name, ip_value)
 
 	ans = requests.get("http://{}:4567/show", cookies = {"session": session})
 	html = ans.text
@@ -107,7 +107,7 @@ def check(host):
 		print "Added record not shown"
 		sys.exit(CORRUPT)
 
-	del_record(session, record_id)
+	del_record(host, session, record_id)
 	ans = requests.get("http://{}:4567/show", cookies = {"session": session})
 	html = ans.text
 	if re.match(sub_domain, html):
@@ -128,7 +128,7 @@ def put(host, flag_id, flag):
 		teamN = m.group(0)
 	else:
 		teamN = "team" + host.split('.')[2]
-	add_record(session, "TXT", "{}.{}.ructf".format(gen_another_secret_hash(flag_id), teamN), flag)
+	add_record(host, session, "TXT", "{}.{}.ructf".format(gen_another_secret_hash(flag_id), teamN), flag)
 	sys.exit(OK)
 
 
