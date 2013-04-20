@@ -18,7 +18,7 @@
                 <li><a href="http://ses.{{domain}}/">SES</a></li>
                 <li><a href="http://mp.{{domain}}/">MapReduce</a></li>
                 <li><a href="http://db.{{domain}}/">DB</a></li>
-                <li><a href="http://queue.{{domain}}/">MessageQueue</a></li>
+                <li><a href="http://queue.{{domain}}/">Queue</a></li>
                 <li><a href="http://dns.{{domain}}/">DNS</a></li>
                 <li class="active"><a href="http://ips.{{domain}}/">IPS</a></li>
                 <li><a href="http://scripts.{{domain}}/">ScriptAPI</a></li>

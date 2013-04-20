@@ -46,4 +46,4 @@
     <a href="#" class="name">{{user['first_name'] + ' ' + user['last_name']}}</a>
     <a href="http://{{domain}}/logout" class="btn btn-delete">Logout</a>
 % end
-%rebase default title='List', x = b2 if user else b1, domain=domain
+%rebase default title='Proxy', x = b2 if user else b1, domain=domain
