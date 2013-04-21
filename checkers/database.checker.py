@@ -195,7 +195,6 @@ try:
         flag = sys.argv[4]
 
         if CheckerMode == "put":
-            print(flagID)
             sys.stderr.write("Starting putting flag" + "\n")
             if not PlantFlag(CheckerHost, session, flagsDatabaseName, flagID, flag):
                 sys.stderr.write("Something gone wrong" + "\n")
@@ -206,6 +205,7 @@ try:
                 plantedFlagsFile = open("./DatabaseChecker/" + TeamName , "w")
                 plantedFlagsFile.write(json.dumps(plantedFlags, "ASCII"))
                 plantedFlagsFile.close()
+                print(flagID)
                 exit(101)
         elif CheckerMode == "get":
             sys.stderr.write("Starting getting flag" + "\n")
