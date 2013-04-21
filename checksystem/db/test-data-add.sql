@@ -19,8 +19,8 @@ INSERT INTO teams VALUES ( 115, 'Team 115', '172.16.16.115/32', 'team15.ructf', 
 INSERT INTO services VALUES ( 1, 'SES',       './ses.checker.pl' );
 INSERT INTO services VALUES ( 2, 'MapReduce', './mr.checker.py'    );
 INSERT INTO services VALUES ( 3, 'Queue',     './queue.checker.py' );
-INSERT INTO services VALUES ( 4, 'DNS',       './stub/notexist.sh' );
+INSERT INTO services VALUES ( 4, 'DNS',       './dns.checker.py' );
 INSERT INTO services VALUES ( 5, 'IPS',       './stub/notexist.sh' );
 INSERT INTO services VALUES ( 6, 'DB',        './database.checker.py' );
-INSERT INTO services VALUES ( 7, 'Scripts',   './stub/notexist.sh' );
+INSERT INTO services VALUES ( 7, 'Scripts',   './scripts.checker.py' );
 
