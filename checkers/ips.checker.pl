@@ -42,7 +42,7 @@ sub register {
     }
     my $json = $res->json;
     unless ($json->{status} eq 'OK') {
-        warn 'Error2 on register';
+        warn 'Error2 on register: ' . Dumper($json);
         return $SERVICE_FAIL;
     }
     return $SERVICE_OK;
