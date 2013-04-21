@@ -62,6 +62,7 @@ def register_or_die(host, login, password):
 
 
 def get_session_num_or_die(host, login, password):
+    sys.stderr.write("login: {}\npassword: {}\n".format(login, password))
     ans = requests.post("http://{0}/login".format(host),
                         data={"login": login, "password": password})
 
