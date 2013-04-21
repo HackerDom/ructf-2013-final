@@ -76,8 +76,8 @@ def DoCheck(host, session):
 
 def PlantFlag(host, session, databaseName, flagID, flag):
     response = SendRequest(host, session, "insert into " + databaseName + ".flags values ( '" + flagID + "', '" + flag + "')")
-    #sys.stderr.write("insert into " + databaseName + ".flags values ( '" + flagID + "', '" + flag + "')" + "\n")
-    #sys.stderr.write(response + "\n")
+    sys.stderr.write("insert into " + databaseName + ".flags values ( '" + flagID + "', '" + flag + "')" + "\n")
+    sys.stderr.write(str(response) + "\n")
     if response["status"] == "FAIL":
         if response["error"]["code"] == 3:
             tResponse = SendRequest(host, session, "create database " + databaseName)
@@ -88,6 +88,8 @@ def PlantFlag(host, session, databaseName, flagID, flag):
         else:
             return False
         response = SendRequest(host, session, "insert into " + databaseName + ".flags values ( '" + flagID + "', '" + flag + "')")
+        sys.stderr.write("Trying again" + "\n")
+        sys.stderr.write(str(response) + "\n")
         if response["status"] != "OK": return False
     return True
 
