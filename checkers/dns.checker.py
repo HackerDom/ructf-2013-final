@@ -88,7 +88,7 @@ def del_record(host, session, d_id):
 	answer_hash = json.loads(ans.content)
 
 	if answer_hash['code'] != "OK":
-		print("Failed to del record: {}".format(answer_hash['why']))
+		print("Failed to del record: {}; id = {}".format(answer_hash['why'], d_id))
 		sys.exit(MUMBLE)
 
 # not ready
