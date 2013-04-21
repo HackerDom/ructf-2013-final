@@ -82,11 +82,10 @@ package { 'dev-ruby/mysql-ruby': ensure => present }
 package { 'dev-ruby/sinatra': ensure => present }
 package { 'dev-ruby/eventmachine': ensure => present }
 
-# proxy service
-user { 'proxy': uid => 10005, shell=>"/sbin/nologin", ensure => present}
-file { '/home/proxy': mode => 600, owner => proxy, group =>proxy,
-       ensure => directory, require => User['proxy']}
-
+# ips service
+user { 'ips': uid => 10005, shell=>"/sbin/nologin", ensure => present}
+file { '/home/ips': mode => 600, owner => ips, group =>ips,
+       ensure => directory, require => User['ips']}
 
 # queue service
 user { 'queue': uid => 10006, shell=>"/sbin/nologin", ensure => present}
@@ -95,4 +94,10 @@ file { '/home/queue': mode => 600, owner => queue, group =>queue,
 package { 'dev-python/flask': ensure => present }
 package { 'dev-python/requests': ensure => present }
 package { 'www-servers/gunicorn': ensure => present }
+
+# scripts service
+user { 'scripts': uid => 10007, shell=>"/sbin/nologin", ensure => present}
+file { '/home/scripts': mode => 600, owner => scripts, group =>scripts,
+       ensure => directory, require => User['scripts']}
+package { 'dev-lang/php': ensure => present }
 

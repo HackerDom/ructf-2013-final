@@ -1,0 +1,12 @@
+<?php $first = true; ?>
+{
+  "scripts": [
+  <?php foreach ($user_codes as $user_code) { ?>
+  <?php echo $first ? '' : ',' ?>
+    {
+      "name": "<?php echo addslashes($user_code['name']); ?>",
+      "script": "<?php echo addslashes($user_code['script']); ?>"
+    }
+  <?php $first = false; } ?>
+  ]
+}

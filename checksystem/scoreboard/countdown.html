@@ -1,0 +1,65 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>@import "scoreboard.css";</style>
+    <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/scripts.js"></script>
+    <script type="text/javascript" src="countdown/countdown.js"></script>
+    <script type="text/javascript" src="js/timer.js"></script>
+    <title>RuCTF 2013 - Обратный отсчет</title>
+  </head>
+  <body onload="parse_emails()">
+    <div id="mainWrapper">
+      <div id="centeredImage">
+      </div>
+      <div id="in">
+        <table id="inTable">
+          <tr valign="top">
+            <td id="inSpacer1">&#160;</td>
+            <td id="inContent">
+              <div>
+                <a class="menulink" href="news.html">Новости</a>
+                <a class="menulink" href="scoreboard.xml">Скорборд</a>
+                <a class="menulink" href="flags.xml">Флаги</a>
+                <a class="menulink" href="attacks.html">Атаки</a>
+                <a class="selected" href="#">Обратный отсчет</a>
+              </div>
+
+              <h1 id="centeredTitle">
+                Обратный отсчет
+              </h1>
+
+              <div style="float: left; width: 48%;">
+                <h2 style="text-align:center;">Основное время</h2>
+                <div id="countdown-main" style="width: 300px; margin: 0 auto;"></div>
+              </div>
+
+              <div style="float: right; width: 48%;">
+                <h2 style="text-align:center;">Дополнительное время</h2>
+                <div id="countdown-extra" style="width: 300px; margin: 0 auto;"></div>
+              </div>
+
+              <div id="countdown-status" style="display:none;">
+                <h2 style="text-align:center;">Игра окончена!</h2>
+              </div>
+
+            </td>
+            <td id="inSpacer3">&#160;</td>
+          </tr>
+        </table>
+      </div>
+      <div id="footWrap"></div>
+    </div>
+
+    <div id="footer">
+      <div id="footer2">
+        <div id="contacts">
+          По всем вопросам можно обращаться по адресу <a href="mailto:info[at]ructf.org"><span class="email">info[at]ructf.org</span></a>
+          <br/>
+          Официальная рассылка соревнований: <a href="http://groups.google.com/group/ructf/">http://groups.google.com/group/ructf/</a><xsl:element name="br"/>
+        </div>
+        <div id="copyright">&#xA9; 2013 HackerDom</div>
+      </div>
+    </div>
+  </body>
+</html>

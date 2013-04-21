@@ -1,9 +1,0 @@
-<?php 
-
-function connect()
-{
-}
-
-connect();
-
-?>

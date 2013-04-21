@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--# include file="head.html" -->
+</head>
+<body class="ses">
+<div class="page">
+    <div id="wrap">
+        <!--# include file="header.html" -->
+        <div id="content">
+            <div class="container">
+                <div class="header-main">
+                    RuCTF
+                </div>
+                <hr>
+                <ul class="nav nav-pills">
+                    <li class="active"><a href="#">Identity</a></li>
+                    <li><a href="/credentials.html">Credentials</a></li>
+                    <li><a href="/email.html">Mail</a></li>
+                    <li><a href="/index.html">About</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="stats">
+                    </div>
+                    <div>
+                        <input type="text" id="email_for_add">
+                        <button class="btn add-mail" id="email_add">+</button>
+                    </div>
+                    <div class="email_errors">
+                        <span class="text-error"></span>
+                    </div>
+                    <table id="email_list" class="table table-striped table-hover table-bordered">
+                        <thead class="table-hd">
+                            <tr class="table-hd">
+                                <th>email</th>
+                                <th>verified</th>
+                                <th>+/-</th>
+                            </tr>
+                        </thead>
+                        <tboby>
+                            <tr></tr>
+                        </tboby>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <script type="text/x-jsrender" id="identity_row_template">
+        <tr>
+            <td>{{>email}}</td>
+            <td width="70px">{{>verified}}</td>
+            <td width="70px"><button class="btn email_delete" eid="{{>id}}">-</button></td>
+        </tr>
+    </script>
+    <!--# include file="footer.html" -->
+    <script>
+        $(document).ready(function() {
+            replace_urls();
+            user();
+            ses_identity_list();
+            $('#email_add').click(ses_identity_add);
+            $(document).on('click', '.email_delete', ses_identity_delete);
+            ses_stats();
+        });
+    </script>
+</body>
+</html>

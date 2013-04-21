@@ -8,8 +8,8 @@
       <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <style>@import "scoreboard.css";</style>
-        <script type="text/javascript" src="scripts.js"></script>
-        <script type="text/javascript" src="scoreboard.js"></script>
+        <script type="text/javascript" src="js/scripts.js"></script>
+        <script type="text/javascript" src="js/scoreboard.js"></script>
         <title>RuCTFE 2011 - Scoreboard</title>
         <meta http-equiv="Refresh" content="120"/>
       </head>

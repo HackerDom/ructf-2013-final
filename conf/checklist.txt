@@ -1,6 +1,8 @@
 0) CONFIG_CFQ_GROUP_IOSCHED=y
 CONFIG_BLK_DEV_THROTTLING=y
 0.1) Latest kernel
+0.2) DOS floppy image
+0.3) Puppet
 
 1) init-скрипты, скопировать все
 rc-update add quota boot
@@ -15,6 +17,7 @@ chmod +x /etc/init.d/database
 chmod +x /etc/init.d/mr
 chmod +x /etc/init.d/ses_http /etc/init.d/ses_smtp
 chmod +x /etc/init.d/dns
+chmod +x /etc/init.d/ips
 chmod +x /etc/init.d/queue /etc/init.d/queue_web
 
 rc-update add user
@@ -31,17 +34,24 @@ rc-update add dns
 rc-update add dns_web
 rc-update add mysql_dns
 
+rc-update add ips
+
 rc-update add queue
 rc-update add queue_web
 
+rc-update add php-fpm-scripts
+rc-update add mysql_scripts
+
+
+
+
 2) квоты
 2.0) usrquota в /etc/fstab
-2.1) rc-update add quota boot
 2.2) /usr/sbin/quotacheck -avugm
 2.3) RUN_QUOTACHECK="no" в /etc/conf.d/quota
 2.4) edquota , limit 1000000, inode 100000
 2.5) quota user 2gb, rest 1gb
-2.6) quota user database mr ses dns proxy queue
+2.6) quota user database mr ses dns ips queue scripts
 3) cgroups для каждого сервиса
 3.1) pam_cgroups в system-auth и start-stop-daemon
 3.1.1) session optional pam_cgroup.so
@@ -52,9 +62,9 @@ database(10001) Database API ? (umineko & krait, C++)
 mr(10002) MapReduce (Егор, erlang)
 ses(10003) Simple Email Service (dimmo, perl)
 dns(10004) Cache DNS (lena, ruby)
-proxy(10005) TCP Balancer (kost, C)
+ips(10005) TCP Balancer (kost, C)
 queue(10006) Message Queue (bay, rust)
-Script API (andgein, PHP)
+scripts(10007) Script API (andgein, PHP)
 
 5) права в /home
 chown -R user:user /home/user
@@ -62,18 +72,22 @@ chown -R database:database /home/database
 chown -R mr:mr /home/mr
 chown -R ses:ses /home/ses
 chown -R dns:dns /home/dns
+chown -R ips:ips /home/ips
 chown -R queue:queue /home/queue
+chown -R scripts:scripts /home/scripts
 
 6) nginx.conf
 6.1) /var/www/static
 
 
 7) export SYBASE="/usr"
-7.1) use ithreads
+7.1) use ithreads, fpm
 7.2) python2 by default
 PORTDIR_OVERLAY="/var/lib/overlays/cpan/"
 
 8) dd if=/dev/zero of=/zero bs=1000000 count=6000
+
+9) grub-set-default 1
 
 ------------------------ SERVICE DEPLOYMENT ------------------------
 
@@ -81,7 +95,7 @@ PORTDIR_OVERLAY="/var/lib/overlays/cpan/"
 g-cpan -i Mojolicious
 g-cpan -i MongoDB
 
-# из user
+/etc/init.d/mongodb_user start
 cd /home/user/users
 su user -s /bin/bash
 ./script/indexes
@@ -90,6 +104,7 @@ su user -s /bin/bash
 
 === mr service ===
 su mr -s /bin/bash
+cd
 ./rebar get-deps
 ./rebar compile
 
@@ -103,7 +118,21 @@ su mr -s /bin/bash
 === dns service ===
 mysql_install_db --user=dns --datadir=/home/dns/mysql/db/ --skip-name-resolve --defaults-file=/home/dns/mysql/my.cnf
 
+
+/etc/init.d/mysql_dns start
 mysql -S /home/dns/mysql/mysql.sock < /home/dns/web_admin/create.mysql
 
+# GEM!!
+
+=== ips service ===
+
 === queue service ===
+
+
+=== scripts service ===
+mysql_install_db --user=scripts --datadir=/home/scripts/mysql/db/ --skip-name-resolve --defaults-file=/home/scripts/mysql/my.cnf
+
+
+/etc/init.d/mysql_scripts start
+mysql -S /home/scripts/mysql/mysql.sock < /home/scripts/init.sql
 

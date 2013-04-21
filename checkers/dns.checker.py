@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 import sys
 import requests
@@ -7,6 +7,8 @@ import dns.resolver
 import sha
 import re
 import json
+import socket
+import time
 
 # Error codes
 OK = 101
@@ -33,7 +35,7 @@ def gen_another_secret_hash(s):
 
 
 def register_or_die(host, login, password):
-	ans = requests.post("http://{0}/register".format(host),
+	ans = requests.post("http://{}/register".format(host),
 						data={"login": login, "first_name": login,
 							  "last_name": "", "password": password,
 							  "language": "ru"})
@@ -43,7 +45,7 @@ def register_or_die(host, login, password):
 
 
 def get_session_num_or_die(host, login, password):
-	ans = requests.post("http://{0}/login".format(host),
+	ans = requests.post("http://{}/login".format(host),
 						data={"login": login, "password": password})
 
 	if "session" not in ans.cookies:
@@ -54,9 +56,12 @@ def get_session_num_or_die(host, login, password):
 
 
 def add_record(host, session, d_type, name, value):
-	ans = requests.post("http://{0}:4567/".format(host),
-						data = json.dumps({"action": "ADD", "type": d_type, "name": name, "value": value}),
-						cookies = {"session": session})
+	sys.stderr.write("Adding record to http://{}:4567/add with session {}\n".format(host, session))
+	sys.stderr.flush()
+	ans = requests.post("http://{}:4567/add".format(host),
+						data = json.dumps({"type": d_type, "name": name, "value": value}),
+						cookies = {"session": session},
+						headers = {'content-type': 'application/json'})
 	if ans.status_code != 200:
 		print("Failed to add record - service returned not 200: %d" % ans.status_code)
 		sys.exit(DOWN)
@@ -70,26 +75,30 @@ def add_record(host, session, d_type, name, value):
 	return answer_hash['id']
 
 def del_record(host, session, d_id):
-	ans = requests.post("http://{0}:4567/".format(host),
-						data = json.dumps({"action": "DELETE", "id": d_id}),
-						cookies={"session": session})
+	sys.stderr.write("Deleting record from http://{}:4567/delete\n".format(host))
+	sys.stderr.flush()
+	ans = requests.post("http://{}:4567/delete".format(host),
+						data = json.dumps({"id": d_id}),
+						cookies={"session": session},
+						headers = {'content-type': 'application/json'})
 	if ans.status_code != 200:
-		print("Failed to add record - service returned not 200: %d" % ans.status_code)
+		print("Failed to del record - service returned not 200: %d" % ans.status_code)
 		sys.exit(DOWN)
 
 	answer_hash = json.loads(ans.content)
 
 	if answer_hash['code'] != "OK":
-		print("Failed to add record: {0}".format(answer_hash['why']))
+		print("Failed to del record: {}".format(answer_hash['why']))
 		sys.exit(MUMBLE)
 
 # not ready
 def check(host):
 	user = gen_random_str(10)
-	password = gen_random_str(10)
+	password = gen_random_str(14)
 
 	register_or_die(host, user, password)
 	session = get_session_num_or_die(host, user, password)
+
 	m = re.match(r"team\d+", host)
 	if m:
 		teamN = m.group(0)
@@ -102,15 +111,25 @@ def check(host):
 	record_id = add_record(host, session, "A", record_name, ip_value)
 
 	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
+	if ans.status_code != 200:
+		sys.exit(DOWN)
+
 	html = ans.content
-	if not re.match(sub_domain, html):
+	#
+	sys.stderr.flush()
+	if not re.search(sub_domain, html):
 		print "Added record not shown"
+		sys.exit(CORRUPT)
+
+	ans = requests.get("http://{}:4567/show{}".format(host, record_id), cookies = {"session": session})
+	if ans.status_code != 200:
+		print "Added record not shown by id!"
 		sys.exit(CORRUPT)
 
 	del_record(host, session, record_id)
 	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
 	html = ans.content
-	if re.match(sub_domain, html):
+	if re.search(sub_domain, html):
 		print "Deleted record is still shown!"
 		sys.exit(CORRUPT)
 
@@ -129,6 +148,7 @@ def put(host, flag_id, flag):
 	else:
 		teamN = "team" + host.split('.')[2]
 	add_record(host, session, "TXT", "{}.{}.ructf".format(gen_another_secret_hash(flag_id), teamN), flag)
+	time.sleep(1)
 	sys.exit(OK)
 
 
@@ -142,9 +162,14 @@ def get(host, flag_id, flag):
 		teamN = "team" + host.split('.')[2]
 		resolver.nameservers = [host]
 	flag2 = ''
+	sys.stderr.write(resolver.nameservers[0])
 	for rdata in resolver.query("{}.{}.ructf".format(gen_another_secret_hash(flag_id), teamN), "TXT"):
-		flag2 = rdata
+		flag2 = re.sub('"', '', str(rdata), 2)
+		sys.stderr.write("Got: {}\n".format(rdata))
+		sys.stderr.flush()
 		if flag2 != flag:
+			sys.stderr.write("Got another flag: '{}' VS '{}' \n".format(flag2, flag))
+			sys.stderr.flush()
 			sys.exit(CORRUPT)
 	sys.exit(OK)
 
@@ -160,6 +185,10 @@ if __name__ == "__main__":
 			get(args[1], args[2], args[3])
 		else:
 			raise Exception("Wrong arguments")
+	except dns.resolver.NXDOMAIN as E:
+		sys.stderr.write("NXDOMAIN\n")
+		sys.stderr.flush()
+		sys.exit(CORRUPT)
 	except Exception as E:
 		sys.stderr.write("{}\n".format(E))
 		sys.exit(CHECKER_ERROR)

@@ -30,10 +30,12 @@ r_has_records = false
 dbh = Mysql.real_connect(nil, "root", nil, "dns", nil, "/home/dns/mysql/mysql.sock")
 
 get '/add' do
-  if request.cookies['session'] != nil
+  ses = request.cookies['session']
+  if ses != nil
     r_host = request.host
+    ses.gsub!('"', '')
     teamN = r_host[/team\d+/]
-    payload = {'session' => request.cookies['session']}.to_json
+    payload = {'session' => ses}.to_json
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
     response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
@@ -56,10 +58,11 @@ get '/add' do
 end
 
 get "/show:id" do
+  puts "asked special page"
   id = dbh.escape_string(params[:id])
   r_has_records = false
   r_dns_records = []
-  res = dbh.query("Select did, dtype, dkey, dvalue from records where dcreator = '#{id}'")
+  res = dbh.query("Select did, dtype, dkey, dvalue from records where did = '#{id}'")
   if res.num_rows > 0
     r_has_records = true
     res.each do |row|
@@ -72,9 +75,40 @@ get "/show:id" do
   "#{payload}"
 end
 
-get %r{/(show)?} do
-  if request.cookies['session'] != nil
+get "/index.html" do
+  ses = request.cookies['session']
+  if ses != nil
     r_host = request.host
+    ses.gsub!('"', '')
+    teamN = r_host[/team\d+/]
+    payload = {'session' => request.cookies['session']}.to_json
+    req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
+    req.body = payload
+    response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
+    r_hash = JSON.parse(response.body)
+
+    if r_hash['status'] != 'OK'
+      r_authored = false
+    else
+      r_authored = true
+      r_user_name = r_hash['first_name'] + " " + r_hash['last_name'] + "!"
+    end
+  else
+    r_authored = false
+  end
+  f = File.open("./templates/index.html")
+  temp = f.read()
+  f.close()
+  message = ERB.new(temp, nil, "%")
+  payload = message.result
+  "#{payload}"
+end
+
+get %r{/(show)?} do
+  ses = request.cookies['session']
+  if ses != nil
+    r_host = request.host
+    ses.gsub!('"', '')
     teamN = r_host[/team\d+/]
     payload = {'session' => request.cookies['session']}.to_json
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
@@ -112,29 +146,33 @@ get %r{/(show)?} do
   "#{payload}"
 end
 
-post '/' do
+post '/:action' do
   data = {}
+  way = "mouse"
 
   if request.media_type =~ /json/
     data = JSON.parse request.body.read
+    way = "json"
   else
-    data['action'] = request["action"]
-
-    if data['action'] == "ADD"
+    if params[:action] == "add"
       data['type'] = request["type"]
       data['name'] = request["name"]
       data['value'] = request["value"]
-    elsif data['action'] == "DELETE"
+    elsif params[:action] == "delete"
       data['id'] = request["id"]
     end
   end
 
   h = {'code' => 'ERROR', 'why' => '42'}.to_json
 
-  if request.cookies['session'] != nil
+  ses = request.cookies['session']
+  if ses != nil
     r_host = request.host
+    ses.gsub!('"', '')
+    #puts "DEBUG: host = #{r_host}\ncookie = #{ses}"
     teamN = r_host[/team\d+/]
-    payload = {'session' => request.cookies['session']}.to_json
+    payload = {'session' => ses}.to_json
+    #puts payload
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
     response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
@@ -144,21 +182,21 @@ post '/' do
       r_user_name = r_hash['first_name'] + " " + r_hash['last_name']
       uid = r_hash['uid']
 
-      if data['action'] != nil
-        act = data['action']
+      if params[:action] != nil
 
-        if act == "ADD"
+        if params[:action] == "add"
 
           if data['type'] != nil and data['name'] != nil and data['value'] != nil
             type = dbh.escape_string(data['type'])
             name = dbh.escape_string(data['name'])
             name.sub!(/\.team\d+\.ructf$/, '')
             value = dbh.escape_string(data['value'])
-            res = dbh.query("Select * from records where dtype = '#{type}' and dkey = '#{name}' and dvalue = '#{value}'")
+            res = dbh.query("Select * from records where dtype = '#{type}' and dkey = '#{name}' and dvalue = '#{value}';")
             
             if res.num_rows == 0
               id = md5(md5(Process.pid.to_s)+md5(Time.new.to_s))
-              dbh.query("insert into records (did, dtype, dkey, dvalue, dcreator) values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}')")
+              dbh.query("insert into records (did, dtype, dkey, dvalue, dcreator) values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}');")
+              puts "Inserted values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}')"
               h = {'code' => 'OK', 'id' => id}.to_json
             else
               h = {'code' => 'ERROR', 'why' => 'already_exists'}.to_json
@@ -167,14 +205,14 @@ post '/' do
             h = {'code' => 'ERROR', 'why' => '42'}.to_json
           end
 
-        elsif act == "DELETE"
+        elsif params[:action] == "delete"
 
           if data['id'] != nil
             id = dbh.escape_string(data['id'])
-            res = dbh.query("Select * from records where did = '#{id}'")
+            res = dbh.query("Select * from records where did = '#{id}';")
             
             if res.num_rows > 0
-              dbh.query("Delete from records where did = '#{id}'")
+              dbh.query("Delete from records where did = '#{id}';")
               h = {'code' => 'OK'}.to_json
             else
               h = {'code' => 'ERROR', 'why' => 'id_not_found'}.to_json
@@ -189,12 +227,15 @@ post '/' do
         h = {'code' => 'ERROR', 'why' => '42'}.to_json
       end
     else
-      h = {'code' => 'ERROR', 'why' => 'prohibited'}.to_json
+      h = {'code' => 'ERROR', 'why' => "bad_session: "+r_hash['error']['str']}.to_json
     end
   else
-    h = {'code' => 'ERROR', 'why' => 'prohibited'}.to_json
+    h = {'code' => 'ERROR', 'why' => 'no_session'}.to_json
   end
-  
-  content_type "application/json"
-  "#{h}"
+  if (way == "mouse" and params[:action] == "add")
+    redirect "http://#{r_host}/show"
+  else
+    content_type "application/json"
+    "#{h}"
+  end
 end

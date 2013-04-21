@@ -65,19 +65,7 @@
                 <div class="tab-content">
 					{% block content %}
                         <div class="about-main">
-                            Что такое mapreduce все и так знают, так что вот вам стишок:
-                            Ты видел деву на скале
-                            В одежде белой над волнами,
-                            Когда, бушуя в бурной мгле,
-                            Играло море с берегами,
-                            Когда луч молний озарял
-                            Ее всечасно блеском алым
-                            И ветер бился и летал
-                            С ее летучим покрывалом?
-                            Прекрасно море в бурной мгле
-                            И небо в блесках без лазури;
-                            Но верь мне: дева на скале
-                            Прекрасней волн, небес и бури.
+                            Process your data with Erlang using mapreduce programming model.
                         </div>
                         <img src="/static/pic/map_reduce.jpg" class="img-rounded central-img">
 					{% endblock %}
