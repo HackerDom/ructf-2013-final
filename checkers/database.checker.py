@@ -148,7 +148,7 @@ try:
     flagsDatabaseName = dictionary[(int(time.time() / 60 / 2) * 42167) % len(dictionary)]
 
     AuthorizationHost = "http://" + sys.argv[2]
-    CheckerHost = "http://db." + sys.argv[2]
+    CheckerHost = "http://db." + sys.argv[2] + "/database"
     TeamName = sys.argv[2]
     CheckerMode = sys.argv[1]
 
