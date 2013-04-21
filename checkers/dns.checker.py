@@ -66,6 +66,11 @@ def add_record(host, session, d_type, name, value):
 		print("Failed to add record - service returned not 200: %d" % ans.status_code)
 		sys.exit(DOWN)
 
+	if ans.headers['content-length'] < 2:
+		print("Server does not respond")
+		sys.exit(DOWN)
+	#sys.stderr.write(str(dir(ans.headers)))
+	#sys.stderr.flush()
 	answer_hash = json.loads(ans.content)
 
 	if answer_hash['code'] != "OK":
@@ -109,6 +114,8 @@ def check(host):
 	record_name = sub_domain + "." + teamN + ".ructf"
 	ip_value = "{}.{}.{}.{}".format(random.randint(1, 254), random.randint(1, 254), random.randint(1, 254), random.randint(1, 254))
 	record_id = add_record(host, session, "A", record_name, ip_value)
+	#sys.stderr.write(record_id)
+	#sys.stderr.flush()
 
 	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
 	if ans.status_code != 200:
@@ -116,12 +123,12 @@ def check(host):
 
 	html = ans.content
 	#
-	sys.stderr.flush()
+	#sys.stderr.flush()
 	if not re.search(sub_domain, html):
 		print "Added record not shown"
 		sys.exit(CORRUPT)
 
-	ans = requests.get("http://{}:4567/show{}".format(host, record_id), cookies = {"session": session})
+	ans = requests.get("http://{}:4567/show{}".format(host, record_id))#, cookies = {"session": session})
 	if ans.status_code != 200:
 		print "Added record not shown by id!"
 		sys.exit(CORRUPT)
@@ -189,6 +196,9 @@ if __name__ == "__main__":
 		sys.stderr.write("NXDOMAIN\n")
 		sys.stderr.flush()
 		sys.exit(CORRUPT)
+	except requests.ConnectionError:
+		sys.stderr.write("Connection error")
+		sys.exit(DOWN)
 	except Exception as E:
 		sys.stderr.write("{}\n".format(E))
 		sys.exit(CHECKER_ERROR)
