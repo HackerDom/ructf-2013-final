@@ -16,7 +16,7 @@
             <div class="nav-collapse collapse">
               <ul class="nav">
                 <li><a href="http://ses.{{domain}}/">SES</a></li>
-                <li><a href="http://mp.{{domain}}/">MapReduce</a></li>
+                <li><a href="http://mr.{{domain}}/">MapReduce</a></li>
                 <li><a href="http://db.{{domain}}/">DB</a></li>
                 <li><a href="http://queue.{{domain}}/">Queue</a></li>
                 <li><a href="http://dns.{{domain}}/">DNS</a></li>
