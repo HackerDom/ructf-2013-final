@@ -128,7 +128,7 @@ def check(host):
 		print "Added record not shown"
 		sys.exit(CORRUPT)
 
-	ans = requests.get("http://{}:4567/show{}".format(host, record_id), cookies = {"session": session})
+	ans = requests.get("http://{}:4567/show{}".format(host, record_id))#, cookies = {"session": session})
 	if ans.status_code != 200:
 		print "Added record not shown by id!"
 		sys.exit(CORRUPT)
