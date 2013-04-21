@@ -195,8 +195,13 @@ post '/:action' do
             
             if res.num_rows == 0
               id = md5(md5(Process.pid.to_s)+md5(Time.new.to_s))
-              dbh.query("insert into records (did, dtype, dkey, dvalue, dcreator) values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}');")
-              puts "Inserted values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}')"
+              begin
+                dbh.query("insert into records (did, dtype, dkey, dvalue, dcreator) values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}');")
+                puts "The query has affected #{dbh.affected_rows} rows"
+                puts "Inserted values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}')"
+              rescue Mysql::Error => e
+                puts e
+            end
               h = {'code' => 'OK', 'id' => id}.to_json
             else
               h = {'code' => 'ERROR', 'why' => 'already_exists'}.to_json

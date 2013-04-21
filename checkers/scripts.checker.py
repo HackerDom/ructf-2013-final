@@ -179,7 +179,7 @@ def get(host, flag_id, flag):
   sys.exit(OK)
 
 if __name__ == "__main__":
-#    try:
+    try:
         args = sys.argv[1:]
         if len(args) == 2 and args[0] == "check":
             check(args[1])
@@ -189,7 +189,7 @@ if __name__ == "__main__":
             get(args[1], args[2], args[3])
         else:
             raise Exception("Wrong arguments")
-#    except Exception as e:
-#        sys.stdout.write('Connection to service failed\n')
-#        sys.stderr.write("%s\n" % e)
-#        sys.exit(DOWN)
+    except Exception as e:
+        sys.stdout.write('Connection to service failed\n')
+        sys.stderr.write("%s\n" % e)
+        sys.exit(DOWN)
