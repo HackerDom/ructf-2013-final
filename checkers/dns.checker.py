@@ -7,6 +7,8 @@ import dns.resolver
 import sha
 import re
 import json
+import socket
+import time
 
 # Error codes
 OK = 101
@@ -86,7 +88,7 @@ def del_record(host, session, d_id):
 	answer_hash = json.loads(ans.content)
 
 	if answer_hash['code'] != "OK":
-		print("Failed to del record: {}".format(answer_hash['why']))
+		print("Failed to del record: {}; id = {}".format(answer_hash['why'], d_id))
 		sys.exit(MUMBLE)
 
 # not ready
@@ -113,6 +115,7 @@ def check(host):
 		sys.exit(DOWN)
 
 	html = ans.content
+	#
 	sys.stderr.flush()
 	if not re.search(sub_domain, html):
 		print "Added record not shown"
@@ -145,6 +148,7 @@ def put(host, flag_id, flag):
 	else:
 		teamN = "team" + host.split('.')[2]
 	add_record(host, session, "TXT", "{}.{}.ructf".format(gen_another_secret_hash(flag_id), teamN), flag)
+	time.sleep(1)
 	sys.exit(OK)
 
 
@@ -158,9 +162,14 @@ def get(host, flag_id, flag):
 		teamN = "team" + host.split('.')[2]
 		resolver.nameservers = [host]
 	flag2 = ''
+	sys.stderr.write(resolver.nameservers[0])
 	for rdata in resolver.query("{}.{}.ructf".format(gen_another_secret_hash(flag_id), teamN), "TXT"):
-		flag2 = rdata
+		flag2 = re.sub('"', '', str(rdata), 2)
+		sys.stderr.write("Got: {}\n".format(rdata))
+		sys.stderr.flush()
 		if flag2 != flag:
+			sys.stderr.write("Got another flag: '{}' VS '{}' \n".format(flag2, flag))
+			sys.stderr.flush()
 			sys.exit(CORRUPT)
 	sys.exit(OK)
 
@@ -176,6 +185,10 @@ if __name__ == "__main__":
 			get(args[1], args[2], args[3])
 		else:
 			raise Exception("Wrong arguments")
+	except dns.resolver.NXDOMAIN as E:
+		sys.stderr.write("NXDOMAIN\n")
+		sys.stderr.flush()
+		sys.exit(CORRUPT)
 	except Exception as E:
 		sys.stderr.write("{}\n".format(E))
 		sys.exit(CHECKER_ERROR)
