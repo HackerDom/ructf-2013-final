@@ -196,6 +196,9 @@ if __name__ == "__main__":
 		sys.stderr.write("NXDOMAIN\n")
 		sys.stderr.flush()
 		sys.exit(CORRUPT)
+	except requests.ConnectionError:
+		sys.stderr.write("Connection error")
+		sys.exit(DOWN)
 	except Exception as E:
 		sys.stderr.write("{}\n".format(E))
 		sys.exit(CHECKER_ERROR)
