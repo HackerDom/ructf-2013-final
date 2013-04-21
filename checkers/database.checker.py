@@ -4,6 +4,7 @@ import hashlib, sys, json, time, random, string, urllib, os
 import urllib.request
 import urllib.error
 import socket
+import hashlib
 from urllib.parse import *
 
 def SendRequest(host, session, requestString):
@@ -132,13 +133,19 @@ def Authorize(host, login, password):
             exit(110)
     return response.info()["Set-Cookie"].split("session=")[1]
 
+def GeneratePassword(databaseName, teamName):
+    m = hashlib.md5()
+    m.update(databaseName.encode('ascii'))
+    m.update(teamName.encode('ascii'))
+    m.update(b"FUCKED UP")
+    return m.hexdigest()
+
 
 if len(sys.argv) < 3:
     sys.stderr.write("Not enough parameters" + "\n")
     exit(110)
 
 BaseCheckerLogin="DatabaseChecker"
-CheckerPassword="DXjAtYeAq6extWEx"
 
 try:
     dictFile = open("./DatabaseChecker/Dictionary.txt")
@@ -166,7 +173,8 @@ try:
         plantedFlagsFile.close()
 
     sys.stderr.write("Authorization..." + "\n")
-    session = Authorize(AuthorizationHost, BaseCheckerLogin + flagsDatabaseName, CheckerPassword)
+    CheckerPassword=GeneratePassword(flagsDatabaseName, TeamName)
+    session = Authorize(AuthorizationHost, BaseCheckerLogin + flagsDatabaseName + TeamName, CheckerPassword)
 
     #sys.stderr.write("session is " + session + "\n")
 
@@ -184,10 +192,10 @@ try:
             exit(110)
 
         flagID = sys.argv[3].replace("-", "")
-        print(flagID)
         flag = sys.argv[4]
 
         if CheckerMode == "put":
+            print(flagID)
             sys.stderr.write("Starting putting flag" + "\n")
             if not PlantFlag(CheckerHost, session, flagsDatabaseName, flagID, flag):
                 sys.stderr.write("Something gone wrong" + "\n")
@@ -205,7 +213,8 @@ try:
                 sys.stderr.write("YOU LIE TO ME, THERE'S NO SUCH FLAG" + "\n")
                 exit(102)
             databaseName = plantedFlags[flagID]
-            session = Authorize(AuthorizationHost, BaseCheckerLogin + databaseName, CheckerPassword)
+            CheckerPassword = GeneratePassword(databaseName, TeamName)
+            session = Authorize(AuthorizationHost, BaseCheckerLogin + databaseName + TeamName, CheckerPassword)
             if not CheckPlantedFlag(CheckerHost, session, databaseName, flagID, flag):
                 sys.stderr.write("Something gone wrong, no flag ein there" + "\n")
                 exit(102)

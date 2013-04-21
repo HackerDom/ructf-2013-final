@@ -26,7 +26,6 @@ r_dns_records = []
 r_authored = false
 r_has_records = false
 
-#dbh = Mysql.real_connect("localhost", "dns", "default_password", "dns")
 dbh = Mysql.real_connect(nil, "root", nil, "dns", nil, "/home/dns/mysql/mysql.sock")
 
 get '/add' do
@@ -58,7 +57,6 @@ get '/add' do
 end
 
 get "/show:id" do
-  puts "asked special page"
   id = dbh.escape_string(params[:id])
   r_has_records = false
   r_dns_records = []
@@ -169,10 +167,8 @@ post '/:action' do
   if ses != nil
     r_host = request.host
     ses.gsub!('"', '')
-    #puts "DEBUG: host = #{r_host}\ncookie = #{ses}"
     teamN = r_host[/team\d+/]
     payload = {'session' => ses}.to_json
-    #puts payload
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
     response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
@@ -195,8 +191,11 @@ post '/:action' do
             
             if res.num_rows == 0
               id = md5(md5(Process.pid.to_s)+md5(Time.new.to_s))
-              dbh.query("insert into records (did, dtype, dkey, dvalue, dcreator) values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}');")
-              puts "Inserted values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}')"
+              begin
+                dbh.query("insert into records (did, dtype, dkey, dvalue, dcreator) values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}');")
+              rescue Mysql::Error => e
+                puts e
+            end
               h = {'code' => 'OK', 'id' => id}.to_json
             else
               h = {'code' => 'ERROR', 'why' => 'already_exists'}.to_json

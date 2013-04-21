@@ -37,12 +37,12 @@ sub register {
         });
     my $res = $tx->success;
     unless ($res) {
-        print 'Error on register';
+        warn 'Error on register';
         return $SERVICE_FAIL;
     }
     my $json = $res->json;
     unless ($json->{status} eq 'OK') {
-        print 'Error2 on register';
+        warn 'Error2 on register: ' . Dumper($json);
         return $SERVICE_FAIL;
     }
     return $SERVICE_OK;

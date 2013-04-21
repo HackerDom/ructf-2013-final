@@ -52,10 +52,14 @@ def send_and_check_for_output(s, line, substr, stage, fail_exit_code=MUMBLE):
 
 
 def register_or_die(host, login, password):
-    ans = requests.post("http://{0}/register".format(host),
-                        data={"login": login, "first_name": login,
-                              "last_name": "", "password": password,
-                              "language": "en"})
+    try:
+        ans = requests.post("http://{0}/register".format(host),
+                            data={"login": login, "first_name": login,
+                                  "last_name": "", "password": password,
+                                  "language": "en"})
+    except:
+        print("The host is down")
+        sys.exit(DOWN)
     if ans.status_code == 500:
         print("Failed to register the user in the user service: %s" % login)
         sys.exit(DOWN)
@@ -63,9 +67,12 @@ def register_or_die(host, login, password):
 
 def get_session_num_or_die(host, login, password):
     sys.stderr.write("login: {}\npassword: {}\n".format(login, password))
-    ans = requests.post("http://{0}/login".format(host),
-                        data={"login": login, "password": password})
-
+    try:
+        ans = requests.post("http://{0}/login".format(host),
+                            data={"login": login, "password": password})
+    except:
+        print("The host is down")
+        sys.exit(DOWN)
     if "session" not in ans.cookies:
         print("Failed to login to the user service")
         sys.exit(DOWN)
