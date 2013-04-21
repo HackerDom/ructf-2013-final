@@ -134,11 +134,11 @@ def Authorize(host, login, password):
     return response.info()["Set-Cookie"].split("session=")[1]
 
 def GeneratePassword(databaseName, teamName):
-    m = hashlib.md5
-    m.update(databaseName)
-    m.update(teamName)
-    m.update("FUCKED UP")
-    return m.digest().decode('ascii')
+    m = hashlib.md5()
+    m.update(databaseName.encode('ascii'))
+    m.update(teamName.encode('ascii'))
+    m.update(b"FUCKED UP")
+    return m.hexdigest()
 
 
 if len(sys.argv) < 3:
