@@ -224,6 +224,6 @@ try:
 
     sys.stderr.write("Mode is incorrect" + "\n")
     exit(110)
-except (urllib.error.URLError, socket.gaierror):
-    sys.stderr.write("I-net error" + "\n")
+except:
+    sys.stderr.write("I-net error or login system corrupted" + "\n")
     exit(104)
