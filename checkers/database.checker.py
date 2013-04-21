@@ -132,7 +132,7 @@ def Authorize(host, login, password):
             #sys.stderr.write(str(response) + "\n")
         else:
             sys.stderr.write("Some weird shit is happening with login system" + "\n")
-            exit(110)
+            exit(104)
     return response.info()["Set-Cookie"].split("session=")[1]
 
 def GeneratePassword(databaseName, teamName):
