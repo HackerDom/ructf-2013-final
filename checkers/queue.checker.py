@@ -66,13 +66,13 @@ def register_or_die(host, login, password):
 
 
 def get_session_num_or_die(host, login, password):
+    sys.stderr.write("login: {}\npassword: {}\n".format(login, password))
     try:
         ans = requests.post("http://{0}/login".format(host),
                             data={"login": login, "password": password})
     except:
         print("The host is down")
         sys.exit(DOWN)
-
     if "session" not in ans.cookies:
         print("Failed to login to the user service")
         sys.exit(DOWN)
