@@ -169,10 +169,10 @@ post '/:action' do
   if ses != nil
     r_host = request.host
     ses.gsub!('"', '')
-    puts "DEBUG: host = #{r_host}\ncookie = #{ses}"
+    #puts "DEBUG: host = #{r_host}\ncookie = #{ses}"
     teamN = r_host[/team\d+/]
     payload = {'session' => ses}.to_json
-    puts payload
+    #puts payload
     req = Net::HTTP::Post.new("/user/", initheader = {'X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json'})
     req.body = payload
     response = Net::HTTP.new("127.0.0.1", 80).start {|http| http.request(req) }
@@ -191,11 +191,12 @@ post '/:action' do
             name = dbh.escape_string(data['name'])
             name.sub!(/\.team\d+\.ructf$/, '')
             value = dbh.escape_string(data['value'])
-            res = dbh.query("Select * from records where dtype = '#{type}' and dkey = '#{name}' and dvalue = '#{value}'")
+            res = dbh.query("Select * from records where dtype = '#{type}' and dkey = '#{name}' and dvalue = '#{value}';")
             
             if res.num_rows == 0
               id = md5(md5(Process.pid.to_s)+md5(Time.new.to_s))
-              dbh.query("insert into records (did, dtype, dkey, dvalue, dcreator) values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}')")
+              dbh.query("insert into records (did, dtype, dkey, dvalue, dcreator) values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}');")
+              puts "Inserted values ('#{id}', '#{type}', '#{name}', '#{value}', '#{uid}')"
               h = {'code' => 'OK', 'id' => id}.to_json
             else
               h = {'code' => 'ERROR', 'why' => 'already_exists'}.to_json
@@ -208,10 +209,10 @@ post '/:action' do
 
           if data['id'] != nil
             id = dbh.escape_string(data['id'])
-            res = dbh.query("Select * from records where did = '#{id}'")
+            res = dbh.query("Select * from records where did = '#{id}';")
             
             if res.num_rows > 0
-              dbh.query("Delete from records where did = '#{id}'")
+              dbh.query("Delete from records where did = '#{id}';")
               h = {'code' => 'OK'}.to_json
             else
               h = {'code' => 'ERROR', 'why' => 'id_not_found'}.to_json
