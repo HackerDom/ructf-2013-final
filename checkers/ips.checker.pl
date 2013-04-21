@@ -171,8 +171,8 @@ sub put {
     my $tx = $ua->post($ips_url => json =>
         {
             src_port => 60000,
-            dst_host => '172.16.16.100',
-            dst_port => 30000,
+            dst_host => '10.23.0.5',
+            dst_port => 3000,
             rules => 'never surrender'
         });
     $ips_url->path('/add');
