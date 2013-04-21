@@ -1,9 +1,13 @@
 <?php $first = true; ?>
 {
+  <?php if (isset($result)) { ?>
+  "result": "<?php echo addslashes(str_replace("\n", '\n', $result)); ?>",
+  <?php } ?>
   "scripts": [
   <?php foreach ($user_codes as $user_code) { ?>
   <?php echo $first ? '' : ',' ?>
     {
+      "code_id": <?php echo $user_code['id']; ?>,
       "name": "<?php echo addslashes($user_code['name']); ?>",
       "script": "<?php echo addslashes($user_code['script']); ?>"
     }
