@@ -39,9 +39,10 @@ function init_i18n()
 function i18n_template($template_name)
 {
   extract($GLOBALS, EXTR_REFS | EXTR_SKIP);
-  if (! file_exists('templates/'.$template_name.'.'.$language.'.html'))
+  $ext = $is_json ? 'json' : 'html';
+  if (! file_exists('templates/'.$template_name.'.'.$language.'.'.$ext))
     $language = 'en';
-  require 'templates/'.$template_name.'.'.$language.'.html';
+  require 'templates/'.$template_name.'.'.$language.'.'.$ext;
 }
 
 init_i18n();

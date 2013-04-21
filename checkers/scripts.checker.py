@@ -14,6 +14,9 @@ MUMBLE = 103
 DOWN = 104
 CHECKER_ERROR = 110
 
+def get_json(r):
+  return json.loads(r.text)
+
 def gen_random_str(str_len = 5, abc=list("abcdefgijklmnopqrstuvwxyz1234567890_")):
     ret = []
     for i in range(str_len):
@@ -31,7 +34,7 @@ def register_or_die(host, login, password):
     sys.stderr.write("Status code %d" % r.status_code)
     print("Failed to register the user in the user service: %s" % login)
     sys.exit(DOWN)
-  sys.stderr.write("%s\n" % r.json)
+  sys.stderr.write("%s\n" % get_json(r))
 
 def login_or_die(host, login, password):
   url = "http://%s/login" % host
@@ -44,7 +47,7 @@ def login_or_die(host, login, password):
     sys.stderr.write("Cookies (without 'session' :( ): %s\n" % r.cookies)
     print("Failed to login to the user service")
     sys.exit(MUMBLE)
-  sys.stderr.write("%s\n" % r.json)
+  sys.stderr.write("%s\n" % get_json(r))
 
   return r.cookies["session"]
 
@@ -136,12 +139,12 @@ def get(host, flag_id, flag):
     sys.stderr.write("Status code = %d\n" % r.status_code)
     sys.exit(DOWN if r.status_code in [403, 404, 500] else MUMBLE)
 
-  sys.stderr.write(str(r.json) + "\n")
-  if 'scripts' not in r.json:
+  sys.stderr.write(str(get_json(r)) + "\n")
+  if 'scripts' not in get_json(r):
     sys.stderr.write("Not found 'scripts', exit..\n")
     sys.stdout.write('Invalid format at /scripts\n')
     sys.exit(MUMBLE)
-  scripts = r.json['scripts']
+  scripts = get_json(r)['scripts']
   code_id = ''
   for script in scripts:
     if 'name' not in script:
@@ -163,20 +166,20 @@ def get(host, flag_id, flag):
   program_input = '\n'.join([x for x in flag])
   r = requests.post(url, data=json.dumps({'code_id' : code_id, 'input': program_input}), headers={'Content-Type': 'application/json'}, cookies={'session': session})
   
-  if 'result' not in r.json:
+  if 'result' not in get_json(r):
     sys.stderr.write("Not found 'result', exit..\n")
     sys.stdout.write('Invalid response for /run\n')
     sys.exit(MUMBLE)
-  result = r.json['result']
+  result = str(get_json(r)['result']).rstrip("\\n")
   if result != "YES!!" + flag:
-    sys.stderr.write("Result not equal to 'YES!!'\n")
+    sys.stderr.write("Result '%s' not equal to 'YES!!%s'\n" % (result, flag))
     sys.stdout.write('Flag not found at the server\n')
     sys.exit(CORRUPT)
 
   sys.exit(OK)
 
 if __name__ == "__main__":
-    try:
+#    try:
         args = sys.argv[1:]
         if len(args) == 2 and args[0] == "check":
             check(args[1])
@@ -186,7 +189,7 @@ if __name__ == "__main__":
             get(args[1], args[2], args[3])
         else:
             raise Exception("Wrong arguments")
-    except Exception as e:
-        sys.stdout.write('Connection to service failed\n')
-        sys.stderr.write("%s\n" % e)
-        sys.exit(DOWN)
+#    except Exception as e:
+#        sys.stdout.write('Connection to service failed\n')
+#        sys.stderr.write("%s\n" % e)
+#        sys.exit(DOWN)

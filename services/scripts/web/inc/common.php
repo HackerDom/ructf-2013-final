@@ -8,11 +8,11 @@ function error($error_msg)
 
 function check_args($args)
 {
+  global $is_json;
   $data = file_get_contents("php://input");
-  if ($data != '' && json_decode($data))
-  {
+  $is_json = $data != '' && json_decode($data);
+  if ($is_json)
     $params = json_decode($data, true); 
-  }
   else
     $params = $_POST;
   $params = array_merge($params, $_COOKIE);
