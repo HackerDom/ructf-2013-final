@@ -170,9 +170,9 @@ def get(host, flag_id, flag):
     sys.stderr.write("Not found 'result', exit..\n")
     sys.stdout.write('Invalid response for /run\n')
     sys.exit(MUMBLE)
-  result = get_json(r)
+  result = str(get_json(r)['result']).rstrip("\\n")
   if result != "YES!!" + flag:
-    sys.stderr.write("Result not equal to 'YES!!'\n")
+    sys.stderr.write("Result '%s' not equal to 'YES!!%s'\n" % (result, flag))
     sys.stdout.write('Flag not found at the server\n')
     sys.exit(CORRUPT)
 
