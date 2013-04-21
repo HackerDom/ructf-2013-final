@@ -22,5 +22,5 @@ INSERT INTO services VALUES ( 3, 'Queue',     './queue.checker.py' );
 INSERT INTO services VALUES ( 4, 'DNS',       './stub/notexist.sh' );
 INSERT INTO services VALUES ( 5, 'IPS',       './stub/notexist.sh' );
 INSERT INTO services VALUES ( 6, 'DB',        './database.checker.py' );
-INSERT INTO services VALUES ( 7, 'Scripts',   './stub/notexist.sh' );
+INSERT INTO services VALUES ( 7, 'Scripts',   './scripts.checker.py' );
 

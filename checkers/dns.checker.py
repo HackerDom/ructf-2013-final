@@ -8,6 +8,7 @@ import sha
 import re
 import json
 import socket
+import time
 
 # Error codes
 OK = 101
@@ -147,6 +148,7 @@ def put(host, flag_id, flag):
 	else:
 		teamN = "team" + host.split('.')[2]
 	add_record(host, session, "TXT", "{}.{}.ructf".format(gen_another_secret_hash(flag_id), teamN), flag)
+	time.sleep(1)
 	sys.exit(OK)
 
 
@@ -183,6 +185,10 @@ if __name__ == "__main__":
 			get(args[1], args[2], args[3])
 		else:
 			raise Exception("Wrong arguments")
+	except dns.resolver.NXDOMAIN as E:
+		sys.stderr.write("NXDOMAIN\n")
+		sys.stderr.flush()
+		sys.exit(CORRUPT)
 	except Exception as E:
 		sys.stderr.write("{}\n".format(E))
 		sys.exit(CHECKER_ERROR)
