@@ -66,6 +66,8 @@ def add_record(host, session, d_type, name, value):
 		print("Failed to add record - service returned not 200: %d" % ans.status_code)
 		sys.exit(DOWN)
 
+	sys.stderr.write(str(ans.headers))
+	sys.stderr.flush()
 	answer_hash = json.loads(ans.content)
 
 	if answer_hash['code'] != "OK":
@@ -109,6 +111,8 @@ def check(host):
 	record_name = sub_domain + "." + teamN + ".ructf"
 	ip_value = "{}.{}.{}.{}".format(random.randint(1, 254), random.randint(1, 254), random.randint(1, 254), random.randint(1, 254))
 	record_id = add_record(host, session, "A", record_name, ip_value)
+	sys.stderr.write(record_id)
+	sys.stderr.flush()
 
 	ans = requests.get("http://{}:4567/show".format(host), cookies = {"session": session})
 	if ans.status_code != 200:
