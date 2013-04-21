@@ -167,6 +167,15 @@ INSERT INTO retvals VALUES(102, 'Corrupt');
 INSERT INTO retvals VALUES(103, 'Mumble');
 INSERT INTO retvals VALUES(104, 'Down');
 
+-- Для Visualization API (VAPI)
+
+CREATE TABLE deadline (
+    main    TIMESTAMP,
+    extra   TIMESTAMP
+);
+
+INSERT INTO deadline VALUES('2013-04-21 20:00', '2013-04-21 20:05');
+
 -- Log table
 
 CREATE TABLE checker_run_log (
